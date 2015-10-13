@@ -6,9 +6,7 @@ import scala.xml.transform._
 /**
  * KDS image and video resources are prefixed by ./ instead of / in markup, so we need to rewrite these.
  */
-object PathTransformer {
-
-  import PathFlattener._
+object PathTransformer extends PathFlattener {
 
   def transform(node: Node): Elem = {
     new RuleTransformer(new RewriteRule {

@@ -2,7 +2,7 @@ package org.corespring.conversion.qti
 
 import java.util.zip.ZipFile
 
-import org.corespring.conversion.zip.QtiZipToCoreSpringZipConverter
+import com.keydatasys.conversion.zip.QtiZipToCoreSpringZipConverter
 
 import scalaz.{Failure, Success, Validation}
 

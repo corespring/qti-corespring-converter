@@ -11,10 +11,10 @@ object ManifestReader extends AbstractManifestReader
     with ManifestFilter
     with PassageScrubber
     with EntityEscaper
+    with PathFlattener
     with LazyLogging
 {
 
-  import PathFlattener._
 
   private def stripCDataTags(xmlString: String) =
     """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")

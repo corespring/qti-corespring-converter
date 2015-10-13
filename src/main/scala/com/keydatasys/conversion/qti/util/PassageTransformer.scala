@@ -5,9 +5,7 @@ import org.corespring.conversion.qti.manifest.{ManifestResourceType, ManifestRes
 
 import scala.xml.XML
 
-trait PassageTransformer extends PassageScrubber with HtmlProcessor {
-
-  import PathFlattener._
+trait PassageTransformer extends PassageScrubber with HtmlProcessor with PathFlattener {
 
   def transformPassage(resource: ManifestResource)(implicit sources: Map[String, SourceWrapper]): Option[String] = {
     resource.resourceType == ManifestResourceType.Passage match {

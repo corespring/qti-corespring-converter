@@ -9,9 +9,7 @@ import play.api.libs.json._
 import scalaz.{Failure, Success, Validation}
 
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject)
-  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor {
-
-  import PathFlattener._
+  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => ManifestReader.read(manifest, sources) }

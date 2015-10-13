@@ -12,43 +12,20 @@ import scala.xml.transform.RewriteRule
  */
 abstract class InteractionTransformer extends RewriteRule with XMLNamespaceClearer with JsonUtil {
 
-  def interactionJs(qti: Node): Map[String, JsObject]
+  def interactionJs(qti: Node, manifest: Node): Map[String, JsObject]
+  def transform(node: Node, manifest: Node): Seq[Node]
 
-  /**
-   * Given a node and QTI document, method looks at node's responseIdentifier attribute, and finds a
-   * <responseDeclaration/> within the QTI document whose identifier attribute matches.
-   */
-  def responseDeclaration(node: Node, qti: Node): Node = {
-    (node \ "@responseIdentifier").text match {
-      case "" => throw new IllegalArgumentException("Node does not have a responseIdentifier")
-      case identifier: String => {
-        (qti \\ "responseDeclaration").find(n => (n \ "@identifier").text == identifier) match {
-          case Some(node) => node
-          case _ => throw new IllegalArgumentException(s"QTI does not contain responseDeclaration for $identifier")
-        }
-      }
-    }
+  def transform(ns: Seq[Node], manifest: Node): Seq[Node] = {
+    val changed = ns.flatMap(node => transform(node, manifest))
+    if (changed.length != ns.length || (changed, ns).zipped.exists(_ != _)) changed
+    else ns
   }
 
-  // TODO: Going to be a lot of work to port this.
-  def feedback(node: Node, qti: Node): JsArray = ???
+}
 
-  implicit class AddPrompt(interaction: Node) {
 
-    private def prompt(node: Node): Option[String] = (node \ "prompt") match {
-      case seq: NodeSeq if seq.nonEmpty => Some(seq.head.child.map(clearNamespace).mkString)
-      case _ => None
-    }
+trait Transformer {
 
-    /**
-     * Prepends a <p/> with the prompt in it if present in the source XML
-     */
-    def withPrompt(node: Node): Seq[Node] = prompt(node) match {
-      case Some(prompt) =>
-        val promptXml = XML.loadString(String.format("<p>%s</p>", prompt))
-        Seq(promptXml, interaction)
-      case _ => interaction
-    }
-  }
+  def transform(qti: Node, manifest: Node): Node
 
 }
