@@ -1,7 +1,8 @@
 ### qti-corespring-converter
 
-`qti-corespring-converter` is a Scala library that translates QTI into CoreSpring's item format.
+`qti-corespring-converter` is a Scala library that translates QTI into CoreSpring's item format. This project is 
+currently in a WIP state.
 
 #### Usage
 
-   sbt transform qti.zip -o json.zip
+    sbt "run -i qti.zip -o json.zip"
