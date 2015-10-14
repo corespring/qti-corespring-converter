@@ -21,6 +21,71 @@ abstract class InteractionTransformer extends RewriteRule with XMLNamespaceClear
     else ns
   }
 
+  /**
+   * Given a node and QTI document, method looks at node's responseIdentifier attribute, and finds a
+   * <responseDeclaration/> within the QTI document whose identifier attribute matches.
+   */
+  def responseDeclaration(node: Node, qti: Node): Node = {
+    (node \ "@responseIdentifier").text match {
+      case "" => throw new IllegalArgumentException("Node does not have a responseIdentifier")
+      case identifier: String => {
+        (qti \\ "responseDeclaration").find(n => (n \ "@identifier").text == identifier) match {
+          case Some(node) => node
+          case _ => throw new IllegalArgumentException(s"QTI does not contain responseDeclaration for $identifier")
+        }
+      }
+    }
+  }
+
+  private def getFeedback(qti: Node, id: String, value: String): Option[JsObject] = {
+
+    (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == id) match {
+      case Some(feedback) => Some(Json.obj())
+      case _ => None
+    }
+  }
+
+  def feedback(node: Node, qti: Node): JsArray = {
+    val choiceIds: Seq[Node] = Seq("simpleChoice", "inlineChoice", "feedbackInline").map(node \\ _).map(_.toSeq).flatten
+    val componentId = (node \ "@responseIdentifier").text.trim
+
+//    val feedbackObjects: Seq[JsObject] = choiceIds.map { (n: Node) =>
+//
+//      val id = (n \ "@identifier").text.trim
+//      val fbInline = getFeedback(qti, componentId, id)
+//
+//      fbInline.map { fb =>
+//        val content = if (fb.defaultFeedback) {
+//          fb.defaultContent(qtiItem)
+//        } else {
+//          fb.content
+//        }
+//        Json.obj("value" -> id, "feedback" -> content)
+//      }
+//    }.flatten.distinct
+//    JsArray(feedbackObjects)
+    Json.arr()
+  }
+
+  implicit class AddPrompt(interaction: Node) {
+
+    private def prompt(node: Node): Option[String] = (node \ "prompt") match {
+      case seq: NodeSeq if seq.nonEmpty => Some(seq.head.child.map(clearNamespace).mkString)
+      case _ => None
+    }
+
+    /**
+     * Prepends a <p/> with the prompt in it if present in the source XML
+     */
+    def withPrompt(node: Node): Seq[Node] = prompt(node) match {
+      case Some(prompt) =>
+        val promptXml = XML.loadString(String.format("<p>%s</p>", prompt))
+        Seq(promptXml, interaction)
+      case _ => interaction
+    }
+  }
+
+
 }
 
 
