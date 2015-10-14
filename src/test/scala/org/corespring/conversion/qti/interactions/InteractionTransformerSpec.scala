@@ -1,14 +1,14 @@
 package org.corespring.conversion.qti.interactions
 
 import org.specs2.mutable.Specification
-import play.api.libs.json.JsObject
-
-import scala.xml.Node
+import play.api.libs.json._
+import scala.xml._
 
 class InteractionTransformerSpec extends Specification {
 
   val transformer = new InteractionTransformer {
-    def interactionJs(qti: Node): Map[String, JsObject] = ???
+    override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = ???
+    override def transform(node: Node, manifest: Node): Seq[Node] = node
   }
 
   val responseIdentifier = "Q_01"
@@ -27,7 +27,6 @@ class InteractionTransformerSpec extends Specification {
       </itemBody>
     </assessmentItem>
 
-
   "responseDeclaration" should {
 
     "return <responseDeclaration/> corresponding to identifier" in {
@@ -44,6 +43,31 @@ class InteractionTransformerSpec extends Specification {
 
   }
 
+  "optForAttr" should {
+
+    implicit val node = <span class="great" count="2" awesome="true" empty="">Test</span>
+
+    "return Some[JsString] when present" in {
+      transformer.optForAttr[JsString]("class") must be equalTo Some(JsString("great"))
+    }
+
+    "return None when blank String" in {
+      transformer.optForAttr[JsString]("empty") must beNone
+    }
+
+    "return Some[JsNumber] when present" in {
+      transformer.optForAttr[JsNumber]("count") must be equalTo Some(JsNumber(2))
+    }
+
+    "return Some[JsBoolean] when present" in {
+      transformer.optForAttr[JsBoolean]("awesome") must be equalTo Some(JsBoolean(true))
+    }
+
+    "return None when not present" in {
+      transformer.optForAttr[JsString]("id") must beNone
+    }
+  }
+
   "withPrompt" should {
 
     val prompt = "Hey, this is a prompt!"
@@ -53,16 +77,18 @@ class InteractionTransformerSpec extends Specification {
 
     "add prompt when source contains one" in {
       new InteractionTransformer {
-        def interactionJs(qti: Node): Map[String, JsObject] = ???
+        def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = ???
         (result.withPrompt(sourceWithPrompt) \\ "p").find(n => n.text == prompt) must not beEmpty
+        override def transform(node: Node, manifest: Node): Seq[Node] = node
       }
       success
     }
 
     "add nothing when source contains no prompt" in {
       new InteractionTransformer {
-        def interactionJs(qti: Node): Map[String, JsObject] = ???
+        def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = ???
         (result.withPrompt(sourceWithoutPrompt) \\ "p").find(n => n.text == prompt) must beEmpty
+        override def transform(node: Node, manifest: Node): Seq[Node] = node
       }
       success
     }

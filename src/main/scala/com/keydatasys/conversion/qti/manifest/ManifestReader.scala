@@ -1,10 +1,10 @@
 package com.keydatasys.conversion.qti.manifest
 
 import com.keydatasys.conversion.qti.util._
-import com.typesafe.scalalogging.LazyLogging
 import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.manifest._
 
+import scala.util.logging.Logged
 import scala.xml._
 
 object ManifestReader extends AbstractManifestReader
@@ -12,7 +12,7 @@ object ManifestReader extends AbstractManifestReader
     with PassageScrubber
     with EntityEscaper
     with PathFlattener
-    with LazyLogging
+    with Logged
 {
 
 
@@ -80,7 +80,7 @@ object ManifestReader extends AbstractManifestReader
 
         val missingPassageResources = passageResources.map(_.path).filter(path => sources.get(path.flattenPath).isEmpty)
         if (missingPassageResources.nonEmpty) {
-          missingPassageResources.foreach(f => logger.error(s"Missing file $f in uploaded import"))
+          missingPassageResources.foreach(f => log(s"Missing file $f in uploaded import"))
         }
 
         ManifestItem(id = (n \ "@identifier").text.toString, filename = filename, resources = resources ++ passageResources, n)

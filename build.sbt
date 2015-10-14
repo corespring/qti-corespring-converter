@@ -7,15 +7,14 @@ lazy val root = (project in file(".")).settings(
   organization := "org.corespring",
   version := "0.1-SNAPSHOT",
   name := "qti-corespring-converter",
-  scalaVersion := "2.11.6",
+  scalaVersion := "2.10.5",
   libraryDependencies ++= Seq(
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   	"org.scalaz" %% "scalaz-core" % "7.0.6",
     "com.typesafe.play" %% "play-json" % "2.3.4",
     "com.typesafe.play" %% "play-ws" % "2.3.4",
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
     "org.mozilla" % "rhino" % "1.7R4",
-    "org.specs2" %% "specs2-core" % "3.6.4" % "test"
+    "org.specs2" %% "specs2" % "2.1.1" % "test"
   )
 )

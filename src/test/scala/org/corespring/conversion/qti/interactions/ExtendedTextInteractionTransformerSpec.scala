@@ -73,9 +73,10 @@ class ExtendedTextInteractionTransformerSpec extends Specification {
     val output = new InteractionRuleTransformer(ExtendedTextInteractionTransformer).transform(qti())
 
     "add a <div class='prompt'/> when it contains a prompt" in {
-      val promptNode = (output \\ "p").find(p => (p \ "@class").text.contains("prompt"))
-        .getOrElse(failure("Prompt not found"))
-      promptNode.text must be equalTo (prompt)
+      (output \\ "p").find(p => (p \ "@class").text.contains("prompt")) match {
+        case Some(promptNode) => promptNode.text must be equalTo prompt
+        case _ => failure("Prompt not found")
+      }
     }
 
   }
