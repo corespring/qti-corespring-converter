@@ -2,6 +2,7 @@ package org.corespring.conversion.qti.interactions
 
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.xml.XMLNamespaceClearer
+import org.corespring.qti.models.QtiItem
 import play.api.libs.json._
 
 import scala.xml._
@@ -37,34 +38,34 @@ abstract class InteractionTransformer extends RewriteRule with XMLNamespaceClear
     }
   }
 
+  def feedback(node: Node, qti: Node): JsArray = {
+    val qtiItem = QtiItem(qti)
+    val choiceIds: Seq[Node] = Seq("simpleChoice", "inlineChoice", "feedbackInline").map(node \\ _).map(_.toSeq).flatten
+    val componentId = (node \ "@responseIdentifier").text.trim
+
+    val feedbackObjects: Seq[JsObject] = choiceIds.map { (n: Node) =>
+
+      val id = (n \ "@identifier").text.trim
+      val fbInline = qtiItem.getFeedback(componentId, id)
+
+      fbInline.map { fb =>
+        val content = if (fb.defaultFeedback) {
+          fb.defaultContent(qtiItem)
+        } else {
+          fb.content
+        }
+        Json.obj("value" -> id, "feedback" -> content)
+      }
+    }.flatten.distinct
+    JsArray(feedbackObjects)
+  }
+
   private def getFeedback(qti: Node, id: String, value: String): Option[JsObject] = {
 
     (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == id) match {
       case Some(feedback) => Some(Json.obj())
       case _ => None
     }
-  }
-
-  def feedback(node: Node, qti: Node): JsArray = {
-    val choiceIds: Seq[Node] = Seq("simpleChoice", "inlineChoice", "feedbackInline").map(node \\ _).map(_.toSeq).flatten
-    val componentId = (node \ "@responseIdentifier").text.trim
-
-//    val feedbackObjects: Seq[JsObject] = choiceIds.map { (n: Node) =>
-//
-//      val id = (n \ "@identifier").text.trim
-//      val fbInline = getFeedback(qti, componentId, id)
-//
-//      fbInline.map { fb =>
-//        val content = if (fb.defaultFeedback) {
-//          fb.defaultContent(qtiItem)
-//        } else {
-//          fb.content
-//        }
-//        Json.obj("value" -> id, "feedback" -> content)
-//      }
-//    }.flatten.distinct
-//    JsArray(feedbackObjects)
-    Json.arr()
   }
 
   implicit class AddPrompt(interaction: Node) {
