@@ -3,6 +3,21 @@ import sbt.Keys._
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
+credentials += {
+  val envCredentialsPath = System.getenv("CREDENTIALS_PATH")
+  val path = if (envCredentialsPath != null) envCredentialsPath else Seq(Path.userHome / ".ivy2" / ".credentials").mkString
+  val f: File = file(path)
+  if (f.exists()) {
+    println("[credentials] using credentials file")
+    Credentials(f)
+  } else {
+    def repoVar(s: String) = System.getenv("ARTIFACTORY_" + s)
+    val args = Seq("REALM", "HOST", "USER", "PASS").map(repoVar)
+    println("[credentials] args: " + args)
+    Credentials(args(0), args(1), args(2), args(3))
+  }
+}
+
 lazy val qti = (project in file("lib/qti")).settings(
   organization := "org.corespring",
   version := "0.1-SNAPSHOT",
@@ -13,7 +28,15 @@ lazy val qti = (project in file("lib/qti")).settings(
     "com.typesafe.play" %% "play-json" % "2.3.4",
     "org.mozilla" % "rhino" % "1.7R4",
     "org.corespring.forks.scalapeno" %% "rhinos" % "0.6.1"
-  )
+  ),
+  publishTo <<= version {
+    (v: String) =>
+      def isSnapshot = v.trim.contains("-")
+      val base = "http://repository.corespring.org/artifactory"
+      val repoType = if (isSnapshot) "snapshot" else "release"
+      val finalPath = base + "/ivy-" + repoType + "s"
+      Some("Artifactory Realm" at finalPath)
+  }
 )
 
 lazy val root = (project in file(".")).settings(
@@ -29,5 +52,13 @@ lazy val root = (project in file(".")).settings(
     "com.phloc" % "phloc-css" % "3.7.6",
     "org.mozilla" % "rhino" % "1.7R4",
     "org.specs2" %% "specs2" % "2.1.1" % "test"
-  )
+  ),
+  publishTo <<= version {
+    (v: String) =>
+      def isSnapshot = v.trim.contains("-")
+      val base = "http://repository.corespring.org/artifactory"
+      val repoType = if (isSnapshot) "snapshot" else "release"
+      val finalPath = base + "/ivy-" + repoType + "s"
+      Some("Artifactory Realm" at finalPath)
+  }
 ).dependsOn(qti).aggregate(qti)
