@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 
 import scala.xml._
 
-class ProcessingTransformer extends V2JavascriptWrapper {
+trait ProcessingTransformer extends V2JavascriptWrapper {
 
   private val AssumedResponseTemplateVariable = "RESPONSE"
 

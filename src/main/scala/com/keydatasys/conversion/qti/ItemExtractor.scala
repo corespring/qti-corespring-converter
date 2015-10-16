@@ -18,9 +18,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
 
   lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
     manifest.map(_.items.map(f =>
-      f.id -> Success(Some(Json.obj(
-        "taskInfo" -> Json.obj("extended" -> Json.obj("kds" -> (Json.obj(
-          "sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1")) ++ commonMetadata))))))
+      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
     )).getOrElse(Seq.empty).toMap
 
   def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
@@ -32,7 +30,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
         f.id -> Success(ItemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))
       } catch {
         case e: Exception => {
-          e.printStackTrace()
+          println(e.getMessage)
           f.id -> Failure(new Error(s"There was an error translating ${f.id} into CoreSpring JSON"))
         }
       }

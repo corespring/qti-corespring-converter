@@ -9,7 +9,8 @@ import org.corespring.conversion.qti.transformers.scoring.CustomScoringTransform
 import play.api.libs.json._
 
 import scala.xml._
-import scala.xml.transform.{RuleTransformer, RewriteRule}
+import scala.xml.transform._
+import scalaz.{Success, Failure}
 
 trait QtiTransformer extends XMLNamespaceClearer {
 
@@ -29,13 +30,15 @@ trait QtiTransformer extends XMLNamespaceClearer {
     }
   }
 
-
   def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
     val typeMap = components.map { case (k, v) => (k -> (v \ "componentType").as[String]) }
     (qti \\ "responseProcessing").headOption.map { rp =>
+      if ((qti \ "@identifier").text == "663411") {
+        println(rp.text)
+      }
       CustomScoringTransformer.generate(rp.text, components, typeMap) match {
-        case Left(e) => throw e
-        case Right(js) => Json.obj("customScoring" -> js)
+        case Failure(e) => throw e
+        case Success(js) => Json.obj("customScoring" -> js)
       }
     }.getOrElse(Json.obj())
   }

@@ -2,7 +2,8 @@ package org.corespring.conversion.qti
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.zip.QtiZipToCoreSpringZipConverter
+import com.keydatasys.conversion.zip.KDSQtiZipConverter
+import play.api.libs.json._
 
 import scalaz.{Failure, Success, Validation}
 
@@ -10,7 +11,9 @@ object Runner extends App {
 
   val parsed = new FlagMap(Seq(
     Flag("input", "i", None),
-    Flag("output", "o", None)
+    Flag("output", "o", None),
+    Flag("metadata", "m", Some("{}")),
+    Flag("vendor", "v", Some("corespring"))
   )).toMap(args)
 
   parsed match {
@@ -18,7 +21,13 @@ object Runner extends App {
       val input =
         new ZipFile(usefulArgs.get("input").getOrElse(throw new IllegalStateException("Undefined for input")))
       val outputPath = usefulArgs.get("output").getOrElse(throw new IllegalStateException("Undefined for output"))
-      QtiZipToCoreSpringZipConverter.convert(input, outputPath)
+      val vendor = usefulArgs.get("vendor").getOrElse(throw new IllegalStateException("Undefined for vendor"))
+      val metadata = Json.parse(usefulArgs.get("metadata").getOrElse("{}")).as[JsObject]
+      val converter = vendor match {
+        case "corespring" => KDSQtiZipConverter // TODO: Support regular conversion
+        case "kds" => KDSQtiZipConverter
+      }
+      converter.convert(input, outputPath, Some(metadata))
     }
     case Failure(error) => {
       println(error.getMessage)

@@ -2,10 +2,12 @@ package org.corespring.conversion.qti.transformers.scoring
 
 import org.mozilla.javascript.Context
 
+import scalaz._
+
 object HasSyntaxErrors {
   import org.mozilla.javascript.{ CompilerEnvirons, Parser }
 
-  def apply(js: String): Either[CustomTransformException, String] = {
+  def apply(js: String): Validation[CustomTransformException, String] = {
     try {
       val cx: Context = Context.enter()
       cx.setLanguageVersion(Context.VERSION_1_5)
@@ -13,9 +15,9 @@ object HasSyntaxErrors {
       compilerEnv.initFromContext(cx)
       val parser = new Parser(compilerEnv)
       parser.parse(js, "?", 0)
-      Right(js)
+      Success(js)
     } catch {
-      case e: Throwable => Left(new CustomTransformException("Error parsing js", e))
+      case e: Throwable => Failure(new CustomTransformException("Error parsing js", e))
     } finally {
       /** We must exit the context otherwise we risk deadlock */
       Context.exit()

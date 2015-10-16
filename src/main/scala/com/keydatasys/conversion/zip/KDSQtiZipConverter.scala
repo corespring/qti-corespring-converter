@@ -8,42 +8,46 @@ import com.keydatasys.conversion.qti.util.{HtmlProcessor, PathFlattener}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.Rewriter
+import org.corespring.conversion.zip.QtiToCorespringConverter
 import play.api.libs.json._
 
 import scala.collection.JavaConversions._
 import scala.io.Source
 import scalaz.{Validation, Success, Failure}
 
-object QtiZipToCoreSpringZipConverter extends PathFlattener with HtmlProcessor with JsonUtil {
+object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener with HtmlProcessor with JsonUtil {
 
-  private val collectionName = "KDS"
+  private val collectionName = "kds"
+  private val collectionId = "5453b4e4e4b05f38dd6440a8"
 
-  def convert(zip: ZipFile, path: String = "target/corespring-json.zip"): ZipFile = {
+  override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 
     val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, Json.obj("scoringType" -> "SBAC"))
+    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()))
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")
       val itemJson = extractor.itemJson
       val meta = extractor.metadata
-      val result: Validation[Error, JsValue] = (itemJson.get(id).getOrElse(Failure(new Error("Missing item JSON"))),
+      val result: Validation[Error, (JsValue, JsObject
+        )] = (itemJson.get(id).getOrElse(Failure(new Error("Missing item JSON"))),
         meta.get(id).getOrElse(Failure(new Error("Missing item metadata")))) match {
         case (Failure(error), _) => Failure(error)
         case (_, Failure(error)) => Failure(error)
         case (Success(itemJson), Success(md)) => {
           implicit val metadata = md
-          Success(postProcess(itemJson))
+          Success((postProcess(itemJson), taskInfo))
         }
       }
       result match {
-        case Success(json) => {
-          val basePath = s"$collectionName/$id"
+        case Success((json, taskInfo)) => {
+          val basePath = s"${collectionName}_${collectionId}/$id"
           Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
-            s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(Json.obj("originId" -> Some(JsString(id)))))) ++
+            s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(
+              Json.obj("taskInfo" -> taskInfo, "originId" -> id)))) ++
             extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
               .filter { case (filename, maybeSource) => maybeSource.nonEmpty }
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
@@ -82,6 +86,16 @@ object QtiZipToCoreSpringZipConverter extends PathFlattener with HtmlProcessor w
       fileOutput.close()
     }
     new ZipFile(file)
+  }
+
+  private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
+    partialObj(
+      "relatedSubject" -> Some(Json.arr()),
+      "domains" -> Some(Json.arr()),
+      "extended" -> metadata.map(md => Json.obj(
+        "kds" -> md
+      ))
+    )
   }
 
   private def toZipByteArray(files: Map[String, Source]) = {

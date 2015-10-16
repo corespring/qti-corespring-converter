@@ -2,15 +2,17 @@ package org.corespring.conversion.qti.transformers.scoring
 
 import play.api.libs.json.JsObject
 
+import scalaz._
+
 
 case class CustomTransformException(msg: String, t: Throwable = null) extends RuntimeException(msg, t)
 
 object CustomScoringTransformer {
 
-  def generate(qtiJs: String, session: Map[String, JsObject], typeMap: Map[String, String]): Either[CustomTransformException, String] = synchronized {
+  def generate(qtiJs: String, session: Map[String, JsObject], typeMap: Map[String, String]): Validation[CustomTransformException, String] = synchronized {
     HasSyntaxErrors(qtiJs) match {
-      case Left(e) => Left(e)
-      case Right(js) => Right(wrapJs(js, session, typeMap))
+      case Failure(e) => Failure(e)
+      case Success(js) => Success(wrapJs(js, session, typeMap))
     }
   }
 
