@@ -3,7 +3,6 @@ package com.keydatasys.conversion.qti.processing
 import com.ning.http.client.AsyncHttpClientConfig
 import org.corespring.common.xml.XMLNamespaceClearer
 import play.api.libs.ws.WS
-import play.api.libs.ws.ning.NingWSClient
 
 import scala.collection._
 import scala.concurrent.Await
@@ -11,7 +10,6 @@ import scala.concurrent.duration.Duration
 
 import scala.xml._
 import scala.xml.transform._
-
 
 class ResponseProcessingTemplateConverter(get: (String => Node) = ResponseProcessingTemplateConverter.getXMLFromURL)
   extends XMLNamespaceClearer {
@@ -62,8 +60,7 @@ object ResponseProcessingTemplateConverter {
   val timeout = 60000 * 10
   val builder = new AsyncHttpClientConfig.Builder()
 
-  val client = new NingWSClient(builder.setConnectionTimeoutInMs(timeout).setRequestTimeoutInMs(timeout)
-    .setIdleConnectionTimeoutInMs(timeout).build())
+  val client = WS
 
   def getXMLFromURL(url: String): Node = XML.loadString(Await.result(client.url(url).get(), Duration.Inf).body)
 }

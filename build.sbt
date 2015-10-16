@@ -25,7 +25,7 @@ lazy val qti = (project in file("lib/qti")).settings(
   scalaVersion := "2.10.5",
   libraryDependencies ++= Seq(
     "org.scalaz" %% "scalaz-core" % "7.0.6",
-    "com.typesafe.play" %% "play-json" % "2.3.4",
+    "com.typesafe.play" %% "play-json" % "2.2.1",
     "org.mozilla" % "rhino" % "1.7R4",
     "org.corespring.forks.scalapeno" %% "rhinos" % "0.6.1"
   ),
@@ -46,8 +46,7 @@ lazy val root = (project in file(".")).settings(
   scalaVersion := "2.10.5",
   libraryDependencies ++= Seq(
   	"org.scalaz" %% "scalaz-core" % "7.0.6",
-    "com.typesafe.play" %% "play-json" % "2.3.4",
-    "com.typesafe.play" %% "play-ws" % "2.3.4",
+    "com.typesafe.play" %% "play" % "2.2.1",
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
     "org.mozilla" % "rhino" % "1.7R4",
