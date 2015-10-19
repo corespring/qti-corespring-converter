@@ -4,7 +4,7 @@ import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
-import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
+import org.corespring.conversion.qti.transformers.{ItemTransformer, InteractionRuleTransformer}
 import org.corespring.conversion.qti.transformers.scoring.CustomScoringTransformer
 import play.api.libs.json._
 
@@ -16,7 +16,26 @@ trait QtiTransformer extends XMLNamespaceClearer {
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
   def statefulTransformers: Seq[Transformer]
-  def transform(qti: Elem): JsValue = ???
+
+  def transform(qti: Elem): JsValue = {
+
+    val transformers = interactionTransformers(qti)
+
+    /** Need to pre-process Latex so that it is avaiable for all JSON and XML transformations **/
+    val texProcessedQti = new RuleTransformer(FontTransformer).transform(new RuleTransformer(TexTransformer).transform(qti))
+    val components = transformers.foldLeft(Map.empty[String, JsObject])(
+      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, ItemTransformer.EmptyManifest))
+
+    val transformedHtml = new RuleTransformer(transformers: _*).transform(texProcessedQti)
+    val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
+      (html, transformer) => transformer.transform(html, ItemTransformer.EmptyManifest).head)
+
+    val divRoot = new RuleTransformer(ItemBodyTransformer).transform(html).head
+
+    Json.obj(
+      "xhtml" -> divRoot.toString,
+      "components" -> components) ++ customScoring(qti, components)
+  }
 
   object ItemBodyTransformer extends RewriteRule with XMLNamespaceClearer {
 
