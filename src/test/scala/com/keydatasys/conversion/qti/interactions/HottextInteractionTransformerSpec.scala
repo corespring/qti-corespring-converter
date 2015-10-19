@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -30,7 +30,7 @@ class HottextInteractionTransformerSpec extends Specification {
         </itemBody>
       </assessmentItem>
 
-    val result = HottextInteractionTransformer.interactionJs(qti(), ItemTransformer.EmptyManifest).get(responseIdentifier)
+    val result = HottextInteractionTransformer.interactionJs(qti(), QTIManifest.EmptyManifest).get(responseIdentifier)
       .getOrElse(throw new IllegalStateException(s"Missing result for $responseIdentifier"))
 
     "transform choices" in {

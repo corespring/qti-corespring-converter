@@ -1,6 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 
 import scala.xml.transform.RuleTransformer
@@ -19,7 +19,7 @@ class CalculatorTransformerSpec extends Specification {
 
   "CalculatorTransformer" should {
 
-    val componentsJson = CalculatorTransformer.interactionJs(qti, ItemTransformer.EmptyManifest)
+    val componentsJson = CalculatorTransformer.interactionJs(qti, QTIManifest.EmptyManifest)
 
     val interactionResult =
       componentsJson.get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))

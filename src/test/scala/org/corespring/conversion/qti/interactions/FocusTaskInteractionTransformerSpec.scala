@@ -1,6 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.{InteractionRuleTransformer, ItemTransformer}
+import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json.JsObject
 

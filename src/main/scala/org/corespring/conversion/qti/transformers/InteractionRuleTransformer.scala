@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.transformers
 
 import org.corespring.conversion.qti.interactions.InteractionTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 
 import scala.xml._
 
@@ -9,7 +10,7 @@ import scala.xml._
  */
 class InteractionRuleTransformer(rules: InteractionTransformer*) extends BasicInteractionRuleTransformer {
 
-  override def transform(n: Node, manifest: Node = ItemTransformer.EmptyManifest): Seq[Node] =
+  override def transform(n: Node, manifest: Node = QTIManifest.EmptyManifest): Seq[Node] =
     rules.foldLeft(super.transform(n, manifest)) { (res, rule) => rule.transform(res, manifest) }
 
 }

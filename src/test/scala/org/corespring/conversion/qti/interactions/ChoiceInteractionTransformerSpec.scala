@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.{ItemTransformer, InteractionRuleTransformer}
+import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -83,7 +84,7 @@ class ChoiceInteractionTransformerTest extends Specification {
 
     "transform choiceInteraction" in {
       val out = new InteractionRuleTransformer(ChoiceInteractionTransformer).transform(singleChoice)
-      val componentsJson = ChoiceInteractionTransformer.interactionJs(singleChoice, ItemTransformer.EmptyManifest)
+      val componentsJson = ChoiceInteractionTransformer.interactionJs(singleChoice, QTIManifest.EmptyManifest)
       val q1 = componentsJson.get("Q_01").getOrElse(throw new RuntimeException("No component called Q_01"))
 
       (out \\ "p").head.child.mkString === prompt
@@ -99,7 +100,7 @@ class ChoiceInteractionTransformerTest extends Specification {
     "transform inlineChoiceInteraction" in {
 
       val out = new InteractionRuleTransformer(ChoiceInteractionTransformer).transform(inlineChoice)
-      val q1 = ChoiceInteractionTransformer.interactionJs(inlineChoice, ItemTransformer.EmptyManifest).get("Q_01")
+      val q1 = ChoiceInteractionTransformer.interactionJs(inlineChoice, QTIManifest.EmptyManifest).get("Q_01")
         .getOrElse(throw new RuntimeException("No component called Q_01"))
 
       (q1 \ "componentType").as[String] === "corespring-inline-choice"

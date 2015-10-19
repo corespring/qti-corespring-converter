@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.interactions
 
 import org.corespring.conversion.qti.interactions.equation.DomainParser
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
@@ -78,7 +79,7 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
       incorrectFeedback = incorrectFeedback,
       popupFeedback = false)
 
-    val interactionResult = TextEntryInteractionTransformer(input).interactionJs(input, ItemTransformer.EmptyManifest)
+    val interactionResult = TextEntryInteractionTransformer(input).interactionJs(input, QTIManifest.EmptyManifest)
       .get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))
 
     val output = new InteractionRuleTransformer(TextEntryInteractionTransformer(input)).transform(input)
@@ -96,10 +97,10 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
 
     val equationInteractionResult =
       new TextEntryInteractionTransformer(equationInput)
-        .interactionJs(equationInput, ItemTransformer.EmptyManifest).get(equationIdentifier)
+        .interactionJs(equationInput, QTIManifest.EmptyManifest).get(equationIdentifier)
         .getOrElse(throw new RuntimeException(s"No component called $equationIdentifier"))
 
-    new TextEntryInteractionTransformer(lineInput).interactionJs(lineInput, ItemTransformer.EmptyManifest)
+    new TextEntryInteractionTransformer(lineInput).interactionJs(lineInput, QTIManifest.EmptyManifest)
       .get(lineIdentifier).getOrElse(throw new RuntimeException(s"No component called $lineIdentifier"))
 
     "return the correct interaction component type" in {

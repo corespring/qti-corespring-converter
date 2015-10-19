@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -48,7 +48,7 @@ class NumberLineInteractionTransformerTest extends Specification {
         </itemBody>
       </assessmentItem>
 
-    val result = NumberLineInteractionTransformer.interactionJs(qti(), ItemTransformer.EmptyManifest)
+    val result = NumberLineInteractionTransformer.interactionJs(qti(), QTIManifest.EmptyManifest)
       .headOption.getOrElse(throw new Exception("There was an error translating QTI"))._2
 
     "transform correctResponse" in {
@@ -89,7 +89,7 @@ class NumberLineInteractionTransformerTest extends Specification {
 
       "when <numberLineInteraction displayMinorTickMarks='true'/>" should {
         val result = NumberLineInteractionTransformer
-          .interactionJs(qti(displayMinorTickMarks = Some(true)), ItemTransformer.EmptyManifest)
+          .interactionJs(qti(displayMinorTickMarks = Some(true)), QTIManifest.EmptyManifest)
           .headOption.getOrElse(throw new Exception("There was an error translating QTI"))._2
 
         "be true" in {

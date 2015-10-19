@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 
@@ -21,7 +22,7 @@ class ExtendedTextInteractionTransformerSpec extends Specification {
         </itemBody>
       </assessmentItem>
 
-    val componentsJson = ExtendedTextInteractionTransformer.interactionJs(qti, ItemTransformer.EmptyManifest)
+    val componentsJson = ExtendedTextInteractionTransformer.interactionJs(qti, QTIManifest.EmptyManifest)
 
     val interactionResult =
       componentsJson.get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))

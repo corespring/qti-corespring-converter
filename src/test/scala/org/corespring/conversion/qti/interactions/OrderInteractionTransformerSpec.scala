@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.interactions
 
 import org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
@@ -52,12 +53,12 @@ class OrderInteractionTransformerTest extends Specification {
     val responses = List("a", <img src="puppies.png"/>.toString, "c")
 
     val input = qti(responses)
-    val componentsJson = OrderInteractionTransformer.interactionJs(input, ItemTransformer.EmptyManifest)
+    val componentsJson = OrderInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest)
     val output = new InteractionRuleTransformer(OrderInteractionTransformer).transform(input)
 
     val placementInput = qti(responses, Some("placement"))
     val placementComponentsJson = OrderInteractionTransformer
-      .interactionJs(placementInput, ItemTransformer.EmptyManifest)
+      .interactionJs(placementInput, QTIManifest.EmptyManifest)
     val placementOutput = new InteractionRuleTransformer(OrderInteractionTransformer).transform(placementInput)
 
     val interactionResult =

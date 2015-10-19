@@ -1,6 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 
 class NumberedLinesTransformerSpec extends Specification {
@@ -27,12 +27,12 @@ class NumberedLinesTransformerSpec extends Specification {
       Seq("line4", "line5", "line6"))
 
     val input = qti(lines)
-    val output = NumberedLinesTransformer.transform(input, ItemTransformer.EmptyManifest)
+    val output = NumberedLinesTransformer.transform(input, QTIManifest.EmptyManifest)
 
     val interactionResults = lines.zipWithIndex.map {
       case (lines, index) => {
         val identifier = s"numbered_lines_${index + 1}"
-        NumberedLinesTransformer.interactionJs(input, ItemTransformer.EmptyManifest).get(identifier)
+        NumberedLinesTransformer.interactionJs(input, QTIManifest.EmptyManifest).get(identifier)
           .getOrElse(throw new RuntimeException(s"No component called $identifier"))
       }
     }

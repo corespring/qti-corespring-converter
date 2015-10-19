@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
@@ -40,7 +41,7 @@ class SelectTextInteractionTransformerTest extends Specification {
   "SelectTextInteractionTransformer for word based select text" should {
 
     val input = qti(selectionTextWord, "word")
-    val componentsJson = SelectTextInteractionTransformer.interactionJs(input, ItemTransformer.EmptyManifest)
+    val componentsJson = SelectTextInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest)
     val output = new InteractionRuleTransformer(SelectTextInteractionTransformer).transform(input)
 
     val interactionResult =
@@ -95,7 +96,7 @@ class SelectTextInteractionTransformerTest extends Specification {
   "SelectTextInteractionTransformer for sentence based select text" should {
 
     val input = qti(selectionTextSentence, "sentence")
-    val componentsJson = SelectTextInteractionTransformer.interactionJs(input, ItemTransformer.EmptyManifest)
+    val componentsJson = SelectTextInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest)
     val output = new InteractionRuleTransformer(SelectTextInteractionTransformer).transform(input)
 
     val interactionResult =

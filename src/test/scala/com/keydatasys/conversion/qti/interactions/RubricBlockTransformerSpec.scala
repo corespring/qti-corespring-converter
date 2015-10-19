@@ -1,5 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 
@@ -28,7 +29,7 @@ class RubricBlockTransformerTest extends Specification {
 
   "transform" should {
 
-    val result = new InteractionRuleTransformer(RubricBlockTransformer).transform(qti(), ItemTransformer.EmptyManifest)
+    val result = new InteractionRuleTransformer(RubricBlockTransformer).transform(qti(), QTIManifest.EmptyManifest)
       .headOption.getOrElse(throw new Exception("Result was empty"))
 
     "remove <rubricBlock/>s" in {
@@ -43,7 +44,7 @@ class RubricBlockTransformerTest extends Specification {
 
   "interactionJs" should {
 
-    val result = RubricBlockTransformer.interactionJs(qti(), ItemTransformer.EmptyManifest)
+    val result = RubricBlockTransformer.interactionJs(qti(), QTIManifest.EmptyManifest)
 
     "return empty" in {
       result must beEmpty

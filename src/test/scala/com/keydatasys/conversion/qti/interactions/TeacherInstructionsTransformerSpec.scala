@@ -1,8 +1,7 @@
 package com.keydatasys.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
-
 
 class TeacherInstructionsTransformerSpec extends Specification {
 
@@ -20,8 +19,8 @@ class TeacherInstructionsTransformerSpec extends Specification {
       val xml = qti(teacherInstructions)
       val partBlock = (xml \\ "partBlock").headOption.getOrElse(throw new Exception("There were no instructions"))
 
-      val result = TeacherInstructionsTransformer.interactionJs(xml, ItemTransformer.EmptyManifest)
-      val xmlResult = TeacherInstructionsTransformer.transform(partBlock, ItemTransformer.EmptyManifest)
+      val result = TeacherInstructionsTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+      val xmlResult = TeacherInstructionsTransformer.transform(partBlock, QTIManifest.EmptyManifest)
         .headOption.getOrElse(throw new Exception("Result was empty"))
       val json = result.values.headOption.getOrElse(throw new Exception("Result was empty"))
       val id = result.keys.headOption.getOrElse(throw new Exception("Result was empty"))
@@ -48,8 +47,8 @@ class TeacherInstructionsTransformerSpec extends Specification {
       </assessmentItem>
 
       val instructions = (xml \\ "teacherInstructions").headOption.getOrElse(throw new Exception("There were no instructions"))
-      val result = TeacherInstructionsTransformer.interactionJs(xml, ItemTransformer.EmptyManifest)
-      val xmlResult = TeacherInstructionsTransformer.transform(instructions, ItemTransformer.EmptyManifest)
+      val result = TeacherInstructionsTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+      val xmlResult = TeacherInstructionsTransformer.transform(instructions, QTIManifest.EmptyManifest)
         .headOption.getOrElse(throw new Exception("Result was empty"))
       val json = result.values.headOption.getOrElse(throw new Exception("Result was empty"))
       val id = result.keys.headOption.getOrElse(throw new Exception("Result was empty"))

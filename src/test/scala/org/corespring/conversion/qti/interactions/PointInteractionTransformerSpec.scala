@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
@@ -53,11 +54,11 @@ class PointInteractionTransformerTest extends Specification {
     val output = new InteractionRuleTransformer(PointInteractionTransformer).transform(input)
 
     val interactionResult =
-      PointInteractionTransformer.interactionJs(input, ItemTransformer.EmptyManifest).get(identifier)
+      PointInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest).get(identifier)
         .getOrElse(throw new RuntimeException(s"No component called $identifier"))
 
     val noConfigInteractionResult = PointInteractionTransformer
-      .interactionJs(qtiNoConfig, ItemTransformer.EmptyManifest).get(anotherIdentifier)
+      .interactionJs(qtiNoConfig, QTIManifest.EmptyManifest).get(anotherIdentifier)
       .getOrElse(throw new RuntimeException(s"No component called $anotherIdentifier"))
 
     val config = (interactionResult \ "model" \ "config")

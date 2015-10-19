@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.ItemTransformer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -58,8 +58,8 @@ class ChoiceInteractionTransformerSpec extends Specification {
         </itemBody>
       </assessmentItem>
 
-    val multipleChoiceResult = ChoiceInteractionTransformer.interactionJs(multipleChoiceQti(), ItemTransformer.EmptyManifest)
-    val inlineChoiceResult = ChoiceInteractionTransformer.interactionJs(inlineChoiceQti(), ItemTransformer.EmptyManifest)
+    val multipleChoiceResult = ChoiceInteractionTransformer.interactionJs(multipleChoiceQti(), QTIManifest.EmptyManifest)
+    val inlineChoiceResult = ChoiceInteractionTransformer.interactionJs(inlineChoiceQti(), QTIManifest.EmptyManifest)
 
     "transform rationales for multiple choice" in {
       val json = multipleChoiceResult.values.headOption.getOrElse(throw new Exception("There was no result"))

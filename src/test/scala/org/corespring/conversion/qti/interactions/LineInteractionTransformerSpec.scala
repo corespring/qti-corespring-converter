@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.{ItemTransformer, InteractionRuleTransformer}
+import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -62,22 +63,22 @@ class LineInteractionTransformerTest extends Specification {
     val input = qti(correctResponse)
     val output = new InteractionRuleTransformer(LineInteractionTransformer).transform(input)
     val interactionResult = json(LineInteractionTransformer
-      .interactionJs(input, ItemTransformer.EmptyManifest), identifier)
+      .interactionJs(input, QTIManifest.EmptyManifest), identifier)
     val noConfigInteractionResult =
-      json(LineInteractionTransformer.interactionJs(qtiNoConfig, ItemTransformer.EmptyManifest), anotherIdentifier)
+      json(LineInteractionTransformer.interactionJs(qtiNoConfig, QTIManifest.EmptyManifest), anotherIdentifier)
 
     val config = (interactionResult \ "model" \ "config")
     val noConfig = (noConfigInteractionResult \ "model" \ "config")
 
     "returns an object with no correctResponse if the interaction is locked and has no responseDeclaration" in {
       val jsonResult = json(LineInteractionTransformer.interactionJs(qtiNoResponseDeclaration(true),
-        ItemTransformer.EmptyManifest), anotherIdentifier)
+        QTIManifest.EmptyManifest), anotherIdentifier)
       (jsonResult \ "correctResponse").asOpt[JsObject] === None
     }
 
     "throws an exception if the interaction is not locked and there is no responseDeclaration" in {
       LineInteractionTransformer
-        .interactionJs(qtiNoResponseDeclaration(false), ItemTransformer.EmptyManifest) must throwA[IllegalArgumentException]
+        .interactionJs(qtiNoResponseDeclaration(false), QTIManifest.EmptyManifest) must throwA[IllegalArgumentException]
     }
 
     "return the correct component type" in {

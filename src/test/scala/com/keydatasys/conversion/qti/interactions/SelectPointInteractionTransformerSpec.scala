@@ -1,5 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
@@ -55,7 +56,7 @@ class SelectPointInteractionTransformerSpec extends Specification {
 
     def output(qtiNode: Node = qti()) = new InteractionRuleTransformer(transformer(qtiNode)).transform(qtiNode)
     def jsonOutput(qtiNode: Node = qti(), identifier: String = identifier): JsObject = {
-      transformer(qtiNode).interactionJs(qtiNode, ItemTransformer.EmptyManifest).get(identifier)
+      transformer(qtiNode).interactionJs(qtiNode, QTIManifest.EmptyManifest).get(identifier)
         .getOrElse(throw new IllegalStateException(s"Missing JSON for $identifier"))
     }
 
@@ -199,7 +200,7 @@ class SelectPointInteractionTransformerSpec extends Specification {
 
     def output(qtiNode: Node = qti()) = new InteractionRuleTransformer(transformer(qtiNode)).transform(qtiNode)
     def jsonOutput(qtiNode: Node = qti(), identifier: String = identifier): JsObject = {
-      transformer(qtiNode).interactionJs(qtiNode, ItemTransformer.EmptyManifest).get(identifier)
+      transformer(qtiNode).interactionJs(qtiNode, QTIManifest.EmptyManifest).get(identifier)
         .getOrElse(throw new IllegalStateException(s"Missing JSON for $identifier"))
     }
 

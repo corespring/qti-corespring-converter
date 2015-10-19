@@ -1,6 +1,7 @@
 package org.corespring.conversion.qti.interactions
 
-import org.corespring.conversion.qti.transformers.{ItemTransformer, InteractionRuleTransformer}
+import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -91,7 +92,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
     "transform interaction" in {
       val out = new InteractionRuleTransformer(GraphicGapMatchInteractionTransformer).transform(interaction)
       val componentsJson =
-        GraphicGapMatchInteractionTransformer.interactionJs(interaction, ItemTransformer.EmptyManifest)
+        GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
       val q1 = componentsJson.get("Q_01").getOrElse(throw new RuntimeException("No component called Q_01"))
 
       (out \\ "p").head.child.mkString.trim === prompt
@@ -143,7 +144,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
       val out = new InteractionRuleTransformer(GraphicGapMatchInteractionTransformer)
         .transform(interactionWithMappedValues)
       val componentsJson = GraphicGapMatchInteractionTransformer
-        .interactionJs(interactionWithMappedValues, ItemTransformer.EmptyManifest)
+        .interactionJs(interactionWithMappedValues, QTIManifest.EmptyManifest)
       val q1 = componentsJson.get("Q_01").getOrElse(throw new RuntimeException("No component called Q_01"))
 
       val correctResponse = (q1 \ "correctResponse").as[Seq[JsObject]]
@@ -157,7 +158,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
       val out = new InteractionRuleTransformer(GraphicGapMatchInteractionTransformer)
         .transform(interactionWiderThanMaxImageSize)
       val componentsJson = GraphicGapMatchInteractionTransformer
-        .interactionJs(interactionWiderThanMaxImageSize, ItemTransformer.EmptyManifest)
+        .interactionJs(interactionWiderThanMaxImageSize, QTIManifest.EmptyManifest)
       val q1 = componentsJson.get("Q_01").getOrElse(throw new RuntimeException("No component called Q_01"))
       val hotspots = (q1 \ "model" \ "hotspots").as[Seq[JsObject]]
       hotspots(0) === Json.obj("id" -> "HS-6031",
@@ -183,7 +184,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
       "undefined" should {
         "default to Defaults.choiceAreaPosition" in {
           val interaction = graphicGapMatchInteraction(responseIdentifier = responseIdentifier)
-          GraphicGapMatchInteractionTransformer.interactionJs(interaction, ItemTransformer.EmptyManifest)
+          GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
             .get(responseIdentifier) match {
             case Some(jsObject) =>
               (jsObject \ "model" \ "config" \ "choiceAreaPosition").as[String] must be equalTo (
@@ -198,7 +199,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
           val choiceAreaPosition = "top"
           val interaction =
             graphicGapMatchInteraction(responseIdentifier = responseIdentifier, choiceAreaPosition = Some(choiceAreaPosition))
-          GraphicGapMatchInteractionTransformer.interactionJs(interaction, ItemTransformer.EmptyManifest)
+          GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
             .get(responseIdentifier) match {
             case Some(jsObject) =>
               (jsObject \ "model" \ "config" \ "choiceAreaPosition").as[String] must be equalTo (choiceAreaPosition)
