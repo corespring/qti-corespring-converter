@@ -5,4 +5,17 @@ currently in a WIP state.
 
 #### Usage
 
-    sbt "run -i qti.zip -o json.zip"
+You can use `qti-corespring-converter` from the command line:
+
+    sbt "run --input qti.zip --output json.zip --vendor kds --metadata \"{\\\"scoringType\\\": \\\"PARCC\\\"}\""
+    
+
+Or utilize it directly from Scala code:
+
+    import org.corespring.conversion.qti.{ QtiTransformer => CoreSpringQtiTransformer }
+    import com.keydatasys.conversion.qti.{ QtiTransformer => KDSQtiTransformer }
+
+    
+#### Testing
+
+    sbt test

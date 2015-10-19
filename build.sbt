@@ -18,9 +18,11 @@ credentials += {
   }
 }
 
+fork in Test := true
+
 lazy val qti = (project in file("lib/qti")).settings(
   organization := "org.corespring",
-  version := "0.1-SNAPSHOT",
+  version := "0.1",
   name := "corespring-qti",
   scalaVersion := "2.10.5",
   libraryDependencies ++= Seq(
@@ -41,7 +43,7 @@ lazy val qti = (project in file("lib/qti")).settings(
 
 lazy val root = (project in file(".")).settings(
   organization := "org.corespring",
-  version := "0.1-SNAPSHOT",
+  version := "0.1",
   name := "qti-corespring-converter",
   scalaVersion := "2.10.5",
   libraryDependencies ++= Seq(

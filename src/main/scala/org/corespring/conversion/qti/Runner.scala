@@ -13,8 +13,12 @@ object Runner extends App {
     Flag("input", "i", None),
     Flag("output", "o", None),
     Flag("metadata", "m", Some("{}")),
-    Flag("vendor", "v", Some("corespring"))
+    Flag("vendor", "v", Some("kds"))
   )).toMap(args)
+
+  val converters = Map(
+    "kds" -> KDSQtiZipConverter
+  )
 
   parsed match {
     case Success(usefulArgs) => {
@@ -23,17 +27,15 @@ object Runner extends App {
       val outputPath = usefulArgs.get("output").getOrElse(throw new IllegalStateException("Undefined for output"))
       val vendor = usefulArgs.get("vendor").getOrElse(throw new IllegalStateException("Undefined for vendor"))
       val metadata = Json.parse(usefulArgs.get("metadata").getOrElse("{}")).as[JsObject]
-      val converter = vendor match {
-        case "corespring" => KDSQtiZipConverter // TODO: Support regular conversion
-        case "kds" => KDSQtiZipConverter
-      }
+      val converter = converters
+        .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
       converter.convert(input, outputPath, Some(metadata))
     }
     case Failure(error) => {
       println(error.getMessage)
       println(
         """ Usage:
-          |   sbt run --input qti.zip --output json.zip""".stripMargin)
+          |   sbt run --input qti.zip --output json.zip --vendor kds --metadata \"{\\\"scoringType\\\": \\\"PARCC\\\"}\""""".stripMargin)
       sys.exit(1)
     }
   }
