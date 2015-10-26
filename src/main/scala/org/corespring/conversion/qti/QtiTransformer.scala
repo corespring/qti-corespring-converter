@@ -110,6 +110,7 @@ object QtiTransformer extends QtiTransformer {
     FoldableInteractionTransformer,
     GraphicGapMatchInteractionTransformer,
     LineInteractionTransformer,
+    MatchInteractionTransformer,
     NumberedLinesTransformer(qti),
     OrderInteractionTransformer,
     PointInteractionTransformer,

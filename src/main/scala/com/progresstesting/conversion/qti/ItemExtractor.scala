@@ -1,4 +1,4 @@
-package com.progresstesting.qti
+package com.progresstesting.conversion.qti
 
 import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestReader

@@ -1,4 +1,4 @@
-package com.progresstesting.zip
+package com.progresstesting.conversion.zip
 
 import java.io.{FileOutputStream, File, ByteArrayOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
@@ -13,13 +13,10 @@ import scala.collection.JavaConversions._
 import scala.io.Source
 import scalaz.{Success, Failure, Validation}
 
-/**
- * Created by bburton on 10/22/15.
- */
-class ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
+object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
 
   private val collectionName = "progresstesting"
-  private val collectionId = "5453b4e4e4b05f38dd6440a8"
+  private val collectionId = "56292ddce4b0bcb3ef4221f4"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 

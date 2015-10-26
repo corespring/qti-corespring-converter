@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json.JsObject
@@ -38,7 +39,7 @@ class FocusTaskInteractionTransformerSpec extends Specification {
   "FocusTaskInteractionTransformer" should {
 
     val input = qti(correctResponses)
-    val componentsJson = FocusTaskInteractionTransformer.interactionJs(input, ItemTransformer.EmptyManifest)
+    val componentsJson = FocusTaskInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest)
     val output = new InteractionRuleTransformer(FocusTaskInteractionTransformer).transform(input)
 
     val interactionResult =
