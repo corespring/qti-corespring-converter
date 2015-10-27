@@ -5,7 +5,7 @@ import play.api.libs.json.JsObject
 
 import scala.xml.XML
 
-class QtiTransformerTest extends Specification {
+class QtiTransformerSpec extends Specification {
   private def loadXml(path:String) = {
     val url = this.getClass.getResource(path)
     require(url != null)
