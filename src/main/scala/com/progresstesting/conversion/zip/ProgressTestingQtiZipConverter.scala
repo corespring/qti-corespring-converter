@@ -16,7 +16,7 @@ import scalaz.{Success, Failure, Validation}
 object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
 
   private val collectionName = "progresstesting"
-  private val collectionId = "56292ddce4b0bcb3ef4221f4"
+  private val collectionId = "562fd642e4b06f0e41ba2393"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 

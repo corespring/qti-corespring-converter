@@ -32,10 +32,13 @@ object MatchInteractionTransformer extends InteractionTransformer {
         }}
       ),
       "model" -> Json.obj(
-        "columns" -> ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> col.text.trim)),
+        "columns" -> {
+          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> col.child.mkString.trim))
+          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(_.child.mkString).getOrElse(""))) +: cols
+        },
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(
           "id" -> (row \ "@identifier").text,
-          "labelHtml" -> row.text.trim
+          "labelHtml" -> row.child.mkString.trim
         ))
       )
     )
