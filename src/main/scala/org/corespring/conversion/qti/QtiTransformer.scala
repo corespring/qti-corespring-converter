@@ -119,8 +119,7 @@ object QtiTransformer extends QtiTransformer {
 
   def statefulTransformers = Seq(
     FeedbackBlockTransformer,
-    NumberedLinesTransformer,
-    TextEntryInteractionTransformer
+    NumberedLinesTransformer
   )
 
 }
