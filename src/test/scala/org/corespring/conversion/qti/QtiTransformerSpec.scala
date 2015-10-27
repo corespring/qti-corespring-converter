@@ -24,9 +24,8 @@ class QtiTransformerSpec extends Specification {
          </itemBody>
        </assessmentItem>
 
-     "transform bad qti found on qa" in {
-       val json = QtiTransformer.transform(qti)
-       (json \ "components").asOpt[JsObject].isDefined === true
+     "not throw an exception" in {
+       QtiTransformer.transform(qti) must not(throwAn[Exception])
      }
 
    }
