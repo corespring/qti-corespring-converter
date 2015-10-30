@@ -3,9 +3,11 @@ package com.progresstesting.conversion.zip
 import java.io.{FileOutputStream, File, ByteArrayOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
-import com.keydatasys.conversion.qti.ItemExtractor
+import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import org.corespring.common.file.SourceWrapper
+import org.corespring.common.util.Rewriter
+import org.corespring.conversion.qti.QtiTransformer
 import org.corespring.conversion.zip.QtiToCorespringConverter
 import play.api.libs.json.{JsValue, Json, JsObject}
 
@@ -24,7 +26,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()))
+    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")
@@ -37,7 +39,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
         case (_, Failure(error)) => Failure(error)
         case (Success(itemJson), Success(md)) => {
           implicit val metadata = md
-          Success((itemJson, taskInfo))
+          Success((postProcess(itemJson), taskInfo))
         }
       }
       result match {
@@ -65,6 +67,25 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
       ))
     )
   }
+
+  private def postProcess(item: JsValue): JsValue = item match {
+    case json: JsObject => {
+      json ++ Json.obj(
+        "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
+        "components" -> postprocessHtml((json \ "components")),
+        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
+      )
+    }
+    case _ => item
+  }
+
+
+  /**
+   * Scala's XML parser won't even preserve these characters in CDATA tags.
+   */
+  private def unescapeCss(string: String): String = new Rewriter("""<style type="text/css">(.*?)</style>""") {
+    def replacement() = s"""<style type="text/css">${group(1).replaceAll("&gt;", ">")}</style>"""
+  }.rewrite(string)
 
   private def writeZip(byteArray: Array[Byte], path: String) = {
     val file = new File(path)

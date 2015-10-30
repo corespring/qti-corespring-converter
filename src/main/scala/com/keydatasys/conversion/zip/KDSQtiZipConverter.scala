@@ -3,7 +3,7 @@ package com.keydatasys.conversion.zip
 import java.io.{FileOutputStream, File, ByteArrayOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
-import com.keydatasys.conversion.qti.ItemExtractor
+import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
 import com.keydatasys.conversion.qti.util.{HtmlProcessor, PathFlattener}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
@@ -26,7 +26,7 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
       entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()))
+    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), ItemTransformer)
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")

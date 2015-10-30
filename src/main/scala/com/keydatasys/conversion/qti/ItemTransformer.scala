@@ -3,20 +3,21 @@ package com.keydatasys.conversion.qti
 import com.keydatasys.conversion.qti.util.{PathTransformer, TableTransformer, PassageTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.xml.XMLNamespaceClearer
+import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 import org.corespring.conversion.qti.manifest._
 import play.api.libs.json._
 
 import scala.xml._
 import scala.xml.transform._
 
-object ItemTransformer extends PassageTransformer {
+class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
     try {
       val passageXml = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
         .map(transformPassage(_)(sources).getOrElse("")).mkString
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
-      QtiTransformer.transform(xml, sources, manifestItem.manifest)
+      qtiTransformer.transform(xml, sources, manifestItem.manifest)
     } catch {
       case e: Exception => {
         println(manifestItem.filename)
@@ -60,3 +61,5 @@ object ItemTransformer extends PassageTransformer {
 
 
 }
+
+object ItemTransformer extends ItemTransformer(QtiTransformer)

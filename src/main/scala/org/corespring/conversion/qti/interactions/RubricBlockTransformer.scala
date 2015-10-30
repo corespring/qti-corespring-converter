@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti.interactions
+package org.corespring.conversion.qti.interactions
 
 import org.corespring.conversion.qti.interactions.InteractionTransformer
 import play.api.libs.json._

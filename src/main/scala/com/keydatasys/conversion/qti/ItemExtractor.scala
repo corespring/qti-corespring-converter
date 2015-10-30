@@ -9,7 +9,7 @@ import play.api.libs.json._
 
 import scalaz.{Failure, Success, Validation}
 
-class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject)
+class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
   extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
@@ -28,7 +28,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
   lazy val itemJson: Map[String, Validation[Error, JsValue]] =
     manifest.map(_.items.map(f => sources.get(f.filename.flattenPath).map(s => {
       try {
-        f.id -> Success(ItemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))
+        f.id -> Success(itemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))
       } catch {
         case e: Exception => {
           println(e.getMessage)
