@@ -2,6 +2,7 @@ package org.corespring.conversion.qti.interactions
 
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.xml.XMLNamespaceClearer
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.qti.models.QtiItem
 import play.api.libs.json._
 
@@ -15,6 +16,8 @@ abstract class InteractionTransformer extends RewriteRule with XMLNamespaceClear
 
   def interactionJs(qti: Node, manifest: Node): Map[String, JsObject]
   def transform(node: Node, manifest: Node): Seq[Node]
+
+  override def transform(node: Node) = transform(node, QTIManifest.EmptyManifest)
 
   def transform(ns: Seq[Node], manifest: Node): Seq[Node] = {
     val changed = ns.flatMap(node => transform(node, manifest))
