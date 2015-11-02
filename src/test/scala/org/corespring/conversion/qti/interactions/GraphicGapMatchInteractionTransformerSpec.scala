@@ -8,7 +8,7 @@ import play.api.libs.json._
 import scala.xml._
 
 class GraphicGapMatchInteractionTransformerSpec extends Specification {
-
+  val GraphicGapMatchInteractionTransformer = new GraphicGapMatchInteractionTransformer()
   def qti(rd: Elem, body: Elem): Node =
     <assessmentItem>
       <correctResponseFeedback>Default Correct</correctResponseFeedback>
@@ -188,7 +188,7 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
             .get(responseIdentifier) match {
             case Some(jsObject) =>
               (jsObject \ "model" \ "config" \ "choiceAreaPosition").as[String] must be equalTo (
-                GraphicGapMatchInteractionTransformer.Defaults.choiceAreaPosition)
+                GraphicGapMatchInteractionTransformer.DefaultChoiceAreaPosition)
             case _ => failure(s"Transformer did not provide output for $responseIdentifier")
           }
         }
