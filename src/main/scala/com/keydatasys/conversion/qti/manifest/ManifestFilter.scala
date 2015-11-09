@@ -88,6 +88,7 @@ trait ManifestFilter {
                 buf += text
               }
             }
+            case _ => {}
           }
         }
       }
