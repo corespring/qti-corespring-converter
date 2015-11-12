@@ -22,7 +22,7 @@ trait QtiTransformer extends XMLNamespaceClearer {
 
     val transformers = interactionTransformers(qti)
 
-    /** Need to pre-process Latex so that it is avaiable for all JSON and XML transformations **/
+    /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
     val texProcessedQti = new RuleTransformer(FontTransformer).transform(new RuleTransformer(TexTransformer).transform(qti))
     val components = transformers.foldLeft(Map.empty[String, JsObject])(
       (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, QTIManifest.EmptyManifest))
@@ -34,7 +34,7 @@ trait QtiTransformer extends XMLNamespaceClearer {
     val divRoot = new RuleTransformer(ItemBodyTransformer).transform(html).head
 
     Json.obj(
-      "xhtml" -> divRoot.toString,
+      "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
       "components" -> components) ++ customScoring(qti, components)
   }
 
@@ -53,9 +53,6 @@ trait QtiTransformer extends XMLNamespaceClearer {
   def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
     val typeMap = components.map { case (k, v) => (k -> (v \ "componentType").as[String]) }
     (qti \\ "responseProcessing").headOption.map { rp =>
-      if ((qti \ "@identifier").text == "663411") {
-        println(rp.text)
-      }
       CustomScoringTransformer.generate(rp.text, components, typeMap) match {
         case Failure(e) => throw e
         case Success(js) => Json.obj("customScoring" -> js)
@@ -66,7 +63,7 @@ trait QtiTransformer extends XMLNamespaceClearer {
   def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
     val transformers = interactionTransformers(qti)
 
-    /** Need to pre-process Latex so that it is avaiable for all JSON and XML transformations **/
+    /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
     val texProcessedQti = new InteractionRuleTransformer(FontTransformer)
       .transform(new InteractionRuleTransformer(TexTransformer).transform(qti, manifest), manifest)
 

@@ -31,6 +31,13 @@ object MatchInteractionTransformer extends InteractionTransformer {
           )
         }}
       ),
+      "allowPartialScoring" -> false,
+      "partialScoring" -> Json.arr(Json.obj()),
+      "feedback" -> Json.obj(
+        "correctFeedbackType" -> "none",
+        "partialFeedbackType" -> "none",
+        "incorrectFeedbackType" -> "none"
+      ),
       "model" -> Json.obj(
         "columns" -> {
           val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> col.child.mkString.trim))
@@ -39,7 +46,11 @@ object MatchInteractionTransformer extends InteractionTransformer {
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(
           "id" -> (row \ "@identifier").text,
           "labelHtml" -> row.child.mkString.trim
-        ))
+        )),
+        "config" -> Json.obj(
+          "inputType" -> "radiobutton",
+          "shuffle" -> false
+        )
       )
     )
   }).toMap

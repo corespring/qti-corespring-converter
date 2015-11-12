@@ -5,6 +5,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
 import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
+import com.progresstesting.conversion.util.UnicodeCleaner
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.Rewriter
 import org.corespring.conversion.qti.QtiTransformer
@@ -15,10 +16,10 @@ import scala.collection.JavaConversions._
 import scala.io.Source
 import scalaz.{Success, Failure, Validation}
 
-object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
+object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
   private val collectionName = "progresstesting"
-  private val collectionId = "562fd642e4b06f0e41ba2393"
+  private val collectionId = "5643b70777c863c2a71285b0"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 
@@ -70,11 +71,12 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter {
 
   private def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      json ++ Json.obj(
-        "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
+      val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
+      cleanUnicode(json ++ Json.obj(
+        "xhtml" -> xhtml,
         "components" -> postprocessHtml((json \ "components")),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
-      )
+      ))
     }
     case _ => item
   }

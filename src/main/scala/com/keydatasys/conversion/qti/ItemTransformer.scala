@@ -13,13 +13,18 @@ import scala.xml.transform._
 class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
+    val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
+      .map(transformPassage(_)(sources).getOrElse(""))
+    val passageXml = passages.length match {
+      case 1 => passages.head
+      case _ => s"<div>${passages.mkString}</div>"
+    }
     try {
-      val passageXml = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
-        .map(transformPassage(_)(sources).getOrElse("")).mkString
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
       qtiTransformer.transform(xml, sources, manifestItem.manifest)
     } catch {
       case e: Exception => {
+        println(passageXml)
         println(manifestItem.filename)
         throw e
       }
