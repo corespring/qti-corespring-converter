@@ -52,7 +52,8 @@ lazy val root = (project in file(".")).settings(
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
     "org.mozilla" % "rhino" % "1.7R4",
-    "org.specs2" %% "specs2" % "2.1.1" % "test"
+    "org.specs2" %% "specs2" % "2.1.1" % "test",
+    "org.jsoup" % "jsoup" % "1.8.1"
   ),
   publishTo <<= version {
     (v: String) =>
