@@ -1,6 +1,10 @@
 package com.keydatasys.conversion.qti.processing
 
-class ProcessingTransformer extends Specification with ProcessingTransformer with V2JavascriptWrapper {
+import org.specs2.mutable.Specification
+
+import scala.xml.Node
+
+class ProcessingTransformerSpec extends Specification with ProcessingTransformer with V2JavascriptWrapper {
 
   implicit val emptyNode = <noOp/>
 
