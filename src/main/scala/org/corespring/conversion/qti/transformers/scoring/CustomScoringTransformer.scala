@@ -36,29 +36,6 @@ var mkValue = function(defaultValue){
   }
 };
 
-var toCommaString = function(xy){
-  return xy.x + ',' + xy.y;
-}
-
-var lineToValue = function(comp, outcome){
-
-  if(comp && comp.answers){
-    return {
-      value: [ toCommaString(comp.answers.A), toCommaString(comp.answers.B) ],
-      outcome: {
-        isCorrect: outcome.correctness === 'correct'
-      }
-    }
-  } else {
-    return {
-      value: ['0,0', '0,0'],
-      outcome: {
-        isCorrect: outcome.correctness === 'correct'
-      }
-    }
-  }
-}
-
 var unknownTypeValue = function(comp, outcome){
   return {
     value: '?',
@@ -75,7 +52,7 @@ var componentTypeFunctions = {
  'corespring-focus-task' : mkValue([]),
  'corespring-function-entry' : mkValue('?'),
  'corespring-inline-choice' : mkValue('?'),
- 'corespring-line' : lineToValue,
+ 'corespring-line' : mkValue('?'),
  'corespring-multiple-choice' : mkValue([]),
  'corespring-ordering' : mkValue([]),
  'corespring-placement-ordering' : mkValue([]),
