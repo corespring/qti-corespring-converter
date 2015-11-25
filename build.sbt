@@ -18,6 +18,9 @@ val sharedDependencies = Seq(
   "org.specs2" %% "specs2" % "2.1.1" % "test"
 )
 
+val rhinoJs = "org.mozilla" % "rhino" % "1.7.6"
+
+
 lazy val qti = Project("corespring-qti", file("lib/qti"))
   .settings(
     libraryDependencies ++= sharedDependencies ++ Seq(
@@ -31,7 +34,8 @@ lazy val root = Project("qti-corespring-converter", file("."))
   libraryDependencies ++= sharedDependencies ++ Seq(
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
-    "com.typesafe.play" %% "play" % "2.2.1"
+    "com.typesafe.play" %% "play" % "2.2.1",
+    rhinoJs % "test"
   ),
   publishTo := authPublishTo.value
 ).dependsOn(qti).aggregate(qti)
