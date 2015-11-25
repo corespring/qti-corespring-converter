@@ -1,13 +1,10 @@
 package org.corespring.conversion.qti.transformers.scoring
 
+import org.corespring.rhino.ConsoleScriptable
 import org.mozilla.javascript._
 import play.api.libs.json.{JsString, Json, JsValue}
 import org.mozilla.javascript.{Function => RhinoFunction, Context, Scriptable}
 
-
-class ConsoleScriptable extends ScriptableObject{
-  override def getClassName: String = "ConsoleScriptable"
-}
 
 class Runner(js: String) extends JsFunctionCalling {
   val wrapped =
@@ -32,7 +29,9 @@ class Runner(js: String) extends JsFunctionCalling {
     try {
       implicit val scope: Scriptable = context.initStandardObjects()
 
-      ScriptableObject.defineProperty( scope, "console", context.newObject(scope, "ConsoleScriptable"), 0)
+      ScriptableObject.defineClass(scope, classOf[ConsoleScriptable])
+      val cs : Scriptable = context.newObject(scope, "ConsoleScriptable")
+      ScriptableObject.defineProperty(scope, "console", cs, ScriptableObject.READONLY | ScriptableObject.PERMANENT)
 
       context.evaluateString(scope, wrapped, "EvaluationScript", 1, null)
       val scoringObject = getScoringObject(context, scope)

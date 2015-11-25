@@ -16,13 +16,15 @@ object CustomScoringTransformer {
     }
   }
 
-  private def getType(key: String, m: Map[String, String]) = m.getOrElse(key, "unknown-type")
 
-  private def toLocalVar(key: String, config: JsObject, componentType: String): String = {
+  private def toLocalVar(key: String, componentType: String): String = {
     s"""var $key = toResponseProcessingModel('$key', session.components.$key, '$componentType', outcomes.components.$key || {});"""
   }
 
   private def wrapJs(js: String, session: Map[String, JsObject], typeMap: Map[String, String]): String = {
+
+    def getType(key: String) = typeMap.getOrElse(key, "unknown-type")
+
     s"""
 
 var mkValue = function(defaultValue){
@@ -64,6 +66,7 @@ var componentTypeFunctions = {
 };
 
 function toResponseProcessingModel(key, answer, componentType, outcome){
+  console.log(key, 'componentType: ', componentType);
   var fn = componentTypeFunctions[componentType];
 
   if(!fn){
@@ -78,8 +81,8 @@ function toResponseProcessingModel(key, answer, componentType, outcome){
  */
 exports.process = function(item, session, outcomes){
 
-  //console.log("---------> session: " + JSON.stringify(session));
-  //console.log("---------> outcomes:  " + JSON.stringify(outcomes));
+  console.log("---------> session: " + JSON.stringify(session));
+  console.log("---------> outcomes:  " + JSON.stringify(outcomes));
 
   outcomes = outcomes || { components: {} };
   outcomes.components = outcomes.components || {};
@@ -89,8 +92,8 @@ exports.process = function(item, session, outcomes){
     return "";
   }
 
-  ${session.map(t => toLocalVar(t._1, t._2, getType(t._1, typeMap))).mkString("\n")}
-  ${session.map(t => s"//console.log( '->' + JSON.stringify(${t._1}) ); ").mkString("\n")}
+  ${session.map(t => toLocalVar(t._1, getType(t._1))).mkString("\n")}
+  ${session.map(t => s"console.log( '${t._1} ---->' + JSON.stringify(${t._1}) ); ").mkString("\n")}
 
   /// ----------- this is qti js - can't edit
 
@@ -122,4 +125,5 @@ exports.process = function(item, session, outcomes){
 };
 """
   }
+
 }
