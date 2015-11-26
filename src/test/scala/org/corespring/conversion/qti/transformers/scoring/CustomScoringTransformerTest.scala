@@ -28,7 +28,8 @@ class CustomScoringTransformerTest extends Specification {
 
       js.lines.zipWithIndex.foreach{ case (l, n) => println(s"$n: $l") }
 
-      val runner = new Runner(js); //"console.log('hi there', 'hows it going');")
+      val runner = new Runner(js);
+
       val result = runner.process(
           obj(),
           obj("components" ->
