@@ -16,15 +16,21 @@ object CustomScoringTransformer {
     }
   }
 
-  private def getType(key: String, m: Map[String, String]) = m.getOrElse(key, "unknown-type")
 
-  private def toLocalVar(key: String, config: JsObject, componentType: String): String = {
+  private def toLocalVar(key: String, componentType: String): String = {
     s"""var $key = toResponseProcessingModel('$key', session.components.$key, '$componentType', outcomes.components.$key || {});"""
   }
 
   private def wrapJs(js: String, session: Map[String, JsObject], typeMap: Map[String, String]): String = {
-    s"""
 
+    def getType(key: String) = typeMap.getOrElse(key, "unknown-type")
+
+    s"""
+/**
+ * CustomScoringTransformer
+ * This is a generated js file that wraps qti js into a commonjs module which is v2 compatible format.
+ * The module exposes the v2 function: `process(item, session, outcome)`.
+ */
 var mkValue = function(defaultValue){
   return function(comp, outcome){
     return {
@@ -35,29 +41,6 @@ var mkValue = function(defaultValue){
     };
   }
 };
-
-var toCommaString = function(xy){
-  return xy.x + ',' + xy.y;
-}
-
-var lineToValue = function(comp, outcome){
-
-  if(comp && comp.answers){
-    return {
-      value: [ toCommaString(comp.answers.A), toCommaString(comp.answers.B) ],
-      outcome: {
-        isCorrect: outcome.correctness === 'correct'
-      }
-    }
-  } else {
-    return {
-      value: ['0,0', '0,0'],
-      outcome: {
-        isCorrect: outcome.correctness === 'correct'
-      }
-    }
-  }
-}
 
 var unknownTypeValue = function(comp, outcome){
   return {
@@ -75,7 +58,7 @@ var componentTypeFunctions = {
  'corespring-focus-task' : mkValue([]),
  'corespring-function-entry' : mkValue('?'),
  'corespring-inline-choice' : mkValue('?'),
- 'corespring-line' : lineToValue,
+ 'corespring-line' : mkValue('?'),
  'corespring-multiple-choice' : mkValue([]),
  'corespring-ordering' : mkValue([]),
  'corespring-placement-ordering' : mkValue([]),
@@ -95,14 +78,7 @@ function toResponseProcessingModel(key, answer, componentType, outcome){
   return fn(answer, outcome);
 }
 
-/**
- * CustomScoringTransformer
- * This is a generated js file that wraps qti js in a v2 compatible format.
- */
 exports.process = function(item, session, outcomes){
-
-  //console.log("---------> session: " + JSON.stringify(session));
-  //console.log("---------> outcomes:  " + JSON.stringify(outcomes));
 
   outcomes = outcomes || { components: {} };
   outcomes.components = outcomes.components || {};
@@ -112,13 +88,13 @@ exports.process = function(item, session, outcomes){
     return "";
   }
 
-  ${session.map(t => toLocalVar(t._1, t._2, getType(t._1, typeMap))).mkString("\n")}
-  ${session.map(t => s"//console.log( '->' + JSON.stringify(${t._1}) ); ").mkString("\n")}
-
-  /// ----------- this is qti js - can't edit
+  ${session.map(t => toLocalVar(t._1, getType(t._1))).mkString("\n")}
+  ${session.map(t => s"console.log( '${t._1} >', JSON.stringify(${t._1}, null, '  ') ); ").mkString("\n")}
 
   try{
+  /// ----------- this is qti js - can't edit
     $js
+  /// -------------- end qti js
   } catch(e){
     return {
       components: {},
@@ -128,8 +104,6 @@ exports.process = function(item, session, outcomes){
       }
     };
   }
-
-  /// -------------- end qti js
 
   if(Math.floor(outcome.score * 100) > 100){
     console.log("Error: outcome is > 100% - setting it to 100");
@@ -145,4 +119,5 @@ exports.process = function(item, session, outcomes){
 };
 """
   }
+
 }
