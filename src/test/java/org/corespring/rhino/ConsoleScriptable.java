@@ -25,6 +25,6 @@ public class ConsoleScriptable extends ScriptableObject {
             if (i+1 != args.length)
                 buf.append(" ");
         }
-        System.out.println("[JS]> " + buf.toString());
+        //System.out.println("[JS]> " + buf.toString());
     }
 }
