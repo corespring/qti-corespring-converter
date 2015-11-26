@@ -26,7 +26,11 @@ object CustomScoringTransformer {
     def getType(key: String) = typeMap.getOrElse(key, "unknown-type")
 
     s"""
-
+/**
+ * CustomScoringTransformer
+ * This is a generated js file that wraps qti js into a commonjs module which is v2 compatible format.
+ * The module exposes the v2 function: `process(item, session, outcome)`.
+ */
 var mkValue = function(defaultValue){
   return function(comp, outcome){
     return {
@@ -66,7 +70,6 @@ var componentTypeFunctions = {
 };
 
 function toResponseProcessingModel(key, answer, componentType, outcome){
-  console.log(key, 'componentType: ', componentType);
   var fn = componentTypeFunctions[componentType];
 
   if(!fn){
@@ -75,14 +78,7 @@ function toResponseProcessingModel(key, answer, componentType, outcome){
   return fn(answer, outcome);
 }
 
-/**
- * CustomScoringTransformer
- * This is a generated js file that wraps qti js in a v2 compatible format.
- */
 exports.process = function(item, session, outcomes){
-
-  console.log("---------> session: " + JSON.stringify(session));
-  console.log("---------> outcomes:  " + JSON.stringify(outcomes));
 
   outcomes = outcomes || { components: {} };
   outcomes.components = outcomes.components || {};
@@ -93,12 +89,12 @@ exports.process = function(item, session, outcomes){
   }
 
   ${session.map(t => toLocalVar(t._1, getType(t._1))).mkString("\n")}
-  ${session.map(t => s"console.log( '${t._1} ---->' + JSON.stringify(${t._1}) ); ").mkString("\n")}
-
-  /// ----------- this is qti js - can't edit
+  ${session.map(t => s"console.log( '${t._1} >', JSON.stringify(${t._1}, null, '  ') ); ").mkString("\n")}
 
   try{
+  /// ----------- this is qti js - can't edit
     $js
+  /// -------------- end qti js
   } catch(e){
     return {
       components: {},
@@ -108,8 +104,6 @@ exports.process = function(item, session, outcomes){
       }
     };
   }
-
-  /// -------------- end qti js
 
   if(Math.floor(outcome.score * 100) > 100){
     console.log("Error: outcome is > 100% - setting it to 100");
