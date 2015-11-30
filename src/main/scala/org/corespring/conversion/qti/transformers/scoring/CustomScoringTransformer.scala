@@ -18,7 +18,7 @@ object CustomScoringTransformer {
 
 
   private def toLocalVar(key: String, componentType: String): String = {
-    s"""var $key = toResponseProcessingModel('$key', session.components.$key, '$componentType', outcomes.components.$key || {});"""
+    s"""var $key = toResponseProcessingModel('$key', session.components.$key, '$componentType', outcomes.$key || {});"""
   }
 
   private def wrapJs(js: String, session: Map[String, JsObject], typeMap: Map[String, String]): String = {
@@ -32,6 +32,7 @@ object CustomScoringTransformer {
  * The module exposes the v2 function: `process(item, session, outcome)`.
  */
 var mkValue = function(defaultValue){
+
   return function(comp, outcome){
     return {
       value: comp && comp.answers ? comp.answers : defaultValue,
@@ -78,10 +79,13 @@ function toResponseProcessingModel(key, answer, componentType, outcome){
   return fn(answer, outcome);
 }
 
+function pp(o) { return JSON.stringify(o, null, '  '); }
+
 exports.process = function(item, session, outcomes){
 
-  outcomes = outcomes || { components: {} };
-  outcomes.components = outcomes.components || {};
+  console.log('function=process, item:', pp(item), 'session: ', pp(session), 'outcomes: ', pp(outcomes));
+
+  outcomes = outcomes || {};
 
   if(!session || !session.components){
     console.log("Error: session has no components: " + JSON.stringify(session));

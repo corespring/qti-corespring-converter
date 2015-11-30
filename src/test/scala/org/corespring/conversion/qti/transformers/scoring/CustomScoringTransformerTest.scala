@@ -4,6 +4,8 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.{Fragment, Scope}
 import play.api.libs.json._
 
+import scala.io.Source
+
 /**
  * Qti scoring js expects a var with the same name as the responseIdentifier
  * to be available and to have the form: { outcome: { isCorrect: true|false}, value: 'the response' }
@@ -30,9 +32,10 @@ class CustomScoringTransformerTest extends Specification {
         obj("components" ->
           obj("A" ->
             obj("answers" -> answers))),
-        obj("components" ->
-          obj("A" ->
-            obj("correctness" -> correctness))))
+        //Note: outcomes is passed directly - there is no 'components' property.
+        obj("A" ->
+          obj("correctness" -> correctness))
+      )
 
     }
 
@@ -92,5 +95,6 @@ class CustomScoringTransformerTest extends Specification {
       }
       "" in ok
     }
+
   }
 }
