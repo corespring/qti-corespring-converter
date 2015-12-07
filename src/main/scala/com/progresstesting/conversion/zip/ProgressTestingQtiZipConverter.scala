@@ -18,8 +18,8 @@ import scalaz.{Success, Failure, Validation}
 
 object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
-  private val collectionName = "progresstesting"
-  private val collectionId = "5643b70777c863c2a71285b0"
+  private val collectionName = "progress_testing"
+  private val collectionId = "5665af0ce4b03794c324adbd"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 
