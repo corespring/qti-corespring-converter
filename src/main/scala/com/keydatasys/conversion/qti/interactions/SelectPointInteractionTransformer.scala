@@ -81,12 +81,12 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
     Json.obj(
       "config" -> partialObj(
         "domainLabel" -> (property("xAxisTitle") match {
-          case Some(title) if (title.length == 1) => None
+          case Some(title) if (title.length == 1) => Some("")
           case Some(title) => Some(title)
           case None => None
         }).map(JsString(_)),
         "rangeLabel" -> (property("yAxisTitle") match {
-          case Some(title) if (title.length == 1) => None
+          case Some(title) if (title.length == 1) => Some("")
           case Some(title) => Some(title)
           case None => None
         }).map(JsString(_)),
