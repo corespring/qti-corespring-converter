@@ -5,7 +5,9 @@ import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
-class LineInteractionTransformerTest extends Specification {
+import scala.xml.Elem
+
+class LineInteractionTransformerSpec extends Specification {
 
   val identifier = "Q_01"
   val anotherIdentifier = "Q_02"
@@ -20,7 +22,7 @@ class LineInteractionTransformerTest extends Specification {
   val rangeLabel = "range"
   val tickLabelFrequency = 5
 
-  def qti(correctResponse: String) =
+  def qti(correctResponse: String, domainLabel: String = domainLabel, rangeLabel: String = rangeLabel) =
     <assessmentItem>
       <responseDeclaration identifier={ identifier }>
         <correctResponse>
@@ -67,6 +69,12 @@ class LineInteractionTransformerTest extends Specification {
     val noConfigInteractionResult =
       json(LineInteractionTransformer.interactionJs(qtiNoConfig, QTIManifest.EmptyManifest), anotherIdentifier)
 
+    def configFor(qti: Elem) = {
+      val interactionResult = json(LineInteractionTransformer
+        .interactionJs(qti, QTIManifest.EmptyManifest), identifier)
+      (interactionResult \ "model" \ "config")
+    }
+
     val config = (interactionResult \ "model" \ "config")
     val noConfig = (noConfigInteractionResult \ "model" \ "config")
 
@@ -110,12 +118,14 @@ class LineInteractionTransformerTest extends Specification {
     }
 
     "returns correct domain label" in {
-      (noConfig \ "domainLabel") must haveClass[JsUndefined]
+      (configFor(qti(correctResponse = correctResponse, domainLabel = "X")) \ "domainLabel").as[JsString].value must be equalTo ""
+      (noConfig \ "domainLabel").as[JsString].value must be equalTo ""
       (config \ "domainLabel").as[JsString].value must be equalTo domainLabel
     }
 
     "returns correct range label" in {
-      (noConfig \ "rangeLabel") must haveClass[JsUndefined]
+      (configFor(qti(correctResponse = correctResponse, rangeLabel = "Y")) \ "rangeLabel").as[JsString].value must be equalTo ""
+      (noConfig \ "rangeLabel").as[JsString].value must be equalTo ""
       (config \ "rangeLabel").as[JsString].value must be equalTo rangeLabel
     }
 

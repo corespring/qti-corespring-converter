@@ -16,8 +16,8 @@ class SelectPointInteractionTransformerSpec extends Specification {
     val maxChoices = 3
     val correctResponses = Seq((2, 1), (5, 3), (8, 5))
     val settings = Map("gridVisible" -> "1", "gridHeightInPixels" -> "600", "gridWidthInPixels" -> "600",
-      "xAxisTitle" -> " ", "xAxisMinValue" -> "0", "xAxisMaxValue" -> "8", "xAxisStepValue" -> "1",
-      "xAxisLabelPattern" -> "1", "yAxisTitle" -> "1", "yAxisMinValue" -> "0", "yAxisMaxValue" -> "8",
+      "xAxisTitle" -> "time", "xAxisMinValue" -> "0", "xAxisMaxValue" -> "8", "xAxisStepValue" -> "1",
+      "xAxisLabelPattern" -> "1", "yAxisTitle" -> "tacos", "yAxisMinValue" -> "0", "yAxisMaxValue" -> "8",
       "yAxisStepValue" -> "1", "yAxisLabelPattern" -> "1")
 
     def getSetting(string: String) = settings.get(string).getOrElse(throw new IllegalStateException(s"No setting for $string"))
@@ -152,8 +152,8 @@ class SelectPointInteractionTransformerSpec extends Specification {
     val identifier = "RESPONSE1"
     val prompt = "This is the prompt"
     val settings = Map("gridVisible" -> "1", "gridHeightInPixels" -> "300", "gridWidthInPixels" -> "300",
-      "xAxisTitle" -> "t", "xAxisMinValue" -> "0", "xAxisMaxValue" -> "8", "xAxisStepValue" -> "1",
-      "xAxisLabelPattern" -> "1", "yAxisTitle" -> "p", "yAxisMinValue" -> "0", "yAxisMaxValue" -> "160",
+      "xAxisTitle" -> "time", "xAxisMinValue" -> "0", "xAxisMaxValue" -> "8", "xAxisStepValue" -> "1",
+      "xAxisLabelPattern" -> "1", "yAxisTitle" -> "tacos", "yAxisMinValue" -> "0", "yAxisMaxValue" -> "160",
       "yAxisStepValue" -> "20", "yAxisLabelPattern" -> "1")
 
     val b = "0"
