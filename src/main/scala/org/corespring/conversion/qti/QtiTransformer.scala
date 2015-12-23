@@ -113,7 +113,6 @@ object QtiTransformer extends QtiTransformer {
     NumberedLinesTransformer(qti),
     OrderInteractionTransformer,
     PointInteractionTransformer,
-    SelectTextInteractionTransformer,
     TextEntryInteractionTransformer(qti)
   )
 
