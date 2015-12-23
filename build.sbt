@@ -35,6 +35,7 @@ lazy val root = Project("qti-corespring-converter", file("."))
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
     "com.typesafe.play" %% "play" % "2.2.1",
+    "org.jsoup" % "jsoup" % "1.8.1",
     rhinoJs % "test"
   ),
   publishTo := authPublishTo.value
