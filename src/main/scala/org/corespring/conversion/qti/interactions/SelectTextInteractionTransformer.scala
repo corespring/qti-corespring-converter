@@ -12,19 +12,27 @@ object SelectTextInteractionTransformer extends InteractionTransformer {
   }
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] =
-    (qti \\ "selectTextInteraction").map(implicit node => {
-      (node \ "@responseIdentifier").text ->
-        Json.obj(
-          "componentType" -> "corespring-select-text",
-          "model" -> Json.obj(
-            "choices" -> choices,
-            "config" -> partialObj(
-              "selectionUnit" -> optForAttr[JsString]("selectionType"),
-              "checkIfCorrect" -> optForAttr[JsString]("checkIfCorrect"),
-              "minSelections" -> optForAttr[JsNumber]("minSelections"),
-              "maxSelections" -> optForAttr[JsNumber]("maxSelections"),
-              "showFeedback" -> Some(JsBoolean(false)))))
-    }).toMap
+    (qti \\ "selectTextInteraction").map{ implicit node => (node \ "@responseIdentifier").text -> Json.obj(
+      "componentType" -> "corespring-select-text",
+      "model" -> Json.obj(
+        "config" -> Json.obj(
+          "selectionUnit" -> "custom",
+          "maxSelections" -> (node \ "@maxSelections").text.toInt,
+          "label" -> "",
+          "availability" -> "all",
+          "passage" -> choices.map(_._1).map(choice => s"""<span class="cs-token">$choice</span>""").mkString(" ")
+        )
+      ),
+      "allowPartialScoring" -> false,
+      "correctResponse" -> choices.zipWithIndex.filter{ case ((choice, correct), index) => correct }
+          .map { case ((choice, correct), index) => index },
+      "feedback" -> Json.obj(
+        "correctFeedbackType" -> "default",
+        "partialFeedbackType" -> "default",
+        "incorrectFeedbackType" -> "default"
+      ),
+      "partialScoring" -> Json.arr(Json.obj())
+    )}.toMap
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case elem: Elem if elem.label == "selectTextInteraction" => {
@@ -34,7 +42,8 @@ object SelectTextInteractionTransformer extends InteractionTransformer {
     case _ => node
   }
 
-  private def choices(implicit node: Node): JsArray = {
+
+  private def choices(implicit node: Node): Seq[(String, Boolean)] = {
     def isCorrect(string: String) = string.indexOf("<correct>") >= 0
     def stripCorrectness(string: String) =
       string.replaceAll("<[/]*correct>", "")
@@ -79,9 +88,7 @@ object SelectTextInteractionTransformer extends InteractionTransformer {
       case _ => TextSplitter.sentences(text)
     }
 
-    JsArray(choices.map(choice => partialObj(
-      "data" -> Some(JsString(stripCorrectness(choice))),
-      "correct" -> (if (isCorrect(choice)) Some(JsBoolean(true)) else None))))
+    choices.map(choice => (stripCorrectness(choice), isCorrect(choice)))
   }
 
 }
