@@ -80,8 +80,16 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
 
     Json.obj(
       "config" -> partialObj(
-        "domainLabel" -> property("xAxisTitle").map(JsString(_)),
-        "rangeLabel" -> property("yAxisTitle").map(JsString(_)),
+        "domainLabel" -> (property("xAxisTitle") match {
+          case Some(title) if (title.length == 1) => Some("")
+          case Some(title) => Some(title)
+          case None => None
+        }).map(JsString(_)),
+        "rangeLabel" -> (property("yAxisTitle") match {
+          case Some(title) if (title.length == 1) => Some("")
+          case Some(title) => Some(title)
+          case None => None
+        }).map(JsString(_)),
         "graphWidth" -> Some(JsNumber(550)),
         "graphHeight" -> Some(JsNumber(550)),
         "graphPadding" -> Some(JsNumber(50)),

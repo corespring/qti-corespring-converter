@@ -30,8 +30,14 @@ object LineInteractionTransformer extends InteractionTransformer {
           "domain" -> optForAttr[JsNumber]("domain"),
           "range" -> optForAttr[JsNumber]("range"),
           "scale" -> optForAttr[JsNumber]("scale"),
-          "domainLabel" -> optForAttr[JsString]("domain-label"),
-          "rangeLabel" -> optForAttr[JsString]("range-label"),
+          "domainLabel" -> Some(JsString((node \ "@domain-label").text match {
+            case label if (label.length == 1) => ""
+            case label => label
+          })),
+          "rangeLabel" -> Some(JsString((node \ "@range-label").text match {
+            case label if (label.length == 1) => ""
+            case label => label
+          })),
           "tickLabelFrequency" -> optForAttr[JsNumber]("tick-label-frequency"),
           "sigfigs" -> optForAttr[JsNumber]("sigfigs"),
           "initialValues" -> ((node \ "graphline" \\ "point") match {

@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.interactions.{ ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, _ }
+import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, _}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
@@ -18,31 +18,23 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   }
 
   def interactionTransformers(qti: Elem) = Seq(
-    SelectPointInteractionTransformer(qti),
-    KDSChoiceInteractionTransformer,
-    TeacherInstructionsTransformer,
-    HottextInteractionTransformer,
-    RubricBlockTransformer,
-    ElementTransformer,
-    KDSMatchInteractionTransformer,
-    NumberLineInteractionTransformer,
-    GraphicGapMatchInteractionTransformer,
+    CalculatorTransformer,
+    CorespringTabTransformer,
+    CoverflowInteractionTransformer,
     DragAndDropInteractionTransformer,
+    ExtendedTextInteractionTransformer,
     FeedbackBlockTransformer(qti),
-    NumberedLinesTransformer(qti),
     FocusTaskInteractionTransformer,
-    KDSTextEntryInteractionTransformer(qti),
+    FoldableInteractionTransformer,
+    KDSChoiceInteractionTransformer,
+    new KDSGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
+    NumberedLinesTransformer(qti),
     OrderInteractionTransformer,
     PointInteractionTransformer,
     SelectTextInteractionTransformer,
-    ExtendedTextInteractionTransformer,
-    FoldableInteractionTransformer,
-    CoverflowInteractionTransformer,
-    CorespringTabTransformer,
-    CalculatorWidgetTransformer,
-    ProtractorWidgetTransformer,
-    RulerWidgetTransformer)
+    TextEntryInteractionTransformer(qti)
+  )
 
   def statefulTransformers = Seq(
     FeedbackBlockTransformer,
