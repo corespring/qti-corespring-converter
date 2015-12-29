@@ -1,5 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
+import org.corespring.conversion.qti.interactions.RubricBlockTransformer
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
