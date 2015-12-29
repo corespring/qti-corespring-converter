@@ -3,8 +3,6 @@ package org.corespring.common.util;
 
 import java.util.regex.*;
 
-import java.util.regex.*;
-
 /**
  * A Rewriter does a global substitution in the strings passed to its
  * 'rewrite' method. It uses the pattern supplied to its constructor, and is

@@ -9,8 +9,6 @@ import scala.xml.pull._
 
 trait ManifestFilter {
 
-  val filename = "imsmanifest.xml"
-
   val ItemTypeIds = Map(
     7 -> "Selectable Text",
     8 -> "Multiple Part (EBSR)",
@@ -90,6 +88,7 @@ trait ManifestFilter {
                 buf += text
               }
             }
+            case _ => {}
           }
         }
       }

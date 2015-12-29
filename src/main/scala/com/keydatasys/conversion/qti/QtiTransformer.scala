@@ -18,31 +18,24 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   }
 
   def interactionTransformers(qti: Elem) = Seq(
-    SelectPointInteractionTransformer(qti),
-    KDSChoiceInteractionTransformer,
-    TeacherInstructionsTransformer,
-    HottextInteractionTransformer,
-    RubricBlockTransformer,
-    ElementTransformer,
-    MatchInteractionTransformer,
-    NumberLineInteractionTransformer,
-    new KDSGraphicGapMatchInteractionTransformer(),
+    CalculatorTransformer,
+    CorespringTabTransformer,
+    CoverflowInteractionTransformer,
     DragAndDropInteractionTransformer,
+    ExtendedTextInteractionTransformer,
     FeedbackBlockTransformer(qti),
-    NumberedLinesTransformer(qti),
     FocusTaskInteractionTransformer,
-    KDSTextEntryInteractionTransformer(qti),
+    FoldableInteractionTransformer,
+    HottextInteractionTransformer,
+    KDSChoiceInteractionTransformer,
+    new KDSGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
+    NumberedLinesTransformer(qti),
     OrderInteractionTransformer,
     PointInteractionTransformer,
     SelectTextInteractionTransformer,
-    ExtendedTextInteractionTransformer,
-    FoldableInteractionTransformer,
-    CoverflowInteractionTransformer,
-    CorespringTabTransformer,
-    CalculatorWidgetTransformer,
-    ProtractorWidgetTransformer,
-    RulerWidgetTransformer)
+    TextEntryInteractionTransformer(qti)
+  )
 
   def statefulTransformers = Seq(
     FeedbackBlockTransformer,

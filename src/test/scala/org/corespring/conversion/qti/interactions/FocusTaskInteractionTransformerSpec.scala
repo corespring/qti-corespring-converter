@@ -1,10 +1,9 @@
 package org.corespring.conversion.qti.interactions
 
-import com.keydatasys.conversion.qti.ItemTransformer
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json._
 
 import scala.util.Random
 

@@ -34,9 +34,10 @@ lazy val root = Project("qti-corespring-converter", file("."))
   libraryDependencies ++= sharedDependencies ++ Seq(
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
+    "org.mozilla" % "rhino" % "1.7R4",
+    "org.specs2" %% "specs2" % "2.1.1" % "test",
     "com.typesafe.play" %% "play" % "2.2.1",
-    "org.jsoup" % "jsoup" % "1.8.1",
-    rhinoJs % "test"
+    "org.jsoup" % "jsoup" % "1.8.1"
   ),
   publishTo := authPublishTo.value
 ).dependsOn(qti).aggregate(qti)

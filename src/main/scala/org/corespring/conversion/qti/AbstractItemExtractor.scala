@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti
+package org.corespring.conversion.qti
 
 import play.api.libs.json._
 

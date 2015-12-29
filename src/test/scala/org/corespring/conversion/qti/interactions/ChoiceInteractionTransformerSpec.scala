@@ -108,7 +108,7 @@ class ChoiceInteractionTransformerTest extends Specification {
       (q1 \ "correctResponse") === JsString("A")
       (q1 \ "feedback").as[Seq[JsObject]].length === 2
       ((q1 \ "feedback")(0) \ "value").as[String] === "A"
-      ((q1 \ "feedback")(0) \ "feedback").as[String] === "Default Correct"
+      ((q1 \ "feedback")(0) \ "feedbackType").as[String] === "default"
     }
 
     "preserve and move choiceInteraction HTML nodes outside interaction" in {

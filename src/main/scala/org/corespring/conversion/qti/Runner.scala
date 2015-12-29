@@ -3,6 +3,7 @@ package org.corespring.conversion.qti
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
+import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import play.api.libs.json._
 
 import scalaz.{Failure, Success, Validation}
@@ -17,7 +18,8 @@ object Runner extends App {
   )).toMap(args)
 
   val converters = Map(
-    "kds" -> KDSQtiZipConverter
+    "kds" -> KDSQtiZipConverter,
+    "progresstesting" -> ProgressTestingQtiZipConverter
   )
 
   parsed match {

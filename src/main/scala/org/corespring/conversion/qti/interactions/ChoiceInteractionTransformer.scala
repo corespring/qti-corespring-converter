@@ -56,7 +56,16 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
             "label" -> n.child.filterNot(e => e.label == "feedbackInline").mkString.trim,
             "value" -> (n \ "@identifier").text.trim)
         })),
-      "feedback" -> feedback(node, qti),
+      "feedback" -> (node.label match {
+        case "choiceInteraction" => feedback(node, qti)
+        case "inlineChoiceInteraction" => JsArray(((node \\ "simpleChoice").toSeq ++ (node \\ "inlineChoice")).map{ n =>
+          Json.obj(
+            "value" -> (n \ "@identifier").text.trim,
+            "feedbackType" -> "default"
+          )
+        })
+        case _ => throw new IllegalStateException
+      }),
       "correctResponse" -> (node.label match {
         case "choiceInteraction" => Json.obj("value" -> JsArray(correctResponses))
         case "inlineChoiceInteraction" => correctResponses(0)
