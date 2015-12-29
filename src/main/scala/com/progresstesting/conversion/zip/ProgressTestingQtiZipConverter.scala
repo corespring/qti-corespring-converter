@@ -10,7 +10,7 @@ import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.Rewriter
 import org.corespring.conversion.qti.QtiTransformer
 import org.corespring.conversion.zip.QtiToCorespringConverter
-import play.api.libs.json.{JsValue, Json, JsObject}
+import play.api.libs.json.{JsString, JsValue, Json, JsObject}
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -18,7 +18,7 @@ import scalaz.{Success, Failure, Validation}
 
 object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
-  private val collectionName = "progress_testing"
+  private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
@@ -61,10 +61,11 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
 
   private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
     partialObj(
+      "title" -> metadata.map(md => JsString((md \ "sourceId").as[String])),
       "relatedSubject" -> Some(Json.arr()),
       "domains" -> Some(Json.arr()),
       "extended" -> metadata.map(md => Json.obj(
-        "kds" -> md
+        "progresstesting" -> md
       ))
     )
   }
