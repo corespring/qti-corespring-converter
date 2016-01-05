@@ -7,7 +7,7 @@ import play.api.libs.json.{JsArray, JsObject, Json}
 
 import scala.xml.XML
 
-class SelectTextInteractionTransformerTest extends Specification {
+class SelectTextInteractionTransformerSpec extends Specification {
 
   val identifier = "Q_01"
   val checkIfCorrect = "no"
@@ -93,7 +93,7 @@ class SelectTextInteractionTransformerTest extends Specification {
       }
 
       "correctResponse contains indexes of correct selections" in {
-        (interactionJs \ "correctResponse").as[Seq[Int]] must be equalTo(
+        (interactionJs \ "correctResponse" \ "value").as[Seq[Int]] must be equalTo(
           selectionTextWord
             .zipWithIndex
             .filter{ case (word, _) => word.startsWith("<correct")}
@@ -150,7 +150,7 @@ class SelectTextInteractionTransformerTest extends Specification {
     }
 
     "correctResponse contains indexes of correct selections" in {
-      (interactionJs \ "correctResponse").as[Seq[Int]] must be equalTo(
+      (interactionJs \ "correctResponse" \ "value").as[Seq[Int]] must be equalTo(
         selectionTextSentence
           .zipWithIndex
           .filter{ case (word, _) => word.startsWith("<correct")}

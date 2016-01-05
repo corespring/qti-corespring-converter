@@ -24,8 +24,10 @@ object SelectTextInteractionTransformer extends InteractionTransformer {
         )
       ),
       "allowPartialScoring" -> false,
-      "correctResponse" -> choices.zipWithIndex.filter{ case ((choice, correct), index) => correct }
-        .map { case ((choice, correct), index) => index },
+      "correctResponse" -> Json.obj(
+        "value" -> choices.zipWithIndex.filter{ case ((choice, correct), index) => correct }
+          .map { case ((choice, correct), index) => index }
+      ),
       "feedback" -> Json.obj(
         "correctFeedbackType" -> "default",
         "partialFeedbackType" -> "default",
