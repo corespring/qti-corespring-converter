@@ -29,7 +29,9 @@ trait EntityEscaper {
     })
 
   def unescapeEntities(xml: String) = unescapeAll(
-    XML.loadString(s"<entity-escaper>$xml</entity-escaper>").head.child.map(TagCleaner.clean).mkString)
+    XML.loadString(s"<entity-escaper>${fixLineBreaks(xml)}</entity-escaper>").head.child.map(TagCleaner.clean).mkString)
+
+  private def fixLineBreaks(fromText: String) = fromText.replaceAll("<br>", "<br/>")
 
   def encodeSafeEntities(xml: String): String =
     safe.foldLeft(xml){ case (acc, entity) => {
@@ -37,7 +39,6 @@ trait EntityEscaper {
         .replaceAll(s"&${entity.name};", entity.char.toString)
         .replaceAll(s"&#${entity.unicode.toString};", entity.char.toString)
     }}
-
 
 }
 

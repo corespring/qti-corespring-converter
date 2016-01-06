@@ -19,9 +19,11 @@ trait HtmlProcessor extends EntityEscaper {
 
   def postprocessHtml(jsValue: JsValue): JsValue = try {
     jsValue match {
-      case jsObject: JsObject => JsObject(jsObject.fields.map{ case (key, value) => (key, postprocessHtml(value)) })
+      case jsObject: JsObject => JsObject(jsObject.fields.map{ case (key, value) => {
+        (key, postprocessHtml(value))
+      } })
       case jsArray: JsArray => JsArray(jsArray.value.map{ value => postprocessHtml(value) })
-      case jsString: JsString => JsString(postprocessHtml(jsString.value))
+      case jsString: JsString => JsString(postprocessHtml(jsString.value.replaceAll("<br>", "<br/>")))
       case _ => jsValue
     }
   } catch {
