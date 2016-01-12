@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, _}
+import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, _}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
@@ -30,6 +30,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     KDSChoiceInteractionTransformer,
     new KDSGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
+    KDSMatchInteractionTransformer,
     NumberedLinesTransformer(qti),
     NumberLineInteractionTransformer,
     OrderInteractionTransformer,
