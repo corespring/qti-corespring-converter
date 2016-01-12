@@ -18,7 +18,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   }
 
   def interactionTransformers(qti: Elem) = Seq(
-    CalculatorTransformer,
+    CalculatorWidgetTransformer,
     CorespringTabTransformer,
     CoverflowInteractionTransformer,
     DragAndDropInteractionTransformer,
@@ -31,9 +31,14 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     new KDSGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
     NumberedLinesTransformer(qti),
+    NumberLineInteractionTransformer,
     OrderInteractionTransformer,
     PointInteractionTransformer,
+    ProtractorWidgetTransformer,
+    RubricBlockTransformer,
+    RulerWidgetTransformer,
     SelectTextInteractionTransformer,
+    TeacherInstructionsTransformer,
     TextEntryInteractionTransformer(qti)
   )
 
