@@ -19,6 +19,18 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     }
   }
 
+  override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
+
+    override def transform(node: Node): Seq[Node] = {
+      node match {
+        case elem: Elem if elem.label == "itemBody" => {
+          <div class="item-body kds qti">{ elem.child }</div>
+        }
+        case _ => node
+      }
+    }
+  }
+
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorWidgetTransformer,
     CorespringTabTransformer,

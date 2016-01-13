@@ -38,7 +38,7 @@ trait QtiTransformer extends XMLNamespaceClearer {
       "components" -> components) ++ customScoring(qti, components)
   }
 
-  object ItemBodyTransformer extends RewriteRule with XMLNamespaceClearer {
+  def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 
     override def transform(node: Node): Seq[Node] = {
       node match {
@@ -74,12 +74,12 @@ trait QtiTransformer extends XMLNamespaceClearer {
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
-    val finalHtml = new RuleTransformer(new RewriteRule {
+    val finalHtml = QtiTransformer.KDSTableReset.toString ++ new RuleTransformer(new RewriteRule {
       override def transform(node: Node) = node match {
         case node: Node if node.label == "stylesheet" =>
           (sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }.map(_._2)) match {
             case Some(cssSource) =>
-              <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti") }</style>
+              <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>
             case _ => node
           }
         case _ => node
@@ -121,5 +121,8 @@ object QtiTransformer extends QtiTransformer {
     FeedbackBlockTransformer,
     NumberedLinesTransformer
   )
+
+  private val KDSTableReset =
+    <style type="text/css">{""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}</style>
 
 }
