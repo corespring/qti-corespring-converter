@@ -118,8 +118,7 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
       case Points => PointsInteractionTransformer.transform(node, manifest)
       case Line => LineInteractionTransformer.transform(node, manifest)
       case MultiLine => {
-        println(s"${qti \ "@identifier"} - No support for multi-line interactions")
-        node
+        throw new IllegalArgumentException(s"${qti \ "@identifier"} - No support for multi-line interactions")
       }
       case _ => throw new IllegalArgumentException(s"$node does not represent any known KDS format")
     }
