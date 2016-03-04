@@ -6,6 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.xml._
 import scala.xml.pull._
+import org.corespring.conversion.qti.manifest.{ManifestReader => QTIManifestReader}
 
 trait ManifestFilter {
 
@@ -78,7 +79,7 @@ trait ManifestFilter {
             }
             case EvText(text) => {
               if (insideItemTypeId) {
-                if (ImportableItemTypeIds.map(_.toString).toSeq.contains(text)) {
+                if (ImportableItemTypeIds.map(_.toString).contains(text)) {
                   buf += text
                 } else {
                   insideResource = false
@@ -97,9 +98,9 @@ trait ManifestFilter {
       resources.map(XML.loadString(_))
     }
 
-    val ofType: (MetaData, String) => Boolean = { case(attr, tipe) => attr.get("type").getOrElse("").toString == tipe }
+    def ofType(metadata: MetaData, types: String*): Boolean = { types.contains(metadata.get("type").getOrElse("").toString) }
 
-    val resources = getResources(file.toSource(), attrs => ofType(attrs, "imsqti_item_xmlv2p1"))
+    val resources = getResources(file.toSource(), attrs => ofType(attrs, QTIManifestReader.itemTypes:_*))
     val files = resources.map(_ \\ "file" \ "@href").map(_.toString).filter(_.nonEmpty)
     val passages = getResources(file.toSource(), attrs => ofType(attrs, "passage") && files.contains(attrs.get("href").getOrElse("").toString))
 

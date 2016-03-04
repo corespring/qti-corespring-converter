@@ -10,6 +10,7 @@ case class CustomTransformException(msg: String, t: Throwable = null) extends Ru
 object CustomScoringTransformer {
 
   def generate(qtiJs: String, session: Map[String, JsObject], typeMap: Map[String, String]): Validation[CustomTransformException, String] = synchronized {
+    println(qtiJs)
     HasSyntaxErrors(qtiJs) match {
       case Failure(e) => Failure(e)
       case Success(js) => Success(wrapJs(js, session, typeMap))

@@ -15,7 +15,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => ManifestReader.read(manifest, sources) }
 
-  lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
+  lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty).toSet.toSeq
 
   lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
     manifest.map(_.items.map(f =>

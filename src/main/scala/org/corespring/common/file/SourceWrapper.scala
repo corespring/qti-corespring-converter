@@ -44,7 +44,14 @@ case class SourceWrapper(name: String, inputStream: InputStream) {
     Source.fromFile(getFile)(codec)
   }
 
-  def mkString = getLines.mkString
+  private val UTF8_BOM = "\uFEFF"
+
+  private def removeUTF8BOM(s: String) = s.startsWith(UTF8_BOM) match {
+    case true => s.substring(1);
+    case _ => s
+  }
+
+  def mkString = removeUTF8BOM(getLines.mkString("\n").trim)
 
   def toByteArray: Array[Byte] = {
     val input = new FileInputStream(getFile)

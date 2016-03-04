@@ -1,11 +1,18 @@
-package com.progresstesting.conversion.zip
+package org.parcconline.conversion.zip
 
-import java.io.{FileOutputStream, File, ByteArrayOutputStream}
-import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
+import java.io._
+import java.util.zip._
 
 import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.collectionId
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.collectionName
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.postProcess
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.taskInfo
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.unescapeCss
 import com.progresstesting.conversion.util.UnicodeCleaner
+import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter._
+import org.apache.commons.io.IOUtils
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.Rewriter
 import org.corespring.conversion.qti.QtiTransformer
@@ -16,13 +23,41 @@ import scala.collection.JavaConversions._
 import scala.io.Source
 import scalaz.{Success, Failure, Validation}
 
-object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
+object PARCCQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
   private val collectionName = "parcc"
   private val collectionId = "56d89830e4b024dcd2e5a568"
 
-  override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
+  def handleZip(zip: ZipFile, entryName: String, outputStream: ZipOutputStream) = {
+    var tempFile: File = null
+    var tempOut: FileOutputStream = null
+    var innerZipFile: ZipFile = null
 
+    try {
+      tempFile = File.createTempFile("tempFile", "zip")
+      tempOut = new FileOutputStream(tempFile)
+      IOUtils.copy(zip.getInputStream(new ZipEntry(entryName)), tempOut)
+      innerZipFile = new ZipFile(tempFile)
+      processZip(innerZipFile, outputStream)
+    } catch {
+      case e: Exception => e.printStackTrace()
+    } finally {
+      try {
+        IOUtils.closeQuietly(tempOut)
+        if (tempFile != null && !tempFile.delete()) {
+          System.out.println("Could not delete " + tempFile)
+        }
+        try {
+          if (innerZipFile != null)
+            innerZipFile.close()
+        } catch {
+          case e: Exception => e.printStackTrace()
+        }
+      }
+    }
+  }
+
+  def processZip(zip: ZipFile, outputStream: ZipOutputStream, metadata: Option[JsObject] = None) = {
     val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
@@ -30,7 +65,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
     val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
-      println(s"Processing ${id} (${index+1}/$itemCount)")
+      //println(s"Processing ${id} (${index+1}/$itemCount)")
       val itemJson = extractor.itemJson
       val meta = extractor.metadata
       val result: Validation[Error, (JsValue, JsObject
@@ -45,7 +80,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
       }
       result match {
         case Success((json, taskInfo)) => {
-          val basePath = s"${collectionName}_${collectionId}/$id"
+          val basePath = s"${collectionName}_${collectionId}/${id}_$index"
           Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
             s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(
               Json.obj("taskInfo" -> taskInfo, "originId" -> id)))) ++
@@ -56,7 +91,12 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
         case _ => Seq.empty[(String, Source)]
       }
     }}.flatten.toMap
-    writeZip(toZipByteArray(processedFiles), path)
+
+    processedFiles.foreach{ case (filename, contents) => {
+      outputStream.putNextEntry(new ZipEntry(filename))
+      outputStream.write(contents.map(_.toByte).toArray)
+    }}
+
   }
 
   private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
@@ -65,7 +105,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
       "relatedSubject" -> Some(Json.arr()),
       "domains" -> Some(Json.arr()),
       "extended" -> metadata.map(md => Json.obj(
-        "progresstesting" -> md
+        "parcc" -> md
       ))
     )
   }
@@ -101,16 +141,13 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
     new ZipFile(file)
   }
 
-  private def toZipByteArray(files: Map[String, Source]) = {
+  override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject]): ZipFile = {
     val bos = new ByteArrayOutputStream()
-    val zipFile = new ZipOutputStream(bos)
-    files.foreach{ case (filename, contents) => {
-      zipFile.putNextEntry(new ZipEntry(filename))
-      zipFile.write(contents.map(_.toByte).toArray)
-    }}
-    zipFile.close
-    bos.toByteArray
+    val zipOutputStream = new ZipOutputStream(bos)
+    new JEnumerationWrapper(zip.entries).filter(_.getName.endsWith("zip")).map(_.getName).toSeq.foreach(entryName =>
+      handleZip(zip, entryName, zipOutputStream)
+    )
+    writeZip(bos.toByteArray, path)
   }
-
 
 }

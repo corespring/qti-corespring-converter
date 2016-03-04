@@ -8,6 +8,7 @@ object ManifestResourceType extends Enumeration {
 
   private val typeMap = Map(
     "imsqti_item_xmlv2p1" -> QTI,
+    "imsqti_apipitem_xmlv2p1" -> QTI,
     "passage" -> Passage)
 
   private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image)

@@ -12,13 +12,6 @@ import scala.xml.{Node, Elem}
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
-  override def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
-    toJs(qti).map(wrap) match {
-      case Some(javascript) => Json.obj("customScoring" -> javascript)
-      case _ => Json.obj()
-    }
-  }
-
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 
     override def transform(node: Node): Seq[Node] = {

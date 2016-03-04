@@ -1,5 +1,7 @@
 package com.keydatasys.conversion.qti.util
 
+import org.corespring.common.util.Rewriter
+
 import scala.xml.XML
 
 /**
@@ -12,12 +14,15 @@ trait EntityEscaper {
   import EntityEscaper._
 
   private val entityRegex = "&#([0-9]*);".r
+  private val hexEntityRegex = "&#x([0-9A-Fa-f]*);"
 
   /**
    * Replace all entity characters (e.g., "&radic;" or "&#945;") with nodes matching their unicode values, (e.g.,
    * <entity value='8730'/> or <entity value='945'/>).
    */
-  def escapeEntities(xml: String): String =
+  def escapeEntities(rawXml: String): String = {
+    val f = convertHexEntities(rawXml).trim()
+    val xml = s"""<?xml version="1.0"?>\n${f.substring(f.indexOf("<assessmentItem")).replaceAllLiterally("""<?xml version="1.0" encoding="UTF-8"?>""", "")}"""
     escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))){ case(acc, entity) =>
       ((string: String) => dontEncode.contains(entity.char) match {
         case true => string
@@ -27,11 +32,16 @@ trait EntityEscaper {
         case _ => string
       }).apply(acc.replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)))
     })
+  }
 
   def unescapeEntities(xml: String) = unescapeAll(
     XML.loadString(s"<entity-escaper>${fixLineBreaks(xml)}</entity-escaper>").head.child.map(TagCleaner.clean).mkString)
 
   private def fixLineBreaks(fromText: String) = fromText.replaceAll("<br>", "<br/>")
+
+  def convertHexEntities(xml: String) = new Rewriter(hexEntityRegex) {
+    def replacement() = s"&#${Integer.parseInt(group(1), 16).toString};"
+  }.rewrite(xml)
 
   def encodeSafeEntities(xml: String): String =
     safe.foldLeft(xml){ case (acc, entity) => {

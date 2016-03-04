@@ -8,11 +8,13 @@ import scala.util.logging.Logged
 import scala.xml._
 
 object ManifestReader
-    extends PassageScrubber
-    with EntityEscaper
-    with PathFlattener
-    with Logged
+  extends PassageScrubber
+  with EntityEscaper
+  with PathFlattener
+  with Logged
 {
+
+  val itemTypes = Seq("imsqti_item_xmlv2p1", "imsqti_apipitem_xmlv2p1")
 
   val filename = "imsmanifest.xml"
 
@@ -21,7 +23,7 @@ object ManifestReader
 
   def read(xml: Node, sources: Map[String, SourceWrapper]): QTIManifest = {
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
-      .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
+      .partition(r => itemTypes.contains((r \ "@type").text.toString))
 
     val resourceLocators: Map[ManifestResourceType.Value, Node => Seq[String]] =
       Map(
@@ -36,6 +38,7 @@ object ManifestReader
             Some(XML.loadString(escapeEntities(stripCDataTags(file.mkString))))
           } catch {
             case e: Exception => {
+              e.printStackTrace()
               println(s"Error reading: $filename")
               None
             }
@@ -68,6 +71,7 @@ object ManifestReader
                 }.flatten)
               } catch {
                 case e: Exception => {
+                  e.printStackTrace()
                   println(s"Error reading: $filename")
                   println(scrub(escapeEntities(stripCDataTags(s.getLines.mkString))))
                   e.printStackTrace
