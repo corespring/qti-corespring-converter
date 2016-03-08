@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti.processing
+package org.corespring.conversion.qti.processing
 
 trait V2JavascriptWrapper {
 

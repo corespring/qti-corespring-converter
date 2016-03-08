@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti.processing
+package org.corespring.conversion.qti.processing
 
 import com.ning.http.client.AsyncHttpClientConfig
 import org.corespring.common.xml.XMLNamespaceClearer

@@ -1,6 +1,6 @@
-package com.keydatasys.conversion.qti.processing
+package org.corespring.conversion.qti.processing
 
-import com.keydatasys.conversion.qti.processing.transformers.ResponseProcessingTransformer
+import org.corespring.conversion.qti.processing.transformers.ResponseProcessingTransformer
 import play.api.libs.json.Json
 
 import scala.xml._

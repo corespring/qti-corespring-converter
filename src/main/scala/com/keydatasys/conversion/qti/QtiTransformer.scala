@@ -1,11 +1,10 @@
 package com.keydatasys.conversion.qti
 
 import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, _}
-import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
+import org.corespring.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
-import play.api.libs.json.{Json, JsObject}
 
 import scala.xml.transform.RewriteRule
 import scala.xml.{Node, Elem}

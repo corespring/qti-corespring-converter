@@ -1,4 +1,4 @@
-package org.corespring.conversion.qti
+package org.parcconline.conversion.qti
 
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.CssSandboxer
@@ -7,10 +7,11 @@ import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
-import play.api.libs.json._
+import play.api.libs.json.{Json, JsObject, JsValue}
 
-import scala.xml._
-import scala.xml.transform._
+import scala.xml.{Node, Elem}
+import scala.xml.transform.{RewriteRule, RuleTransformer}
+
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
 
@@ -34,7 +35,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
 
     Json.obj(
       "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
-      "components" -> components) //++ customScoring(qti, components)
+      "components" -> components) ++ customScoring(qti, components)
   }
 
   def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
@@ -71,21 +72,11 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
-    val finalHtml = QtiTransformer.KDSTableReset.toString ++ new RuleTransformer(new RewriteRule {
-      override def transform(node: Node) = node match {
-        case node: Node if node.label == "stylesheet" =>
-          (sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }.map(_._2)) match {
-            case Some(cssSource) =>
-              <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>
-            case _ => node
-          }
-        case _ => node
-      }
-    }, ItemBodyTransformer).transform(html).head.toString
+    val finalHtml = new RuleTransformer(ItemBodyTransformer).transform(html).head.toString
 
     Json.obj(
       "xhtml" -> finalHtml,
-      "components" -> components) //++ customScoring(qti, components)
+      "components" -> components) ++ customScoring(qti, components)
   }
 
 }
@@ -118,8 +109,5 @@ object QtiTransformer extends QtiTransformer {
     FeedbackBlockTransformer,
     NumberedLinesTransformer
   )
-
-  private val KDSTableReset =
-    <style type="text/css">{""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}</style>
 
 }
