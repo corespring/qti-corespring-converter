@@ -44,7 +44,7 @@ object ManifestReader
             }
           }
         }.flatten.map(node => {
-          resourceLocators.map { case (resourceType, fn) => resourceType -> fn(node) }.toMap
+          resourceLocators.map { case (resourceType, fn) => resourceType -> fn(node) }
         }).getOrElse(Map.empty[ManifestResourceType.Value, Seq[String]]).map {
           case (resourceType, filenames) => {
             filenames.map(filename => ManifestResource(path = """\.\/(.*)""".r.replaceAllIn(filename, "$1"), resourceType = resourceType))
@@ -53,11 +53,11 @@ object ManifestReader
 
         val resources = ((n \\ "file")
           .filterNot(f => (f \ "@href").text.toString == filename).map(f => {
-          val path = (f \ "@href").text.toString
-          ManifestResource(
-            path = path,
-            resourceType = ManifestResourceType.fromPath(path)(xml))
-        })) ++ files
+            val path = (f \ "@href").text.toString
+            ManifestResource(
+              path = path,
+              resourceType = ManifestResourceType.fromPath(path)(xml))
+          })) ++ files
 
         val passageResources: Seq[ManifestResource] = resources.filter(_.is(ManifestResourceType.Passage)).map(p =>
           sources.find { case (path, _) => path == p.path.flattenPath }.map {
@@ -85,7 +85,11 @@ object ManifestReader
         if (missingPassageResources.nonEmpty) {
           missingPassageResources.foreach(f => log(s"Missing file $f in uploaded import"))
         }
-
+        println("Resources:")
+        resources.foreach(resource => {
+          println(resource.path)
+        })
+        println()
         ManifestItem(id = (n \ "@identifier").text.toString, filename = filename, resources = resources ++ passageResources, n)
       }),
       otherFiles = resources.map(n => (n \ "@href").text.toString))

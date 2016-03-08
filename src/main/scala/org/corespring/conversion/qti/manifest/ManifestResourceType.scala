@@ -11,7 +11,7 @@ object ManifestResourceType extends Enumeration {
     "imsqti_apipitem_xmlv2p1" -> QTI,
     "passage" -> Passage)
 
-  private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image)
+  private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png", "svgz") -> Image)
   private val pathFunctions: Seq[String => Option[ManifestResourceType.Value]] = Seq(
     (path => path.startsWith("passages/") match {
       case true => Some(ManifestResourceType.Passage)
