@@ -45,13 +45,10 @@ trait EntityEscaper {
     def replacement() = s"&#${Integer.parseInt(group(1), 16).toString};"
   }.rewrite(xml)
 
-  def encodeSafeEntities(xml: String): String =
-    safe.foldLeft(xml){ case (acc, entity) => {
-      acc
-        .replaceAll(s"&${entity.name};", entity.char.toString)
-        .replaceAll(s"&#${entity.unicode.toString};", entity.char.toString)
-    }}
-
+  def encodeSafeEntities(xml: String): String = safe.foldLeft(xml){ case (acc, entity) => acc
+    .replaceAll(s"&${entity.name.get};", entity.char.toString)
+    .replaceAll(s"&#${entity.unicode.toString};", entity.char.toString)
+  }
 }
 
 object EntityEscaper {
@@ -140,6 +137,6 @@ object EntityEscaper {
     (Some("hearts"), '♥', 9829), (Some("diams"), '♦', 9830), (None, '∘', 8728))
     .map{ case (name, char, unicode) => Entity(name, char, unicode) }
 
-  val safe = Seq(39).map(c => entities.find(_.unicode == c)).flatten
+  val safe = Seq(34, 39).map(c => entities.find(_.unicode == c)).flatten
 
 }

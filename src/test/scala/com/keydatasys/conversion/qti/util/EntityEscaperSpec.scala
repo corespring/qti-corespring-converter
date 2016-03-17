@@ -6,14 +6,11 @@ import scala.xml.XML
 
 class EntityEscaperSpec extends Specification with EntityEscaper {
 
-  import EntityEscaper._
+  "encodeSafeEntities" should {
 
-  "test" should {
-
-    "be great" in {
-      val test = "Read the passage from the short story &#x201C;Where Lovers Dream.&#x201D; Then answer the questions."
-      println(convertHexEntities(test))
-      true === false
+    "encode &quot;" in {
+      val string = "this is in &quot;quotes&quot;"
+      encodeSafeEntities(string) must be equalTo("""this is in "quotes"""")
     }
 
   }
