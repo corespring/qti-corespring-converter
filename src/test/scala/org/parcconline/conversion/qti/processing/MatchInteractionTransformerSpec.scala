@@ -5,7 +5,7 @@ import org.parcconline.conversion.qti.interactions.MatchInteractionTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
-class PARCCMatchInteractionTransformerSpec extends Specification {
+class MatchInteractionTransformerSpec extends Specification {
 
   val responseIdentifier = "RESPONSE"
 
