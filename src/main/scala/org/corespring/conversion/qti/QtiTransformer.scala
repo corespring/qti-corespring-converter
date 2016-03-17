@@ -85,7 +85,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
 
     Json.obj(
       "xhtml" -> finalHtml,
-      "components" -> components) //++ customScoring(qti, components)
+      "components" -> components) ++ customScoring(qti, components)
   }
 
 }

@@ -1,6 +1,7 @@
 package com.keydatasys.conversion.qti.util
 
 import org.corespring.common.util.Rewriter
+import org.parcconline.conversion.qti.util.XmlUtil
 
 import scala.xml.XML
 
@@ -22,8 +23,8 @@ trait EntityEscaper {
    */
   def escapeEntities(rawXml: String): String = {
     val f = convertHexEntities(rawXml).trim()
-    val xml = s"""<?xml version="1.0"?>\n${f.substring(f.indexOf("<assessmentItem")).replaceAllLiterally("""<?xml version="1.0" encoding="UTF-8"?>""", "")}"""
-    escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))){ case(acc, entity) =>
+    val xml = XmlUtil.removeXmlDeclaration(f)
+    val t = escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))){ case(acc, entity) =>
       ((string: String) => dontEncode.contains(entity.char) match {
         case true => string
         case _ => string.replaceAllLiterally(entity.char.toString, entity.toXmlString)
@@ -32,6 +33,7 @@ trait EntityEscaper {
         case _ => string
       }).apply(acc.replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)))
     })
+    t
   }
 
   def unescapeEntities(xml: String) = unescapeAll(
@@ -114,7 +116,7 @@ object EntityEscaper {
     (Some("chi"), 'χ', 967), (Some("psi"), 'ψ', 968), (Some("omega"), 'ω', 969), (Some("thetasym"), 'ϑ', 977),
     (Some("upsih"), 'ϒ', 978), (Some("piv"), 'ϖ', 982), (Some("ensp"), ' ', 8194), (Some("emsp"), ' ', 8195),
     (Some("thinsp"), ' ', 8201), (Some("zwnj"), ' ', 8204), (Some("zwj"), ' ', 8205), (Some("lrm"), ' ', 8206),
-    (Some("rlm"), ' ', 8207), (Some("ndash"), '–', 8211), (Some("mdash"), '—', 8212), (Some("lsquo"), '‘', 8216),
+    (Some("rlm"), ' ', 8207), (Some("ndash"), '–', 8211), (Some("mdash"), '—', 8212), (Some("horbar"), '―', 8213), (Some("lsquo"), '‘', 8216),
     (Some("rsquo"), '’', 8217), (Some("sbquo"), '‚', 8218), (Some("ldquo"), '“', 8220), (Some("rdquo"), '”', 8221),
     (Some("bdquo"), '„', 8222), (Some("dagger"), '†', 8224), (Some("Dagger"), '‡', 8225), (Some("bull"), '•', 8226),
     (Some("hellip"), '…', 8230), (Some("permil"), '‰', 8240), (Some("prime"), '′', 8242), (Some("Prime"), '″', 8243),

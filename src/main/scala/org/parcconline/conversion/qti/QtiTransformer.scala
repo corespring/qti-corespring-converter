@@ -5,20 +5,19 @@ import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
-import org.corespring.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
+import org.parcconline.conversion.qti.interactions.PassageAdder
+import org.parcconline.conversion.qti.processing.ProcessingTransformer
 import play.api.libs.json.{Json, JsObject, JsValue}
 
 import scala.xml.{Node, Elem}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
+import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 
 
-trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
+class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends SuperQtiTransformer with XMLNamespaceClearer with ProcessingTransformer {
 
-  def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
-  def statefulTransformers: Seq[Transformer]
-
-  def transform(qti: Elem): JsValue = {
+  override def transform(qti: Elem): JsValue = {
 
     val transformers = interactionTransformers(qti)
 
@@ -38,7 +37,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
       "components" -> components) ++ customScoring(qti, components)
   }
 
-  def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
+  override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 
     override def transform(node: Node): Seq[Node] = {
       node match {
@@ -50,15 +49,14 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
     }
   }
 
-
-  def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
+  override def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
     toJs(qti).map(wrap) match {
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
   }
 
-  def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
+  override def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
     val transformers = interactionTransformers(qti)
 
     /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
@@ -79,10 +77,6 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
       "components" -> components) ++ customScoring(qti, components)
   }
 
-}
-
-object QtiTransformer extends QtiTransformer {
-
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorTransformer,
     ChoiceInteractionTransformer,
@@ -102,7 +96,8 @@ object QtiTransformer extends QtiTransformer {
     PointInteractionTransformer,
     RubricBlockTransformer,
     SelectTextInteractionTransformer,
-    TextEntryInteractionTransformer(qti)
+    TextEntryInteractionTransformer(qti),
+    new PassageAdder(sources)
   )
 
   def statefulTransformers = Seq(

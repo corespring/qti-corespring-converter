@@ -37,9 +37,8 @@ object XmlValidator extends XmlValidator {
       val xml: Elem = XML.loadString(xmlString)
       XmlValidationResult.success
     } catch {
-      case e: SAXParseException => {
+      case e: SAXParseException =>
         XmlValidationResult(Some(List(ExceptionMessage(e.getMessage, e.getLineNumber, e.getColumnNumber))))
-      }
       case e: Exception => {
         XmlValidationResult(Some(List(ExceptionMessage("An unknown exception occurred"))))
       }

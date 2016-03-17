@@ -1,5 +1,7 @@
 package org.corespring.conversion.qti.processing
 
+import java.net.{MalformedURLException, URL}
+
 import com.ning.http.client.AsyncHttpClientConfig
 import org.corespring.common.xml.XMLNamespaceClearer
 import play.api.libs.ws.WS
@@ -18,22 +20,41 @@ class ResponseProcessingTemplateConverter(get: (String => Node) = ResponseProces
 
   def withTemplate(node: Node) = {
     var url = (node \ "@template").text
-    url.nonEmpty match {
-      case true => cache.get(url) match {
-        case Some(node) => node
-        case _ => {
-          val response = <responseProcessing>{ clearNamespace(get(url)).child }</responseProcessing>
-          cache += (url -> response)
-          response
+    isUrl(url) match {
+      case true => {
+        url.nonEmpty match {
+          case true => cache.get(url) match {
+            case Some(node) => node
+            case _ => {
+              val response = <responseProcessing>{ clearNamespace(get(url)).child }</responseProcessing>
+              cache += (url -> response)
+              response
+            }
+          }
+          case _ => node
         }
       }
-      case _ => node
+      case _ => {
+        println(s""""$url" is not a valid URL""")
+        node
+      }
     }
+  }
+
+  private def isUrl(maybeUrl: String) = try {
+    new URL(maybeUrl)
+    true
+  } catch {
+    case e: MalformedURLException => false
+    case e: Exception => throw e
   }
 
   implicit class AddTemplateConverterTools(node: Node) {
 
-    def hasTemplate = node.attribute("template").nonEmpty
+    def hasTemplate = node.attribute("template").map(_.headOption).flatten.map(_.text) match {
+      case Some(template) if (isUrl(template)) => true
+      case _ => false
+    }
 
     def withTemplate = ResponseProcessingTemplateConverter.this.withTemplate(node)
 

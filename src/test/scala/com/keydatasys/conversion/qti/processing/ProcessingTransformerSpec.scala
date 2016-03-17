@@ -1,5 +1,6 @@
 package com.keydatasys.conversion.qti.processing
 
+import org.corespring.conversion.qti.processing.{V2JavascriptWrapper, ProcessingTransformer}
 import org.specs2.mutable.Specification
 
 import scala.xml.Node
@@ -114,6 +115,18 @@ class ProcessingTransformerSpec extends Specification with ProcessingTransformer
 
   }
 
+  "not" should {
+
+    val exp = <variable identifier="great"></variable>
+    val notExp = <not>{exp}</not>
+
+
+    "return expression prefixed with !" in {
+      not(notExp) must be equalTo(s"!${expression(exp)}")
+    }
+
+  }
+
   "sum" should {
     val values = Seq("1", "2")
     val node = <sum>{ values.map(v => <baseValue>{ v }</baseValue>) }</sum>
@@ -121,6 +134,27 @@ class ProcessingTransformerSpec extends Specification with ProcessingTransformer
     "return X + Y" in {
       sum(node).mkString must be equalTo values.mkString(" + ")
     }
+  }
+
+  "subtract" should {
+    val values = Seq("1", "2")
+    val node = <subtract>{ values.map(v => <baseValue>{ v }</baseValue>) }</subtract>
+
+    "return X - Y" in {
+      subtract(node) must be equalTo(values.mkString(" - "))
+    }
+
+  }
+
+  "divide" should {
+
+    val values = Seq("1", "2")
+    val node = <divide>{ values.map(v => <baseValue>{ v }</baseValue>) }</divide>
+
+    "return X / Y" in {
+      divide(node) must be equalTo(values.mkString(" / "))
+    }
+
   }
 
   "gt" should {
@@ -146,6 +180,21 @@ class ProcessingTransformerSpec extends Specification with ProcessingTransformer
 
     "return contains(X,Y)" in {
       contains(node) must be equalTo s"contains($variable, [$integer])"
+    }
+
+  }
+
+  "patternMatch" should {
+
+    val variable = "RESPONSE"
+    val pattern = "^[0-9]*$"
+
+    val node = <patternMatch pattern={pattern}>
+      <variable identifier={variable}/>
+    </patternMatch>
+
+    "return (variable.match(/pattern/) != null)" in {
+      patternMatch(node) must be equalTo(s"($variable.match(/$pattern/) != null)")
     }
 
   }

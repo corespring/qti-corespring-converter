@@ -17,10 +17,7 @@ object HasSyntaxErrors {
       parser.parse(js, "?", 0)
       Success(js)
     } catch {
-      case e: Throwable => {
-        println(js)
-        Failure(new CustomTransformException("Error parsing js", e))
-      }
+      case e: Throwable => Failure(new CustomTransformException("Error parsing js", e))
     } finally {
       /** We must exit the context otherwise we risk deadlock */
       Context.exit()

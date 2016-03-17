@@ -42,7 +42,6 @@ class Runner(js: String) extends JsFunctionCalling {
       }
     } catch {
       case e: Throwable => {
-        e.printStackTrace()
         throw new RuntimeException(e)
       }
     } finally {

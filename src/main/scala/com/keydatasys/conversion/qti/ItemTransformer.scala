@@ -24,8 +24,8 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
       qtiTransformer.transform(xml, sources, manifestItem.manifest)
     } catch {
       case e: Exception => {
-        println(passageXml)
         println(manifestItem.filename)
+        e.printStackTrace()
         throw e
       }
     }

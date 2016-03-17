@@ -38,7 +38,6 @@ object ManifestReader
             Some(XML.loadString(escapeEntities(stripCDataTags(file.mkString))))
           } catch {
             case e: Exception => {
-              e.printStackTrace()
               println(s"Error reading: $filename")
               None
             }
@@ -85,11 +84,6 @@ object ManifestReader
         if (missingPassageResources.nonEmpty) {
           missingPassageResources.foreach(f => log(s"Missing file $f in uploaded import"))
         }
-        println("Resources:")
-        resources.foreach(resource => {
-          println(resource.path)
-        })
-        println()
         ManifestItem(id = (n \ "@identifier").text.toString, filename = filename, resources = resources ++ passageResources, n)
       }),
       otherFiles = resources.map(n => (n \ "@href").text.toString))

@@ -3,12 +3,13 @@ package org.parcconline.conversion.zip
 import java.io._
 import java.util.zip._
 
-import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
+import com.keydatasys.conversion.qti.ItemTransformer
+import org.parcconline.conversion.BootstrapTranslator
+import org.parcconline.conversion.qti.{QtiTransformer, ItemExtractor}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import com.progresstesting.conversion.util.UnicodeCleaner
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.Rewriter
-import org.corespring.conversion.qti.QtiTransformer
 import org.corespring.conversion.zip.QtiToCorespringConverter
 import play.api.libs.json.{JsString, JsValue, Json, JsObject}
 
@@ -43,7 +44,7 @@ object PARCCQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
+    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(new QtiTransformer(fileMap)))
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")
@@ -109,7 +110,7 @@ object PARCCQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner
 
   private def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
+      val xhtml = BootstrapTranslator.translate(unescapeCss(postprocessHtml((json \ "xhtml").as[String])))
       cleanUnicode(json ++ Json.obj(
         "xhtml" -> xhtml,
         "components" -> postprocessHtml((json \ "components")),

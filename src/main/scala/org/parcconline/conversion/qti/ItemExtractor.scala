@@ -1,16 +1,17 @@
-package com.keydatasys.conversion.qti
+package org.parcconline.conversion.qti
 
+import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestReader
 import com.keydatasys.conversion.qti.util.{PathFlattener, HtmlProcessor, PassageTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.AbstractItemExtractor
-import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.qti.manifest.{QTIManifest}
 import play.api.libs.json._
 
-import scalaz.{Failure, Success, Validation}
+import scalaz._
 
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with HtmlProcessor with PathFlattener {
+  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => ManifestReader.read(manifest, sources) }

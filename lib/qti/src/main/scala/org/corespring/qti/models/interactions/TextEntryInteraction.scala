@@ -69,13 +69,17 @@ case class TextEntryInteraction(responseIdentifier: String, expectedLength: Int,
 
 object TextEntryInteraction extends InteractionCompanion[TextEntryInteraction] {
 
+  object Defaults {
+    val expectedLength = 10
+  }
+
   def tagName = "textEntryInteraction"
 
   def apply(node: Node, itemBody: Option[Node]): TextEntryInteraction = {
     val responseIdentifier = Interaction.responseIdentifier(node)
     TextEntryInteraction(
       responseIdentifier = responseIdentifier,
-      expectedLength = expectedLength(node),
+      expectedLength = expectedLength(node).getOrElse(Defaults.expectedLength),
       feedbackBlocks = itemBody match {
         case Some(node) => {
           val fb = feedbackBlocks(node)
@@ -95,6 +99,9 @@ object TextEntryInteraction extends InteractionCompanion[TextEntryInteraction] {
   private def feedbackBlocks(itemBody: Node): Seq[FeedbackInline] = {
     (itemBody \\ "feedbackBlock").map(node => FeedbackInline(node, None))
   }
-  private def expectedLength(n: Node): Int = (n \ "@expectedLength").text.toInt
+  private def expectedLength(n: Node): Option[Int] = (n \ "@expectedLength").text match {
+    case "" => None
+    case string: String => Some(string.toInt)
+  }
 
 }

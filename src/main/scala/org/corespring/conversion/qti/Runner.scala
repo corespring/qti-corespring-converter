@@ -44,6 +44,9 @@ object Runner extends App {
     }
   }
 
+  println("Exit")
+//  System.exit(0)
+
 }
 
 case class Flag(long: String, short: String, default: Option[String])
