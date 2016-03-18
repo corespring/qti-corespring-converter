@@ -6,7 +6,7 @@ import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
-import org.parcconline.conversion.qti.interactions.{PassageAdder, MatchInteractionTransformer => PARCCMatchInteractionTransformer}
+import org.parcconline.conversion.qti.interactions.{MatchInteractionTransformer => PARCCMatchInteractionTransformer, SVGZWriter, PassageAdder}
 import org.parcconline.conversion.qti.processing.ProcessingTransformer
 import play.api.libs.json.{Json, JsObject, JsValue}
 
@@ -97,7 +97,8 @@ class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends Su
     RubricBlockTransformer,
     SelectTextInteractionTransformer,
     TextEntryInteractionTransformer(qti),
-    new PassageAdder(sources)
+    new PassageAdder(sources),
+    SVGZWriter
   )
 
   def statefulTransformers = Seq(

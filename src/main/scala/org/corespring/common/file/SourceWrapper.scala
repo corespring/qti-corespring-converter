@@ -19,7 +19,7 @@ case class SourceWrapper(name: String, inputStream: InputStream) {
 
   var tempFile: Option[File] = None
 
-  private def getFile: File = tempFile match {
+  def getFile: File = tempFile match {
     case Some(file) => file
     case _ => {
       val file = File.createTempFile(prefix, suffix)

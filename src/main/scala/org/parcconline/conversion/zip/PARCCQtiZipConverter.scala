@@ -5,6 +5,8 @@ import java.util.zip._
 
 import com.keydatasys.conversion.qti.ItemTransformer
 import org.parcconline.conversion.BootstrapTranslator
+import org.parcconline.conversion.qti.interactions.SVGZWriter
+import org.parcconline.conversion.qti.util.SVGZConverter
 import org.parcconline.conversion.qti.{QtiTransformer, ItemExtractor}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import com.progresstesting.conversion.util.UnicodeCleaner
@@ -70,7 +72,12 @@ object PARCCQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner
               Json.obj("taskInfo" -> taskInfo, "originId" -> id)))) ++
             extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.keys.find(key => key.endsWith(filename)).map(key => fileMap.get(key).getOrElse(throw new Exception("Wat?!"))))
               .filter { case (filename, maybeSource) => maybeSource.nonEmpty }
-              .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
+              .map { case (filename, someSource) =>
+                filename.endsWith("svgz") match {
+                  case true => (filename.replaceAll("svgz", "png"), Some(SVGZConverter.convert(someSource.get)))
+                  case _ => (filename, someSource)
+                }
+              }.map { case (filename, someSource) => (filename, someSource.get.toSource()) }
         }
         case _ => Seq.empty[(String, Source)]
       }
@@ -113,7 +120,7 @@ object PARCCQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner
       val xhtml = BootstrapTranslator.translate(unescapeCss(postprocessHtml((json \ "xhtml").as[String])))
       cleanUnicode(json ++ Json.obj(
         "xhtml" -> xhtml,
-        "components" -> postprocessHtml((json \ "components")),
+        "components" -> SVGZWriter.rewriteUrls(postprocessHtml((json \ "components"))),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       ))
     }
