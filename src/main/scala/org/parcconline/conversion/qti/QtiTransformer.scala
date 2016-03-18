@@ -34,7 +34,7 @@ class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends Su
 
     Json.obj(
       "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
-      "components" -> components) ++ customScoring(qti, components)
+      "components" -> components) //++ customScoring(qti, components)
   }
 
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
