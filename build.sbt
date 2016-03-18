@@ -38,7 +38,10 @@ lazy val root = Project("qti-corespring-converter", file("."))
     "org.specs2" %% "specs2" % "2.1.1" % "test",
     "com.typesafe.play" %% "play" % "2.2.1",
     "org.jsoup" % "jsoup" % "1.8.1",
-    "org.mockito" % "mockito-all" % "1.9.5"
+    "org.mockito" % "mockito-all" % "1.9.5",
+    "org.apache.xmlgraphics" % "batik-transcoder" % "1.8",
+    "org.apache.xmlgraphics" % "batik-codec" % "1.8",
+    "org.apache.xmlgraphics" % "xmlgraphics-commons" % "1.5"
   ),
   publishTo := authPublishTo.value
 ).dependsOn(qti).aggregate(qti)
