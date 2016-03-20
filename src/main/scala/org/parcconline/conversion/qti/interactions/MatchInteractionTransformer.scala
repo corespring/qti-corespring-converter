@@ -10,19 +10,33 @@ object MatchInteractionTransformer extends InteractionTransformer with EntityEsc
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] =
     (qti \\ "matchInteraction").map(implicit node => {
+      val correctResponse: Map[String, Seq[String]] = (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text)
+        .map(rd => (rd \ "correctResponse" \ "value").foldLeft(Map.empty[String, Seq[String]]){ case(acc, value) => {
+        value.text.split(" ") match {
+          case Array(value, key) => acc.get(key) match {
+            case Some(list) => acc + (key -> (list :+ value))
+            case _ => acc + (key -> Seq(value))
+          }
+          case _ => throw new Exception(s"Invalid response declaration format for ${(node \ "@responseIdentifier")}")
+        }
+      }}).getOrElse(Map.empty[String, Seq[String]])
+
+      def moveOnDrag(choice: Node) = {
+        def choiceIsSolutionForMultipleCategories(choice: Node) = {
+          val id = (choice \ "@identifier").text
+          correctResponse.count{ case(_, values) => values.contains(id) } > 1
+        }
+        def anyChoiceIsSolutionForMultipleCategories = {
+          val answers = correctResponse.values.flatten.toSeq
+          answers.length != answers.distinct.length
+        }
+        !anyChoiceIsSolutionForMultipleCategories
+      }
+
       (node \ "@responseIdentifier").text -> Json.obj(
         "componentType" -> "corespring-dnd-categorize",
         "correctResponse" -> JsObject({
-          (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text)
-            .map(rd => (rd \ "correctResponse" \ "value").foldLeft(Map.empty[String, Seq[String]]){ case(acc, value) => {
-            value.text.split(" ") match {
-              case Array(value, key) => acc.get(key) match {
-                case Some(list) => acc + (key -> (list :+ value))
-                case _ => acc + (key -> Seq(value))
-              }
-              case _ => throw new Exception("Wat")
-            }
-          }}).getOrElse(Map.empty[String, Seq[String]]).map{ case (key, value) => {
+          correctResponse.map{ case (key, value) => {
             key -> JsArray(value.map(JsString))
           }}.toSeq
         }),
@@ -40,7 +54,7 @@ object MatchInteractionTransformer extends InteractionTransformer with EntityEsc
           "choices" -> ((node \ "simpleMatchSet").head \ "simpleAssociableChoice").map{ choice => Json.obj(
             "id" -> (choice \ "@identifier").text,
             "label" -> encodeSafeEntities(choice.child.mkString),
-            "moveOnDrag" -> true
+            "moveOnDrag" -> moveOnDrag(choice)
           )},
           "config" -> Json.obj(
             "shuffle" -> false,
