@@ -46,6 +46,16 @@ object MatchInteractionTransformer extends InteractionTransformer with EntityEsc
           "incorrectFeedbackType" -> "none"
         ),
         "allowPartialScoring" -> false,
+        "partialScoring" -> Json.obj(
+          "sections" -> ((node \ "simpleMatchSet").last \ "simpleAssociableChoice").map{ choice =>
+            Json.obj(
+              "catId" -> (choice \ "@identifier").text,
+              "partialScoring" -> Json.obj("numberOfCorrect" -> 1, "scorePercentage" -> 0))
+          }
+        ),
+        "allowWeighting" -> true,
+        "weighting" -> JsObject(((node \ "simpleMatchSet").last \ "simpleAssociableChoice").map{ choice =>
+          (choice \ "@identifier").text -> JsNumber(1) }),
         "model" -> Json.obj(
           "categories" -> ((node \ "simpleMatchSet").last \ "simpleAssociableChoice").map{ choice => Json.obj(
             "id" -> (choice \ "@identifier").text,
