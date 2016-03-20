@@ -12,15 +12,20 @@ object MatchInteractionTransformer extends InteractionTransformer with EntityEsc
     (qti \\ "matchInteraction").map(implicit node => {
       (node \ "@responseIdentifier").text -> Json.obj(
         "componentType" -> "corespring-dnd-categorize",
-        "correctResponse" -> JsObject(
+        "correctResponse" -> JsObject({
           (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text)
-            .map(rd => (rd \ "correctResponse" \ "value").map(value => {
-              value.text.split(" ") match {
-                case Array(key, value) => key -> Json.arr(JsString(value))
-                case _ => throw new Exception("Wat")
+            .map(rd => (rd \ "correctResponse" \ "value").foldLeft(Map.empty[String, Seq[String]]){ case(acc, value) => {
+            value.text.split(" ") match {
+              case Array(value, key) => acc.get(key) match {
+                case Some(list) => acc + (key -> (list :+ value))
+                case _ => acc + (key -> Seq(value))
               }
-            })).getOrElse(Seq.empty)
-        ),
+              case _ => throw new Exception("Wat")
+            }
+          }}).getOrElse(Map.empty[String, Seq[String]]).map{ case (key, value) => {
+            key -> JsArray(value.map(JsString))
+          }}.toSeq
+        }),
         "feedback" -> Json.obj(
           "correctFeedbackType" -> "none",
           "partialFeedbackType" -> "none",

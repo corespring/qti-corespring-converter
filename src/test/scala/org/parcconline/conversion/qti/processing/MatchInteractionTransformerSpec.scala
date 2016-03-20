@@ -5,7 +5,7 @@ import org.parcconline.conversion.qti.interactions.MatchInteractionTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
-class MatchInteractionTransformerSpec extends Specification {
+class PARCCMatchInteractionTransformerSpec extends Specification {
 
   val responseIdentifier = "RESPONSE"
 
@@ -105,7 +105,7 @@ class MatchInteractionTransformerSpec extends Specification {
       val correctResponseJs = (result \ "correctResponse").as[JsObject]
 
       "map <correctResponse/> values to keyed object" in {
-        correctResponse.map{ case(key, value) => {
+        correctResponse.map{ case (value, key) => {
           (correctResponseJs \ key).as[Seq[String]] must be equalTo(Seq(value))
         }}.last
       }
@@ -195,6 +195,5 @@ class MatchInteractionTransformerSpec extends Specification {
     }
 
   }
-
 
 }
