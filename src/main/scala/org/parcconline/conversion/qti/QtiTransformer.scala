@@ -97,6 +97,7 @@ class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends Su
     RubricBlockTransformer,
     SelectTextInteractionTransformer,
     TextEntryInteractionTransformer(qti),
+    GapMatchInteractionTransformer,
     new PassageAdder(sources),
     SVGZWriter
   )
