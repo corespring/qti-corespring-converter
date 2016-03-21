@@ -110,7 +110,7 @@ object QtiTransformer extends QtiTransformer {
     OrderInteractionTransformer,
     PointInteractionTransformer,
     RubricBlockTransformer,
-    SelectTextInteractionTransformer,
+    new SelectTextInteractionTransformer(),
     TextEntryInteractionTransformer(qti)
   )
 

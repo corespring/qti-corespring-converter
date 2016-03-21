@@ -1,12 +1,11 @@
 package org.parcconline.conversion.qti
 
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
-import org.parcconline.conversion.qti.interactions.{MatchInteractionTransformer => PARCCMatchInteractionTransformer, SVGZWriter, PassageAdder}
+import org.parcconline.conversion.qti.interactions.{SelectTextInteractionTransformer => PARCCSelectTextInteractionTransformer, MatchInteractionTransformer => PARCCMatchInteractionTransformer, GraphicGapMatchInteractionTransformer => PARCCGraphicGapMatchInteractionTransformer, SVGZWriter, PassageAdder}
 import org.parcconline.conversion.qti.processing.ProcessingTransformer
 import play.api.libs.json.{Json, JsObject, JsValue}
 
@@ -88,14 +87,14 @@ class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends Su
     FocusTaskInteractionTransformer,
     FoldableInteractionTransformer,
     HottextInteractionTransformer,
-    new GraphicGapMatchInteractionTransformer(),
+    new PARCCGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
     PARCCMatchInteractionTransformer,
     NumberedLinesTransformer(qti),
     OrderInteractionTransformer,
     PointInteractionTransformer,
     RubricBlockTransformer,
-    SelectTextInteractionTransformer,
+    new PARCCSelectTextInteractionTransformer(),
     TextEntryInteractionTransformer(qti),
     GapMatchInteractionTransformer,
     new PassageAdder(sources),

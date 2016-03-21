@@ -34,32 +34,33 @@ object GapMatchInteractionTransformer extends InteractionTransformer {
       }
 
       (node \\ "@responseIdentifier").text -> Json.obj(
-      "correctResponse" -> JsObject(correctResponse.map{ case (key, value) => {
-        key -> JsArray(value.map(JsString))
-      }}.toSeq),
-      "feedback" -> Json.obj(
-        "correctFeedbackType" -> "none",
-        "partialFeedbackType" -> "none",
-        "incorrectFeedbackType" -> "none"
-      ),
-      "model" -> Json.obj(
-        "answerAreaXhtml" -> AnswerAreaTransformer.transform(node).child.mkString.trim,
-        "answerAreas" -> (node \\ "gap").map(gap => Json.obj("id" -> (gap \ "@identifier").text)),
-        "choices" -> (node \\ "gapText").map(gapText => Json.obj(
-          "label" -> gapText.child.mkString,
-          "labelType" -> "text",
-          "id" -> (gapText \ "@identifier").text,
-          "moveOnDrag" -> moveOnDrag(gapText)
-        )),
-        "config" -> Json.obj(
-          "shuffle" -> false,
-          "choiceAreaLabel" -> "",
-          "choiceAreaLayout" -> "horizontal",
-          "choiceAreaPosition" -> "above",
-          "removeAllAfterPlacing" -> true
+        "componentType" -> "corespring-drag-and-drop-inline",
+        "correctResponse" -> JsObject(correctResponse.map{ case (key, value) => {
+          key -> JsArray(value.map(JsString))
+        }}.toSeq),
+        "feedback" -> Json.obj(
+          "correctFeedbackType" -> "none",
+          "partialFeedbackType" -> "none",
+          "incorrectFeedbackType" -> "none"
+        ),
+        "model" -> Json.obj(
+          "answerAreaXhtml" -> AnswerAreaTransformer.transform(node).child.mkString.trim,
+          "answerAreas" -> (node \\ "gap").map(gap => Json.obj("id" -> (gap \ "@identifier").text)),
+          "choices" -> (node \\ "gapText").map(gapText => Json.obj(
+            "label" -> gapText.child.mkString,
+            "labelType" -> "text",
+            "id" -> (gapText \ "@identifier").text,
+            "moveOnDrag" -> moveOnDrag(gapText)
+          )),
+          "config" -> Json.obj(
+            "shuffle" -> false,
+            "choiceAreaLabel" -> "",
+            "choiceAreaLayout" -> "horizontal",
+            "choiceAreaPosition" -> "above",
+            "removeAllAfterPlacing" -> true
+          )
         )
-      )
-    )}).toMap
+      )}).toMap
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case elem: Elem if elem.label == "gapMatchInteraction" => {

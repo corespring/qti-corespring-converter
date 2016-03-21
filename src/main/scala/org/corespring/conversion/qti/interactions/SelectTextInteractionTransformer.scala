@@ -5,7 +5,7 @@ import play.api.libs.json._
 import scala.util.matching.Regex
 import scala.xml._
 
-object SelectTextInteractionTransformer extends InteractionTransformer {
+class SelectTextInteractionTransformer extends InteractionTransformer {
 
   object Defaults {
     val shuffle = false

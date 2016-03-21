@@ -45,7 +45,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     RubricBlockTransformer,
     RulerWidgetTransformer,
     SelectPointInteractionTransformer(qti),
-    SelectTextInteractionTransformer,
+    new SelectTextInteractionTransformer(),
     TeacherInstructionsTransformer,
     TextEntryInteractionTransformer(qti)
   )
