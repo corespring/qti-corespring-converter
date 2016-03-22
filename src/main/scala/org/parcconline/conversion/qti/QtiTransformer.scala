@@ -87,7 +87,7 @@ class QtiTransformer(sources: Map[String, SourceWrapper] = Map.empty) extends Su
     FocusTaskInteractionTransformer,
     FoldableInteractionTransformer,
     HottextInteractionTransformer,
-    new PARCCGraphicGapMatchInteractionTransformer(),
+    new PARCCGraphicGapMatchInteractionTransformer(sources),
     LineInteractionTransformer,
     PARCCMatchInteractionTransformer,
     NumberedLinesTransformer(qti),
