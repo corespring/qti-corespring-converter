@@ -10,7 +10,6 @@ import scala.xml.Node
 class GraphicGapMatchInteractionTransformer(sources: Map[String, SourceWrapper]) extends SuperGraphicGapMatchInteractionTransformer {
 
   override def interactionJs(qti: Node, manifest: Node) = super.interactionJs(qti, manifest).map{ case(id, json) => {
-    println(sources.keys)
     val imageFilename = (json \ "model" \ "config" \ "backgroundImage" \ "path").as[String]
     val (width, height) = sources.find{ case(filename, _) => filename.endsWith(imageFilename) } match {
       case Some((_, file)) => SVGZConverter.getDimensions(file)
