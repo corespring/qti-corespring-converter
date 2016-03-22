@@ -10,6 +10,12 @@ class GraphicGapMatchInteractionTransformer(sources: Map[String, SourceWrapper])
 
   private val choiceAreaWidth = 150
 
+  private def choices(json: JsObject) = (json \ "model" \ "choices").as[Seq[JsObject]].map{ choice =>
+    choice.deepMerge(Json.obj(
+      "label" -> XML.loadString((choice \ "label").as[String]).withoutDimensions.toString
+    ))
+  }
+
   private def choiceAreaPosition(json: JsObject) = {
     val maxChoiceWidth = (json \ "model" \ "choices").as[Seq[JsObject]].map{ choice => {
       XML.loadString((choice \ "label").as[String]).attribute("src") match {
@@ -45,11 +51,22 @@ class GraphicGapMatchInteractionTransformer(sources: Map[String, SourceWrapper])
           "choiceAreaPosition" -> choiceAreaPosition(json),
           "backgroundImage" -> Json.obj(
             "width" -> width,
-            "height" -> height
+            "height" -> height,
+            "fixedWidth" -> false
           )
-        )
+        ),
+        "choices" -> choices(json)
       )
     ))
   }}
+
+  implicit class WithoutDimensions(elem: Elem) {
+
+    private def remove(elem: Elem, attribute: String): Elem =
+      elem.copy(attributes = elem.attributes.find(_.key == attribute).get.remove(attribute))
+
+    def withoutDimensions = remove(remove(elem, "height"), "width")
+
+  }
 
 }

@@ -47,12 +47,13 @@ class SelectTextInteractionTransformerSpec extends Specification {
   "selectTextInteraction for 'word'" should {
 
     val wordQti = qti(selectionTextWord, "word")
+    val selectTextInteractionTransformer = new SelectTextInteractionTransformer()
 
     val interactionJs =
-      SelectTextInteractionTransformer.interactionJs(wordQti, QTIManifest.EmptyManifest).get(identifier)
+      selectTextInteractionTransformer.interactionJs(wordQti, QTIManifest.EmptyManifest).get(identifier)
         .getOrElse(throw new IllegalStateException(s"Missing result for $identifier"))
 
-    val xhtml = new InteractionRuleTransformer(SelectTextInteractionTransformer).transform(wordQti).mkString
+    val xhtml = new InteractionRuleTransformer(selectTextInteractionTransformer).transform(wordQti).mkString
 
     "interactionJs" should {
 
@@ -131,10 +132,12 @@ class SelectTextInteractionTransformerSpec extends Specification {
 
   "selectTextInteraction for 'sentence'" should {
 
+    val selectTextInteractionTransformer = new SelectTextInteractionTransformer()
+
     val sentenceQti = qti(selectionTextSentence, "sentence")
 
     val interactionJs =
-      SelectTextInteractionTransformer.interactionJs(sentenceQti, QTIManifest.EmptyManifest).get(identifier)
+      selectTextInteractionTransformer.interactionJs(sentenceQti, QTIManifest.EmptyManifest).get(identifier)
         .getOrElse(throw new IllegalStateException(s"Missing result for $identifier"))
 
     "config" should {
