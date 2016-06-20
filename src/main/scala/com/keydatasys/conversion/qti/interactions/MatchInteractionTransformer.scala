@@ -18,6 +18,11 @@ object MatchInteractionTransformer extends InteractionTransformer {
   }
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = (qti \\ "matchInteraction").map(implicit node => {
+    val missing = missingAnswers(node)(qti)
+    missing.nonEmpty match {
+      case true => println(s"Interaction ${(qti \ "@identifier").text}, <matchInteraction/> ${(node \\ "@responseIdentifier").text} missing correctResponses for ${missing.mkString(", ")}")
+      case _ => {}
+    }
     (node \ "@responseIdentifier").text -> Json.obj(
       "componentType" -> "corespring-match",
       "correctResponse" -> answers(qti)(node),
@@ -66,6 +71,15 @@ object MatchInteractionTransformer extends InteractionTransformer {
       case regexX(_*) => true
       case _ => false
     }
+  }
+
+  private def missingAnswers(node: Node)(implicit qti: Node): Seq[String] = {
+    val id = (node \ "@responseIdentifier").text
+    val rowIds = ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(n => (n \ "@identifier").toString).toSeq
+    val correctIds = (qti \ "responseDeclaration").find(n => (n \ "@identifier").text == id).map(n => {
+      (n \\ "value").map(_.text.split(" ").head)
+    }).getOrElse(Seq.empty)
+    rowIds.filterNot(id => correctIds.contains(id))
   }
 
 }
