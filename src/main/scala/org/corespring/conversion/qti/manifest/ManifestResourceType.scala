@@ -4,13 +4,13 @@ import scala.xml.Node
 
 object ManifestResourceType extends Enumeration {
   type ManifestResourceType = Value
-  val QTI, Passage, Video, Image, Unknown = Value
+  val QTI, Passage, Video, Audio, Image, Unknown = Value
 
   private val typeMap = Map(
     "imsqti_item_xmlv2p1" -> QTI,
     "passage" -> Passage)
 
-  private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image)
+  private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image, Seq("mp3") -> Audio)
   private val pathFunctions: Seq[String => Option[ManifestResourceType.Value]] = Seq(
     (path => path.startsWith("passages/") match {
       case true => Some(ManifestResourceType.Passage)

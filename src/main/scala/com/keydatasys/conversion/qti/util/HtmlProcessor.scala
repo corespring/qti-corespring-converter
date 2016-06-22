@@ -10,7 +10,7 @@ trait HtmlProcessor extends EntityEscaper {
     escapeEntities(Windows1252EntityTransformer.transform(html))
   } catch {
     case e: SAXParseException => {
-      System.err.println(e.getMessage)
+      System.err.println(s"Err: ${e.getMessage}")
       html
     }
   }
@@ -28,7 +28,7 @@ trait HtmlProcessor extends EntityEscaper {
     }
   } catch {
     case e: SAXParseException => {
-      System.err.println(e.getMessage)
+      System.err.println(s"Err2: ${e.getMessage}")
       jsValue
     }
   }

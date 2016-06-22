@@ -26,14 +26,15 @@ object ManifestReader
     val resourceLocators: Map[ManifestResourceType.Value, Node => Seq[String]] =
       Map(
         ManifestResourceType.Image -> (n => (n \\ "img").map(_ \ "@src").map(_.toString)),
-        ManifestResourceType.Video -> (n => (n \\ "video").map(_ \ "source").map(_ \ "@src").map(_.toString)))
+        ManifestResourceType.Video -> (n => (n \\ "video").map(_ \ "source").map(_ \ "@src").map(_.toString)),
+        ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)))
 
     new QTIManifest(items =
       qtiResources.map(n => {
         val filename = (n \ "@href").text.toString
         val files = sources.get(filename).map { file =>
           try {
-            Some(XML.loadString(escapeEntities(stripCDataTags(file.mkString))))
+            Some(XML.loadString(scrub(escapeEntities(stripCDataTags(file.mkString)))))
           } catch {
             case e: Exception => {
               println(s"Error reading: $filename")
@@ -54,9 +55,9 @@ object ManifestReader
           ManifestResource(
             path = path,
             resourceType = ManifestResourceType.fromPath(path)(xml))
-        })) ++ files
+        })) ++ files :+ ManifestResource(filename, ManifestResourceType.QTI)
 
-        val passageResources: Seq[ManifestResource] = resources.filter(_.is(ManifestResourceType.Passage)).map(p =>
+        val passageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage) || resource.is(ManifestResourceType.QTI)).map(p =>
           sources.find { case (path, _) => path == p.path.flattenPath }.map {
             case (filename, s) => {
               try {

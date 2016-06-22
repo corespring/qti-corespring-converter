@@ -1,10 +1,12 @@
 package com.keydatasys.conversion.zip
 
-import java.io.{FileOutputStream, File, ByteArrayOutputStream}
+import java.io.{FileInputStream, FileOutputStream, File, ByteArrayOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
+import com.keydatasys.conversion.audio.Mp3ToOgg
 import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
 import com.keydatasys.conversion.qti.util.{HtmlProcessor, PathFlattener}
+import org.apache.commons.io.FileUtils
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.Rewriter
@@ -49,13 +51,40 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
             s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(
               Json.obj("taskInfo" -> taskInfo, "originId" -> id)))) ++
             extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
-              .filter { case (filename, maybeSource) => maybeSource.nonEmpty }
+              .filter { case (filename, maybeSource) => {
+                maybeSource.nonEmpty }}
+              .map { case (filename, source) => filename.split("\\.").lastOption match {
+                case Some("mp3") => filename.replaceAll("mp3", "ogg") -> convertMp3(filename, source)
+                case _ => filename -> source
+              }}
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
+
         }
         case _ => Seq.empty[(String, Source)]
       }
     }}.flatten.toMap
     writeZip(toZipByteArray(processedFiles), path)
+  }
+
+  private lazy val tempFilePath = {
+    val temp = File.createTempFile("temp-file-name", ".tmp")
+    temp.deleteOnExit()
+    temp.getAbsolutePath.substring(0, temp.getAbsolutePath.lastIndexOf(File.separator))
+  }
+
+  private def convertMp3(filename: String, source: Option[SourceWrapper]) = source.map{ source =>
+    val mp3Bytes = source.toByteArray
+    val fname = filename.split("/").lastOption.map(l => l.substring(0, l.indexOf("."))).getOrElse("temp")
+    val mp3File = File.createTempFile(fname, ".mp3")
+    FileUtils.writeByteArrayToFile(mp3File, mp3Bytes)
+    mp3File.deleteOnExit()
+
+    val oggFile = s"$tempFilePath/$fname.ogg"
+
+    println(s"Starting conversion of $filename...")
+    Mp3ToOgg.convert(mp3File, oggFile)
+    println(s"Finished conversion of $filename...")
+    SourceWrapper(filename.replaceAll("mp3", "ogg"), new FileInputStream(oggFile))
   }
 
   private def postProcess(item: JsValue): JsValue = item match {
