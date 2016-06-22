@@ -32,6 +32,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   }
 
   def interactionTransformers(qti: Elem) = Seq(
+    AudioComponentTransformer,
     CalculatorWidgetTransformer,
     CorespringTabTransformer,
     CoverflowInteractionTransformer,

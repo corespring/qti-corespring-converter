@@ -54,11 +54,10 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
               .filter { case (filename, maybeSource) => {
                 maybeSource.nonEmpty }}
               .map { case (filename, source) => filename.split("\\.").lastOption match {
-                case Some("mp3") => filename.replaceAll("mp3", "ogg") -> convertMp3(filename, source)
-                case _ => filename -> source
-              }}
+                case Some("mp3") => Seq(filename -> source, filename.replaceAll("mp3", "ogg") -> convertMp3(filename, source))
+                case _ => Seq(filename -> source)
+              }}.flatten
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
-
         }
         case _ => Seq.empty[(String, Source)]
       }
@@ -80,10 +79,8 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
     mp3File.deleteOnExit()
 
     val oggFile = s"$tempFilePath/$fname.ogg"
-
-    println(s"Starting conversion of $filename...")
     Mp3ToOgg.convert(mp3File, oggFile)
-    println(s"Finished conversion of $filename...")
+    new File(oggFile).deleteOnExit()
     SourceWrapper(filename.replaceAll("mp3", "ogg"), new FileInputStream(oggFile))
   }
 
