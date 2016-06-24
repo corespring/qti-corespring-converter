@@ -13,7 +13,7 @@ class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer 
       case (id, json) => id -> json.deepMerge(Json.obj(
         "feedback" -> Json.obj(
           "correctFeedbackType" -> "default",
-          "incorrectFeedbackType" -> "default"),
+          "incorrectFeedbackType" -> "none"),
         "correctResponses" -> Json.obj(
           "feedback" -> Json.obj(
             "type" -> "default",
