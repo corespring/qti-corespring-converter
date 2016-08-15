@@ -56,7 +56,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     SelectPointInteractionTransformer(qti),
     SelectTextInteractionTransformer,
     TeacherInstructionsTransformer,
-    TextEntryInteractionTransformer(qti)
+    KDSTextEntryInteractionTransformer(qti)
   )
 
   def statefulTransformers = Seq(

@@ -8,7 +8,7 @@ import scala.xml._
 
 class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer {
 
-  override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] =
+  override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = {
     CorespringTextEntryInteractionTransformer(qti).interactionJs(qti, manifest).map {
       case (id, json) => id -> json.deepMerge(Json.obj(
         "feedback" -> Json.obj(
@@ -21,8 +21,14 @@ class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer 
         "incorrectResponses" -> Json.obj(
           "feedback" -> Json.obj(
             "type" -> "default",
-            "value" -> "Good try, but the correct answer is <random selection from correct answers>."))))
-    }.toMap
+            "value" -> "Good try, but the correct answer is <random selection from correct answers>.")),
+        "partialResponses" -> Json.obj(
+          "feedback" -> Json.obj(
+            "type" -> "default",
+            "value" -> "Very good, but an even better answer would have been <random selection from correct answers>."
+          ))))
+    }
+  }
 
   override def transform(node: Node, manifest: Node): Seq[Node] =
     CorespringTextEntryInteractionTransformer(qti).transform(node, manifest)

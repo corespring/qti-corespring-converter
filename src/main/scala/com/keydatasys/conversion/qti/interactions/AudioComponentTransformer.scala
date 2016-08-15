@@ -16,7 +16,7 @@ object AudioComponentTransformer extends InteractionTransformer {
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case elem: Elem if elem.label == "audio" => fileIdentifier(node) match {
-      case Some(id) => <cs-audio id={id} />
+      case Some(id) => <corespring-audio id={id} />
       case _ => node
     }
     case _ => node
@@ -25,11 +25,13 @@ object AudioComponentTransformer extends InteractionTransformer {
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = (qti \\ "audio").map{ node =>
     fileIdentifier(node) match {
       case Some(id) => id -> Json.obj(
+        "weight" -> 0,
         "componentType" -> "corespring-audio",
-        "formats" -> Json.obj(
-          "audio/mpeg" -> s"$id.mp3",
-          "audio/ogg" -> s"$id.ogg"
-        )
+        "fileName" -> s"$id.mp3",
+        "pauseButtonLabel" -> "Stop",
+        "playButtonLabel" -> "Listen",
+        "title" -> "Audio",
+        "ui" -> "fullControls"
       )
       case _ => throw new IllegalStateException("Node did not match pattern")
     }
