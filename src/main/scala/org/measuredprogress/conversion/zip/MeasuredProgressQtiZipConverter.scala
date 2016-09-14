@@ -1,24 +1,23 @@
-package com.progresstesting.conversion.zip
+package org.measuredprogress.conversion.zip
 
-import java.io.{FileOutputStream, File, ByteArrayOutputStream}
-import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
+import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
+import com.keydatasys.conversion.qti.{ItemExtractor, ItemTransformer}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.{UnicodeCleaner, Rewriter}
+import org.corespring.common.util.UnicodeCleaner
 import org.corespring.conversion.qti.QtiTransformer
 import org.corespring.conversion.zip.QtiToCorespringConverter
-import play.api.libs.json.{JsString, JsValue, Json, JsObject}
+import play.api.libs.json._
 
 import scala.collection.JavaConversions._
 import scala.io.Source
-import scalaz.{Success, Failure, Validation}
+import scalaz.{Failure, Success, Validation}
 
-object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
+object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
-  private val collectionName = "progress-testing"
-  private val collectionId = "5665af0ce4b03794c324adbd"
+  val collectionId = ""
+  val collectionName = "Measured Progress"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 
@@ -60,11 +59,10 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
 
   private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
     partialObj(
-      "title" -> metadata.map(md => JsString((md \ "sourceId").as[String])),
       "relatedSubject" -> Some(Json.arr()),
       "domains" -> Some(Json.arr()),
       "extended" -> metadata.map(md => Json.obj(
-        "progresstesting" -> md
+        "measuredprogress" -> md
       ))
     )
   }

@@ -1,6 +1,7 @@
 package com.keydatasys.conversion.qti.util
 
 import org.corespring.common.file.SourceWrapper
+import org.corespring.common.util.HtmlProcessor
 import org.corespring.conversion.qti.manifest.{ManifestResourceType, ManifestResource}
 
 import scala.xml.XML

@@ -2,6 +2,7 @@ package org.corespring.conversion.qti.manifest
 
 import com.keydatasys.conversion.qti.util._
 import org.corespring.common.file.SourceWrapper
+import org.corespring.common.util.EntityEscaper
 import org.corespring.conversion.qti.manifest._
 
 import scala.util.logging.Logged

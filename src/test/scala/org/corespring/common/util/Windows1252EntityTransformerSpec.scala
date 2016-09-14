@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti.util
+package org.corespring.common.util
 
 import org.specs2.mutable.Specification
 

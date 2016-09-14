@@ -21,7 +21,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
         Some(JsResponseProcessing(
           vars = outcomeDeclarations(qti),
           responseVars = responseDeclarations(qti),
-          lines = node.withoutEmptyChildren.map(n => responseCondition(n)(qti))))
+          lines = node.withoutEmptyChildren.map(n => responseChild(n)(qti))))
       } catch {
         case e: Exception => {
           e.printStackTrace
@@ -36,7 +36,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
       case Some(responseProcessing) => responseProcessing.hasTemplate match {
         case true => (qti \ "responseDeclaration").length match {
           case 1 => Some(responseProcessing.withTemplate
-            .substituting(AssumedResponseTemplateVariable -> (qti \ "responseDeclaration" \ "@identifier").head.text))
+            .substituting(AssumedResponseTemplateVariable -> (qti \ "responseDeclaration" \ "@identifier").head.text.toVar))
           case 0 =>
             throw ProcessingTransformerException("Cannot utilize template without response declarations", qti)
           case _ =>
@@ -48,7 +48,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
     }
   }
 
-  protected def responseDeclarations(qti: Node): Seq[String] = (qti \ "responseDeclaration").map(_ \ "@identifier").map(_.text)
+  protected def responseDeclarations(qti: Node): Seq[String] = (qti \ "responseDeclaration").map(_ \ "@identifier").map(_.text.toVar)
 
   protected def outcomeDeclarations(qti: Node): Map[String, String] = {
     def default[T](node: Node, _def: Option[T], fn: (String => String) = t => t.toString): String = {
@@ -68,12 +68,20 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
         case "float" => default[Float](outcomeDeclaration, Some(0.0f))
         case "integer" => default[Int](outcomeDeclaration, Some(0))
         case "identifier" => default[String](outcomeDeclaration, None)
+        case "boolean" => default[Boolean](outcomeDeclaration, Some(true))
         case other: String => throw ProcessingTransformerException(
           "Cannot parse outcomeDeclaration of type " + other + ": $node", outcomeDeclaration)
       }
-      (outcomeDeclaration \ "@identifier").text -> defaultValue
+      (outcomeDeclaration \ "@identifier").text.toVar -> defaultValue
     }.toMap
   }
+
+  protected def responseChild(node: Node)(implicit qti: Node) =
+    node.label match {
+      case "responseCondition" => responseCondition(node)
+      case "setOutcomeValue" => responseRule(node)
+      case _ => throw ProcessingTransformerException(s"Do not recognize ${node.label} as a child of responseProcessing", node)
+    }
 
   protected def responseCondition(node: Node)(implicit qti: Node) =
     node.withoutEmptyChildren.map(child => child.label match {
@@ -107,7 +115,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
   }
 
   protected def setOutcomeValue(node: Node)(implicit qti: Node) =
-    s"""${(node \ "@identifier").text} = ${expression(node.withoutEmptyChildren.head)};"""
+    s"""${(node \ "@identifier").text.toVar} = ${expression(node.withoutEmptyChildren.head)};"""
 
   protected def expression(node: Node)(implicit qti: Node): String = node.label match {
     case "match" => s"(${_match(node)})"
@@ -118,7 +126,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
     case "isNull" => s"(${isNull(node)})"
     case "equal" => s"(${equal(node)})"
     case "sum" => sum(node)
-    case "variable" => (node \ "@identifier").text
+    case "variable" => (node \ "@identifier").text.toVar
     case "correct" => correct(node)
     case "baseValue" => baseValue(node)
     case "mapResponse" => mapResponse(node)
@@ -173,7 +181,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
       (rd \ "correctResponse" \ "value").map(_.text).map(v => {
         (rd \ "@baseType").text match {
           case "string" => s""""$v""""
-          case "identifier" => s""""$v""""
+          case "identifier" => s""""${v.toVar}""""
           case "directedPair" => directedPair(v)
           case _ => v
         }
@@ -192,9 +200,9 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
     }
   }
 
-  protected def containerSize(node: Node) = s"${(node \ "variable" \ "@identifier").text}.length"
+  protected def containerSize(node: Node) = s"${(node \ "variable" \ "@identifier").text.toVar}.length"
 
-  protected def mapResponse(node: Node) = s"mapResponse('${(node \ "@identifier").text}')"
+  protected def mapResponse(node: Node) = s"mapResponse('${(node \ "@identifier").text.toVar}')"
 
   protected def sum(node: Node)(implicit qti: Node) = node.withoutEmptyChildren.map(expression(_).mkString).mkString(" + ")
 
@@ -220,6 +228,11 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
 
   private case class ProcessingTransformerException(message: String, node: Node) extends Exception {
     override def getMessage = message.replace("$label", node.label).replace("$node", node.toString)
+  }
+
+
+  implicit class StringToVar(string: String) {
+    def toVar = string.replaceAll("-", "_")
   }
 
 }

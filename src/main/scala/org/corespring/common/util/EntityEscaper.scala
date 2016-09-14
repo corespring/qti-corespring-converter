@@ -1,4 +1,6 @@
-package com.keydatasys.conversion.qti.util
+package org.corespring.common.util
+
+import com.keydatasys.conversion.qti.util.TagCleaner
 
 import scala.xml.XML
 

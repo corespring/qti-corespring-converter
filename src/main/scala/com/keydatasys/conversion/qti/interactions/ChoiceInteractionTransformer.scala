@@ -1,6 +1,6 @@
 package com.keydatasys.conversion.qti.interactions
 
-import com.keydatasys.conversion.qti.util.XHTMLCleaner
+import org.corespring.common.util.XHTMLCleaner
 import org.corespring.conversion.qti.interactions.InteractionTransformer
 import org.corespring.conversion.qti.interactions.{ChoiceInteractionTransformer => CorespringChoiceInteractionTransformer}
 import play.api.libs.json._

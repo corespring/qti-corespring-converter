@@ -1,4 +1,4 @@
-package com.progresstesting.conversion.util
+package org.corespring.common.util
 
 import play.api.libs.json._
 

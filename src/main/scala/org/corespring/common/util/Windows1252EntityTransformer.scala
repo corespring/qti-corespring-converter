@@ -1,4 +1,4 @@
-package com.keydatasys.conversion.qti.util
+package org.corespring.common.util
 
 /**
  * The Windows-1252 character encoding is a superset of ISO 8859-1 which includes characters that are not properly

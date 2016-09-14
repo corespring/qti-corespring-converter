@@ -4,6 +4,7 @@ import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
+import org.measuredprogress.conversion.zip.MeasuredProgressQtiZipConverter
 import play.api.libs.json._
 
 import scalaz.{Failure, Success, Validation}
@@ -19,7 +20,8 @@ object Runner extends App {
 
   val converters = Map(
     "kds" -> KDSQtiZipConverter,
-    "progresstesting" -> ProgressTestingQtiZipConverter
+    "progresstesting" -> ProgressTestingQtiZipConverter,
+    "measuredprogress" -> MeasuredProgressQtiZipConverter
   )
 
   parsed match {

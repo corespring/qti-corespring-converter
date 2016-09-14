@@ -5,11 +5,11 @@ import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
 import com.keydatasys.conversion.audio.Mp3ToOgg
 import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
-import com.keydatasys.conversion.qti.util.{HtmlProcessor, PathFlattener}
+import com.keydatasys.conversion.qti.util.PathFlattener
 import org.apache.commons.io.FileUtils
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
-import org.corespring.common.util.Rewriter
+import org.corespring.common.util.{HtmlProcessor, Rewriter}
 import org.corespring.conversion.zip.QtiToCorespringConverter
 import play.api.libs.json._
 
@@ -84,7 +84,7 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
     SourceWrapper(filename.replaceAll("mp3", "ogg"), new FileInputStream(oggFile))
   }
 
-  private def postProcess(item: JsValue): JsValue = item match {
+  override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
       json ++ Json.obj(
         "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
@@ -93,25 +93,6 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
       )
     }
     case _ => item
-  }
-
-
-  /**
-   * Scala's XML parser won't even preserve these characters in CDATA tags.
-   */
-  private def unescapeCss(string: String): String = new Rewriter("""<style type="text/css">(.*?)</style>""") {
-    def replacement() = s"""<style type="text/css">${group(1).replaceAll("&gt;", ">")}</style>"""
-  }.rewrite(string)
-
-  private def writeZip(byteArray: Array[Byte], path: String) = {
-    val file = new File(path)
-    val fileOutput = new FileOutputStream(file)
-    try {
-      fileOutput.write(byteArray)
-    } finally {
-      fileOutput.close()
-    }
-    new ZipFile(file)
   }
 
   private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
@@ -123,17 +104,5 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
       ))
     )
   }
-
-  private def toZipByteArray(files: Map[String, Source]) = {
-    val bos = new ByteArrayOutputStream()
-    val zipFile = new ZipOutputStream(bos)
-    files.foreach{ case (filename, contents) => {
-      zipFile.putNextEntry(new ZipEntry(filename))
-      zipFile.write(contents.map(_.toByte).toArray)
-    }}
-    zipFile.close
-    bos.toByteArray
-  }
-
 
 }

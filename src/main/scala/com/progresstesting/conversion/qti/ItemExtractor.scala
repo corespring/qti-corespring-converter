@@ -12,8 +12,15 @@ import scalaz.{Failure, Success, Validation}
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
   extends AbstractItemExtractor {
 
+  println("keys:")
+  println(sources.keys)
+
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
-    .map { case(_, manifest) => ManifestReader.read(XML.loadString(manifest.getLines.mkString), sources) }
+    .map { case(_, manifest) => {
+      println("YOOO")
+      println(XML.loadString(manifest.getLines.mkString))
+      ManifestReader.read(XML.loadString(manifest.getLines.mkString), sources)
+    } }
 
   lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
 
