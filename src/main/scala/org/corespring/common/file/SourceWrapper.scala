@@ -4,6 +4,7 @@ import java.io.{ByteArrayOutputStream, FileInputStream, File, InputStream}
 import java.nio.charset.CodingErrorAction
 
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.input.BOMInputStream
 
 import scala.io.{Source, Codec}
 
@@ -41,13 +42,13 @@ case class SourceWrapper(name: String, inputStream: InputStream) {
   def toSource(codec: Codec = inferCodec) = {
     codec.onMalformedInput(CodingErrorAction.IGNORE)
     codec.onUnmappableCharacter(CodingErrorAction.IGNORE)
-    Source.fromFile(getFile)(codec)
+    Source.fromInputStream(new BOMInputStream(new FileInputStream(getFile)))(codec)
   }
 
   def mkString = getLines.mkString
 
   def toByteArray: Array[Byte] = {
-    val input = new FileInputStream(getFile)
+    val input = new BOMInputStream(new FileInputStream(getFile))
     val output = new ByteArrayOutputStream()
     var buffer = new Array[Byte](65536)
     var l = input.read(buffer)
