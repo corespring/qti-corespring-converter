@@ -1,10 +1,9 @@
-package com.progresstesting.conversion.qti
+package org.corespring.conversion.qti
 
 import com.keydatasys.conversion.qti.ItemTransformer
 import org.corespring.common.file.SourceWrapper
-import org.corespring.conversion.qti.AbstractItemExtractor
 import org.corespring.conversion.qti.manifest.{ManifestReader, QTIManifest}
-import play.api.libs.json.{Json, JsValue, JsObject}
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.xml.XML
 import scalaz.{Failure, Success, Validation}
@@ -12,13 +11,8 @@ import scalaz.{Failure, Success, Validation}
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
   extends AbstractItemExtractor {
 
-  println("keys:")
-  println(sources.keys)
-
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => {
-      println("YOOO")
-      println(XML.loadString(manifest.getLines.mkString))
       ManifestReader.read(XML.loadString(manifest.getLines.mkString), sources)
     } }
 
