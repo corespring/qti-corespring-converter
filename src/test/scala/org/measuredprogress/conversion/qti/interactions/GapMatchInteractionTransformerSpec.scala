@@ -5,7 +5,7 @@ import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
 import play.api.libs.json.{JsObject, Json}
 
-class GGapMatchInteractionTransformerSpec extends Specification {
+class GapMatchInteractionTransformerSpec extends Specification {
 
   val identifier = "RESPONSE1059"
 
