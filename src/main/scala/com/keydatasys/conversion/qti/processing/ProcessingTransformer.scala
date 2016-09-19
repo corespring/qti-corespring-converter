@@ -11,6 +11,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
 
   val templateConverter = new ResponseProcessingTemplateConverter()
   import templateConverter._
+  import VariableSanitizer._
 
   /**
    * Takes a QTI document, and returns a Javascript representation of its <responseProcessing/> node.
@@ -48,7 +49,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
     }
   }
 
-  protected def responseDeclarations(qti: Node): Seq[String] = (qti \ "responseDeclaration").map(_ \ "@identifier").map(_.text.toVar)
+  protected def responseDeclarations(qti: Node): Seq[String] = (qti \ "responseDeclaration").map(_ \ "@identifier").map(_.text)
 
   protected def outcomeDeclarations(qti: Node): Map[String, String] = {
     def default[T](node: Node, _def: Option[T], fn: (String => String) = t => t.toString): String = {
@@ -72,7 +73,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
         case other: String => throw ProcessingTransformerException(
           "Cannot parse outcomeDeclaration of type " + other + ": $node", outcomeDeclaration)
       }
-      (outcomeDeclaration \ "@identifier").text.toVar -> defaultValue
+      (outcomeDeclaration \ "@identifier").text -> defaultValue
     }.toMap
   }
 
@@ -230,9 +231,5 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
     override def getMessage = message.replace("$label", node.label).replace("$node", node.toString)
   }
 
-
-  implicit class StringToVar(string: String) {
-    def toVar = string.replaceAll("-", "_")
-  }
 
 }

@@ -2,12 +2,13 @@ package org.measuredprogress.conversion.zip
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.{ItemExtractor, ItemTransformer}
+import com.keydatasys.conversion.qti.{ItemTransformer}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.UnicodeCleaner
-import org.corespring.conversion.qti.QtiTransformer
+import org.corespring.conversion.qti.ItemExtractor
 import org.corespring.conversion.zip.QtiToCorespringConverter
+import org.measuredprogress.conversion.qti.QtiTransformer
 import play.api.libs.json._
 
 import scala.collection.JavaConversions._
@@ -16,7 +17,8 @@ import scalaz.{Failure, Success, Validation}
 
 object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
-  val collectionId = ""
+//  val collectionId = "57dac29977c896d6a7cafac4"
+  val collectionId = "57daeaece4b00d6de0ff5f35"
   val collectionName = "Measured Progress"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
@@ -38,7 +40,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         case (_, Failure(error)) => Failure(error)
         case (Success(itemJson), Success(md)) => {
           implicit val metadata = md
-          Success((postProcess(itemJson), taskInfo))
+          Success((postProcess(itemJson), taskInfo(id)))
         }
       }
       result match {
@@ -57,10 +59,11 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
     writeZip(toZipByteArray(processedFiles), path)
   }
 
-  private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
+  private def taskInfo(id: String)(implicit metadata: Option[JsValue]): JsObject = {
     partialObj(
       "relatedSubject" -> Some(Json.arr()),
       "domains" -> Some(Json.arr()),
+      "title" -> Some(JsString(id)),
       "extended" -> metadata.map(md => Json.obj(
         "measuredprogress" -> md
       ))

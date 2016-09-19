@@ -20,6 +20,14 @@ object ManifestReader
   private def stripCDataTags(xmlString: String) =
     """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
+  private def flattenPath(path: String) = {
+    var regexes = Seq(
+      ("""(\.\.\/)+(.*)""".r, "$2"),
+      ("""\.\/(.*)""".r, "$1")
+    )
+    regexes.foldLeft(path)((acc, r) => r._1.replaceAllIn(acc, r._2))
+  }
+
   def read(xml: Node, sources: Map[String, SourceWrapper]): QTIManifest = {
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
@@ -43,10 +51,15 @@ object ManifestReader
             }
           }
         }.flatten.map(node => {
-          resourceLocators.map { case (resourceType, fn) => resourceType -> fn(node) }.toMap
+          resourceLocators.map { case (resourceType, fn) => resourceType -> fn(node) }
         }).getOrElse(Map.empty[ManifestResourceType.Value, Seq[String]]).map {
           case (resourceType, filenames) => {
-            filenames.map(filename => ManifestResource(path = """\.\/(.*)""".r.replaceAllIn(filename, "$1"), resourceType = resourceType))
+            filenames.map(filename => {
+              if (filename.contains("134580A-134580A_cubes-box_stem_01.png")) {
+                println(flattenPath(filename))
+              }
+              ManifestResource(path = flattenPath(filename), resourceType = resourceType)
+            })
           }
         }.flatten.toSeq
 
@@ -66,7 +79,7 @@ object ManifestReader
                   case (resourceType, fn) => (resourceType, fn(xml))
                 }).flatten.map {
                   case (resourceType, paths) =>
-                    paths.map(path => ManifestResource(path = """\.\/(.*)""".r.replaceAllIn(path, "$1"), resourceType = resourceType))
+                    paths.map(path => ManifestResource(path = flattenPath(path), resourceType = resourceType))
                 }.flatten)
               } catch {
                 case e: Exception => {

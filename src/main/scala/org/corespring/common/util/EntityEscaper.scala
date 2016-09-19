@@ -27,7 +27,9 @@ trait EntityEscaper {
       }).apply(((string: String) => entity.name match {
         case Some(name) => string.replaceAllLiterally(s"&${name};", entity.toXmlString)
         case _ => string
-      }).apply(acc.replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)))
+      }).apply(acc
+          .replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)
+          .replaceAllLiterally(s"&#x${entity.hex}", entity.toXmlString)))
     })
 
   def unescapeEntities(xml: String) = unescapeAll(
@@ -58,6 +60,7 @@ object EntityEscaper {
 
   case class Entity(name: Option[String], char: Char, unicode: Int) {
     def toXmlString = s"""!!!csentity!!!${this.unicode.toString}!!!csendentity!!!"""
+    def hex = unicode.toHexString.toUpperCase
   }
 
   /**

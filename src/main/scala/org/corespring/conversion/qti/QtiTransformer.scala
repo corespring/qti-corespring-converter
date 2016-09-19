@@ -1,19 +1,18 @@
 package org.corespring.conversion.qti
 
+import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
-import org.corespring.conversion.qti.transformers.scoring.CustomScoringTransformer
 import play.api.libs.json._
 
 import scala.xml._
 import scala.xml.transform._
-import scalaz.{Success, Failure}
 
-trait QtiTransformer extends XMLNamespaceClearer {
+trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
   def statefulTransformers: Seq[Transformer]
@@ -50,14 +49,12 @@ trait QtiTransformer extends XMLNamespaceClearer {
     }
   }
 
+
   def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
-    val typeMap = components.map { case (k, v) => (k -> (v \ "componentType").as[String]) }
-    (qti \\ "responseProcessing").headOption.map { rp =>
-      CustomScoringTransformer.generate(rp.text, components, typeMap) match {
-        case Failure(e) => throw e
-        case Success(js) => Json.obj("customScoring" -> js)
-      }
-    }.getOrElse(Json.obj())
+      toJs(qti).map(wrap) match {
+      case Some(javascript) => Json.obj("customScoring" -> javascript)
+      case _ => Json.obj()
+    }
   }
 
   def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
