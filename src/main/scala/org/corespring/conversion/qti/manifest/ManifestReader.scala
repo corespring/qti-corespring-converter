@@ -46,7 +46,7 @@ object ManifestReader
             Some(XML.loadString(scrub(escapeEntities(stripCDataTags(file.mkString)))))
           } catch {
             case e: Exception => {
-              println(s"Error reading: $filename")
+              println(s"Errror reading: $filename")
               None
             }
           }

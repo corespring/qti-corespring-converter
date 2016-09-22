@@ -11,7 +11,6 @@ import scala.xml.Elem
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
   override def interactionTransformers(qti: Elem) = {
-    println(qti.toString)
     Seq(
       CalculatorTransformer,
       ChoiceInteractionTransformer,
