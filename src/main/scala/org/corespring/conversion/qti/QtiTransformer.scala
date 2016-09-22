@@ -18,7 +18,6 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
   def statefulTransformers: Seq[Transformer]
 
   def transform(qti: Elem): JsValue = {
-
     val transformers = interactionTransformers(qti)
 
     /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/

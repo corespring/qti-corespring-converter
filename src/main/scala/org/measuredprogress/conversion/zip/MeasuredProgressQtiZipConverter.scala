@@ -59,7 +59,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
     writeZip(toZipByteArray(processedFiles), path)
   }
 
-  private def taskInfo(id: String)(implicit metadata: Option[JsValue]): JsObject = {
+  private def taskInfo(id: String)(implicit metadata: Option[JsValue]): JsObject =
     partialObj(
       "relatedSubject" -> Some(Json.arr()),
       "domains" -> Some(Json.arr()),
@@ -68,6 +68,5 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         "measuredprogress" -> md
       ))
     )
-  }
 
 }

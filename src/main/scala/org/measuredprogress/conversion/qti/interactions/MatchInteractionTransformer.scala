@@ -1,14 +1,11 @@
 package org.measuredprogress.conversion.qti.interactions
 
 import org.corespring.conversion.qti.interactions.InteractionTransformer
-import org.jsoup.Jsoup
-import org.jsoup.nodes.{Document, Entities}
-import play.api.libs.json.{JsString, Json, JsObject}
+import play.api.libs.json._
 
-import scala.collection.JavaConversions._
 import scala.xml.Node
 
-object MatchInteractionTransformer extends InteractionTransformer {
+object MatchInteractionTransformer extends InteractionTransformer with ImageConverter {
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case node: Node if (node.label == "matchInteraction") =>
@@ -44,12 +41,12 @@ object MatchInteractionTransformer extends InteractionTransformer {
       ),
       "model" -> Json.obj(
         "columns" -> {
-          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> convertObjectsToImages(col.child.mkString.trim)))
-          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(n => convertObjectsToImages(n.child.mkString)).getOrElse(""))) +: cols
+          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> convertObjectsToImages(col.child).toString))
+          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(n => convertObjectsToImages(n.child)).getOrElse(Seq.empty).toString)) +: cols
         },
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(
           "id" -> (row \ "@identifier").text,
-          "labelHtml" -> convertObjectsToImages(row.child.mkString.trim)
+          "labelHtml" -> convertObjectsToImages(row.child).toString
         )),
         "config" -> Json.obj(
           "inputType" -> "radiobutton",
@@ -59,18 +56,5 @@ object MatchInteractionTransformer extends InteractionTransformer {
     )
   }).toMap
 
-  private def convertObjectsToImages(html: String) = {
-    val doc = Jsoup.parse(html)
-    doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml)
-    doc.outputSettings().escapeMode(Entities.EscapeMode.xhtml)
-    doc.getElementsByTag("object").foreach(obj => {
-      if (obj.attr("type") == "image/png") {
-        val img = doc.createElement("img")
-        img.attr("src", obj.attr("data").split("/").last)
-        obj.replaceWith(img)
-      }
-    })
-    doc.select("body").html
-  }
 
 }
