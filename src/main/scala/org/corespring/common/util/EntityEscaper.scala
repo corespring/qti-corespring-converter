@@ -5,10 +5,10 @@ import com.keydatasys.conversion.qti.util.TagCleaner
 import scala.xml.XML
 
 /**
- * Scala's XML parser wants convert entities to values. We want to preserve them, so we introduce a step that encodes
- * them as regular nodes so they won't be converted. When our XML is ready to be written back to a string, we change
- * those nodes back to their initial entity declarations.
- */
+  * Scala's XML parser wants convert entities to values. We want to preserve them, so we introduce a step that encodes
+  * them as regular nodes so they won't be converted. When our XML is ready to be written back to a string, we change
+  * those nodes back to their initial entity declarations.
+  */
 trait EntityEscaper {
 
   import EntityEscaper._
@@ -16,21 +16,30 @@ trait EntityEscaper {
   private val entityRegex = "&#([0-9]*);".r
 
   /**
-   * Replace all entity characters (e.g., "&radic;" or "&#945;") with nodes matching their unicode values, (e.g.,
-   * <entity value='8730'/> or <entity value='945'/>).
-   */
-  def escapeEntities(xml: String): String =
-    escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))){ case(acc, entity) =>
-      ((string: String) => dontEncode.contains(entity.char) match {
-        case true => string
-        case _ => string.replaceAllLiterally(entity.char.toString, entity.toXmlString)
-      }).apply(((string: String) => entity.name match {
-        case Some(name) => string.replaceAllLiterally(s"&${name};", entity.toXmlString)
-        case _ => string
-      }).apply(acc
+    * Replace all entity characters (e.g., "&radic;", "&#945;" or "&x221A;") with nodes matching their unicode values,
+    * (e.g., <entity value='8730'/> or <entity value='945'/>).
+    */
+  def escapeEntities(xml: String): String = {
+    try {
+      escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))) { case (acc, entity) =>
+        ((string: String) => dontEncode.contains(entity.char) match {
+          case true => string
+          case _ => string.replaceAllLiterally(entity.char.toString, entity.toXmlString)
+        }).apply(((string: String) => entity.name match {
+          case Some(name) => string.replaceAllLiterally(s"&${name};", entity.toXmlString)
+          case _ => string
+        }).apply(acc
           .replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)
-          .replaceAllLiterally(s"&#x${entity.hex}", entity.toXmlString)))
-    })
+          .replaceAllLiterally(s"&#x${entity.hex};", entity.toXmlString)))
+      })
+    } catch {
+      case e: Exception => {
+        e.printStackTrace()
+        throw e
+      }
+    }
+
+  }
 
   def unescapeEntities(xml: String) = unescapeAll(
     XML.loadString(s"<entity-escaper>${fixLineBreaks(xml)}</entity-escaper>").head.child.map(TagCleaner.clean).mkString)
@@ -64,9 +73,9 @@ object EntityEscaper {
   }
 
   /**
-   * A mapping of all HTML entity names to their corresponding unicode decimal values (see
-   * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references as reference).
-   */
+    * A mapping of all HTML entity names to their corresponding unicode decimal values (see
+    * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references as reference).
+    */
   val entities: Seq[Entity] = Seq((Some("quot"), '"', 34), (Some("amp"), '&', 38), (Some("apos"), '\'', 39),
     (Some("lt"), '<', 60), (Some("gt"), '>', 62), (Some("nbsp"), ' ', 160), (Some("iexcl"), '¡', 161),
     (Some("cent"), '¢', 162), (Some("pound"), '£', 163), (Some("curren"), '¤', 164), (Some("yen"), '¥', 165),
