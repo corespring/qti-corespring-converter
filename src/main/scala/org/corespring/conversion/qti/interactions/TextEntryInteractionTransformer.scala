@@ -7,14 +7,11 @@ import play.api.libs.json._
 
 import scala.xml._
 
-object TextEntryInteractionTransformer extends Transformer {
-
-  def transform(qti: Node, manifest: Node): Node =
-    new InteractionRuleTransformer(new TextEntryInteractionTransformer(qti)).transform(qti, manifest).head
-
+object TextEntryInteractionTransformer {
+  def apply(qti: Node) = new TextEntryInteractionTransformer(qti)
 }
 
-case class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer with DomainParser {
+class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer with DomainParser {
 
   val equationRegex = "eqn[:]?(.*)?".r
 
@@ -28,6 +25,9 @@ case class TextEntryInteractionTransformer(qti: Node) extends InteractionTransfo
       }
     }
   }
+
+  def correctResponses(node: Node, qti: Node) =
+    (responseDeclaration(node, qti) \ "correctResponse" \\ "value").map(_.text).toSet
 
   override def interactionJs(qti: Node, manifest: Node) = (qti \\ "textEntryInteraction").map(implicit node => {
     val responseDeclarationNode = responseDeclaration(node, qti)
@@ -45,7 +45,6 @@ case class TextEntryInteractionTransformer(qti: Node) extends InteractionTransfo
       case false => Some("")
     }
 
-    val correctResponses = (responseDeclarationNode \ "correctResponse" \\ "value").map(_.text).toSet
     val answerBlankSize: Int = (node \ "@expectedLength").text.toIntOption.getOrElse(DefaultAnswerBlankSize)
 
     (node \ "@responseIdentifier").text -> partialObj(
@@ -62,10 +61,10 @@ case class TextEntryInteractionTransformer(qti: Node) extends InteractionTransfo
         "incorrectFeedbackType" -> JsString(if (popupFeedback) "default" else "none"))),
       isEquation(node, qti) match {
         case true => "correctResponse" -> Some(Json.obj(
-          "equation" -> JsString(correctResponses.head)) ++ equationConfig(responseDeclarationNode).getOrElse(Json.obj()))
+          "equation" -> JsString(correctResponses(node, qti).head)) ++ equationConfig(responseDeclarationNode).getOrElse(Json.obj()))
         case _ => "correctResponses" -> Some(Json.obj(
           "award" -> 100,
-          "values" -> JsArray(correctResponses.map(JsString(_)).toSeq),
+          "values" -> JsArray(correctResponses(node, qti).map(JsString(_)).toSeq),
           "ignoreWhitespace" -> true,
           "ignoreCase" -> true,
           "feedback" -> Json.obj(

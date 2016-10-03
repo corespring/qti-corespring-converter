@@ -1,11 +1,14 @@
 package com.keydatasys.conversion.qti.interactions
 
 import org.corespring.common.util.XHTMLCleaner
+import org.corespring.common.xml.NodeWithFinder
 import org.corespring.conversion.qti.interactions.InteractionTransformer
 import play.api.libs.json._
 import scala.xml._
 
 object TeacherInstructionsTransformer extends InteractionTransformer with XHTMLCleaner {
+
+  import NodeWithFinder.NodeWithFinder
 
   val isInstructions: Node => Boolean = n =>
     ((n.label == "partBlock") && Seq("@label", "@identifier").find(a => (n \ a).text == "teacherInstructions").nonEmpty) ||
@@ -31,21 +34,6 @@ object TeacherInstructionsTransformer extends InteractionTransformer with XHTMLC
       }
     }.toMap
 
-  /**
-   * Decorator for Node which adds a method to return all nodes matching a predicate function.
-   */
-  implicit class NodeWithFinder(node: Node) {
 
-    def matching(predicate: Node => Boolean) = recurse(node, predicate)
-
-    private def recurse(node: Node, predicate: Node => Boolean, matches: Seq[Node] = Seq.empty): Seq[Node] =
-      (predicate(node), node.child.nonEmpty) match {
-        case (true, true) => matches ++ node ++ node.child.map(recurse(_, predicate)).flatten
-        case (false, true) => matches ++ node.child.map(recurse(_, predicate)).flatten
-        case (true, false) => Seq(node)
-        case (false, false) => Seq.empty
-      }
-
-  }
 
 }

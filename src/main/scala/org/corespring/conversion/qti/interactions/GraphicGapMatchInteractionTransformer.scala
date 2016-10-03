@@ -33,16 +33,11 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
 
   override def interactionJs(qti: Node, manifest: Node) = (qti \\ "graphicGapMatchInteraction")
     .map(node => {
-
       val componentId = (node \ "@responseIdentifier").text.trim
 
       def cutPathPrefix(path: String) = path.substring(path.lastIndexOf('/') + 1)
 
-      def correctResponses: Seq[JsString] = {
-        val values: Seq[Node] = (responseDeclaration(node, qti) \\ "value").toSeq
-        val mappedValues: Seq[NodeSeq] = (responseDeclaration(node, qti) \\ "mapEntry").map(_ \ "@mapKey")
-        (values ++ mappedValues).map(n => JsString(n.text.trim))
-      }
+      val correctResponses = (responseDeclaration(node, qti) \\ "value").toSeq.map(n => JsString(n.text.trim))
 
       def imageWidth = intValueOrZero((node \ "object" \ "@width").mkString)
       def mapValue(value: Float): Float = mapValueToRealImageSize(imageWidth, value)

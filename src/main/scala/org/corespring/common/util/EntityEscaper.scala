@@ -15,13 +15,14 @@ trait EntityEscaper {
 
   private val entityRegex = "&#([0-9]*);".r
 
+
   /**
     * Replace all entity characters (e.g., "&radic;", "&#945;" or "&x221A;") with nodes matching their unicode values,
     * (e.g., <entity value='8730'/> or <entity value='945'/>).
     */
   def escapeEntities(xml: String): String = {
     try {
-      escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xml, "$1"))) { case (acc, entity) =>
+      escapeAll(entities.foldLeft(encodeSafeEntities("""(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(removeBadEntities(xml), "$1"))) { case (acc, entity) =>
         ((string: String) => dontEncode.contains(entity.char) match {
           case true => string
           case _ => string.replaceAllLiterally(entity.char.toString, entity.toXmlString)
@@ -52,6 +53,8 @@ trait EntityEscaper {
         .replaceAll(s"&${entity.name};", entity.char.toString)
         .replaceAll(s"&#${entity.unicode.toString};", entity.char.toString)
     }}
+
+  def removeBadEntities(xml: String) = Seq(157, 8289).map(c => s"&#x$c;").foldLeft(xml)({ case (acc, str) => acc.replaceAll(str, "")})
 
 }
 
@@ -116,30 +119,31 @@ object EntityEscaper {
     (Some("omicron"), 'ο', 959), (Some("pi"), 'π', 960), (Some("rho"), 'ρ', 961), (Some("sigmaf"), 'ς', 962),
     (Some("sigma"), 'σ', 963), (Some("tau"), 'τ', 964), (Some("upsilon"), 'υ', 965), (Some("phi"), 'φ', 966),
     (Some("chi"), 'χ', 967), (Some("psi"), 'ψ', 968), (Some("omega"), 'ω', 969), (Some("thetasym"), 'ϑ', 977),
-    (Some("upsih"), 'ϒ', 978), (Some("piv"), 'ϖ', 982), (Some("ensp"), ' ', 8194), (Some("emsp"), ' ', 8195),
+    (Some("upsih"), 'ϒ', 978), (None, 'ϕ', 981), (Some("piv"), 'ϖ', 982), (Some("ensp"), ' ', 8194), (Some("emsp"), ' ', 8195),
     (Some("thinsp"), ' ', 8201), (Some("zwnj"), ' ', 8204), (Some("zwj"), ' ', 8205), (Some("lrm"), ' ', 8206),
     (Some("rlm"), ' ', 8207), (Some("ndash"), '–', 8211), (Some("mdash"), '—', 8212), (Some("lsquo"), '‘', 8216),
     (Some("rsquo"), '’', 8217), (Some("sbquo"), '‚', 8218), (Some("ldquo"), '“', 8220), (Some("rdquo"), '”', 8221),
     (Some("bdquo"), '„', 8222), (Some("dagger"), '†', 8224), (Some("Dagger"), '‡', 8225), (Some("bull"), '•', 8226),
     (Some("hellip"), '…', 8230), (Some("permil"), '‰', 8240), (Some("prime"), '′', 8242), (Some("Prime"), '″', 8243),
     (Some("lsaquo"), '‹', 8249), (Some("rsaquo"), '›', 8250), (Some("oline"), '‾', 8254), (Some("frasl"), '⁄', 8260),
-    (Some("euro"), '€', 8364), (Some("image"), 'ℑ', 8465), (Some("weierp"), '℘', 8472), (Some("real"), 'ℜ', 8476),
-    (Some("trade"), '™', 8482), (Some("alefsym"), 'ℵ', 8501), (Some("larr"), '←', 8592), (Some("uarr"), '↑', 8593),
-    (Some("rarr"), '→', 8594), (Some("darr"), '↓', 8595), (Some("harr"), '↔', 8596), (Some("crarr"), '↵', 8629),
-    (Some("lArr"), '⇐', 8656), (Some("uArr"), '⇑', 8657), (Some("rArr"), '⇒', 8658), (Some("dArr"), '⇓', 8659),
-    (Some("hArr"), '⇔', 8660), (Some("forall"), '∀', 8704), (Some("part"), '∂', 8706), (Some("exist"), '∃', 8707),
-    (Some("empty"), '∅', 8709), (Some("nabla"), '∇', 8711), (Some("isin"), '∈', 8712), (Some("notin"), '∉', 8713),
-    (Some("ni"), '∋', 8715), (Some("prod"), '∏', 8719), (Some("sum"), '∑', 8721), (Some("minus"), '−', 8722),
-    (Some("lowast"), '∗', 8727), (Some("radic"), '√', 8730), (Some("prop"), '∝', 8733), (Some("infin"), '∞', 8734),
-    (Some("ang"), '∠', 8736), (Some("and"), '∧', 8743), (Some("or"), '∨', 8744), (Some("cap"), '∩', 8745),
-    (Some("cup"), '∪', 8746), (Some("int"), '∫', 8747), (Some("there4"), '∴', 8756), (Some("sim"), '∼', 8764),
-    (Some("cong"), '≅', 8773), (Some("asymp"), '≈', 8776), (Some("ne"), '≠', 8800), (Some("equiv"), '≡', 8801),
-    (Some("le"), '≤', 8804), (Some("ge"), '≥', 8805), (Some("sub"), '⊂', 8834), (Some("sup"), '⊃', 8835),
-    (Some("nsub"), '⊄', 8836), (Some("sube"), '⊆', 8838), (Some("supe"), '⊇', 8839), (Some("oplus"), '⊕', 8853),
-    (Some("otimes"), '⊗', 8855), (Some("perp"), '⊥', 8869), (Some("sdot"), '⋅', 8901), (Some("lceil"), '⌈', 8968),
-    (Some("rceil"), '⌉', 8969), (Some("lfloor"), '⌊', 8970), (Some("rfloor"), '⌋', 8971), (Some("lang"), '〈', 9001),
-    (Some("rang"), '〉', 9002), (Some("loz"), '◊', 9674), (Some("spades"), '♠', 9824), (Some("clubs"), '♣', 9827),
-    (Some("hearts"), '♥', 9829), (Some("diams"), '♦', 9830), (None, '∘', 8728))
+    (Some("euro"), '€', 8364), (Some("image"), 'ℑ', 8465), (Some("weierp"), '℘', 8472),
+    (Some("real"), 'ℜ', 8476), (Some("trade"), '™', 8482), (Some("alefsym"), 'ℵ', 8501), (Some("larr"), '←', 8592),
+    (Some("uarr"), '↑', 8593), (Some("rarr"), '→', 8594), (Some("darr"), '↓', 8595), (Some("harr"), '↔', 8596),
+    (Some("crarr"), '↵', 8629), (Some("lArr"), '⇐', 8656), (Some("uArr"), '⇑', 8657), (Some("rArr"), '⇒', 8658),
+    (Some("dArr"), '⇓', 8659), (Some("hArr"), '⇔', 8660), (Some("forall"), '∀', 8704), (Some("part"), '∂', 8706),
+    (Some("exist"), '∃', 8707), (Some("empty"), '∅', 8709), (Some("nabla"), '∇', 8711), (Some("isin"), '∈', 8712),
+    (Some("notin"), '∉', 8713), (Some("ni"), '∋', 8715), (Some("prod"), '∏', 8719), (Some("sum"), '∑', 8721),
+    (Some("minus"), '−', 8722), (Some("lowast"), '∗', 8727), (Some("radic"), '√', 8730), (Some("prop"), '∝', 8733),
+    (Some("infin"), '∞', 8734), (Some("ang"), '∠', 8736), (Some("and"), '∧', 8743), (Some("or"), '∨', 8744),
+    (Some("cap"), '∩', 8745), (Some("cup"), '∪', 8746), (Some("int"), '∫', 8747), (Some("there4"), '∴', 8756),
+    (Some("sim"), '∼', 8764), (Some("cong"), '≅', 8773), (Some("asymp"), '≈', 8776), (Some("ne"), '≠', 8800),
+    (Some("equiv"), '≡', 8801), (Some("le"), '≤', 8804), (Some("ge"), '≥', 8805), (Some("sub"), '⊂', 8834),
+    (Some("sup"), '⊃', 8835), (Some("nsub"), '⊄', 8836), (Some("sube"), '⊆', 8838), (Some("supe"), '⊇', 8839),
+    (Some("oplus"), '⊕', 8853), (Some("otimes"), '⊗', 8855), (Some("perp"), '⊥', 8869), (Some("sdot"), '⋅', 8901),
+    (Some("lceil"), '⌈', 8968), (Some("rceil"), '⌉', 8969), (Some("lfloor"), '⌊', 8970), (Some("rfloor"), '⌋', 8971),
+    (Some("lang"), '〈', 9001), (None, '◯', 9711), (Some("rang"), '〉', 9002), (Some("loz"), '◊', 9674),
+    (Some("spades"), '♠', 9824), (Some("clubs"), '♣', 9827), (Some("hearts"), '♥', 9829), (Some("diams"), '♦', 9830),
+    (None, '∘', 8728))
     .map{ case (name, char, unicode) => Entity(name, char, unicode) }
 
   val safe = Seq(39).map(c => entities.find(_.unicode == c)).flatten

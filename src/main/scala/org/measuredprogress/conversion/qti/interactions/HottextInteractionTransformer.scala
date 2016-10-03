@@ -1,24 +1,34 @@
 package org.measuredprogress.conversion.qti.interactions
 
-import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer => CoreSpringHottextInteractionTransformer, InteractionTransformer}
-import play.api.libs.json.{Json, JsObject}
+import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer => CoreSpringHottextInteractionTransformer}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.{TextNode, Node => JNode}
 
 import scala.xml.Node
 
-object HottextInteractionTransformer extends InteractionTransformer {
+import scala.collection.JavaConversions._
 
-  override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] =
-    CoreSpringHottextInteractionTransformer.interactionJs(qti, manifest).map{ case (id, json) =>
-      id -> json.deepMerge(
-        Json.obj("feedback" -> Json.obj(
-          "correctFeedbackType" -> "none",
-          "partialFeedbackType" -> "none",
-          "incorrectFeedbackType" -> "none"
-        ))
-      )
+class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer {
+
+  def startsWithPunctuation(node: JNode) = {
+    val punctuation = Seq(",", ";", ".")
+    Option(node) match {
+      case Some(e: TextNode) => punctuation.find(p => e.text.startsWith(p)).nonEmpty
+      case _ => false
     }
+  }
 
-  override def transform(node: Node, manifest: Node): Seq[Node] =
-    CoreSpringHottextInteractionTransformer.transform(node, manifest)
-
+  override def passage(node: Node) = {
+    val doc = Jsoup.parse(node.child.mkString)
+    doc.getElementsByTag("hottext").foreach(hottext => {
+      val csToken = doc.createElement("span")
+      csToken.addClass("cs-token")
+      csToken.html(hottext.html)
+      hottext.replaceWith(csToken)
+      if (!startsWithPunctuation(csToken.nextSibling())) {
+        csToken.after(new TextNode(" ", ""))
+      }
+    })
+    doc.select("body").html
+  }
 }

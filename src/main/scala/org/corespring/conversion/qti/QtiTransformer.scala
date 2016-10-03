@@ -101,7 +101,7 @@ object QtiTransformer extends QtiTransformer {
     FeedbackBlockTransformer(qti),
     FocusTaskInteractionTransformer,
     FoldableInteractionTransformer,
-    HottextInteractionTransformer,
+    new HottextInteractionTransformer,
     new GraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,
     MatchInteractionTransformer,

@@ -4,35 +4,40 @@ import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
-import org.measuredprogress.conversion.qti.interactions.{GapMatchInteractionTransformer, MatchInteractionTransformer => MPMatchInteractionTransformer, RubricBlockTransformer => MPRubricBlockTransformer, HottextInteractionTransformer => MPHottextInteractionTransformer}
+import org.measuredprogress.conversion.qti.interactions.{TextEntryInteractionTransformer => MPTextEntryInteractionTransformer, HottextInteractionTransformer => MPHottextInteractionTransformer, GraphicGapMatchInteractionTransformer => MPGraphicGapMatchInteractionTransformer, ExtendedTextInteractionTransformer => MPExtendedTextInteractionTransformer, MatchInteractionTransformer => MPMatchInteractionTransformer, RubricBlockTransformer => MPRubricBlockTransformer, DefaultFeedbackTransformer, GapMatchInteractionTransformer}
 
 import scala.xml.Elem
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
   override def interactionTransformers(qti: Elem) = {
+    val hasFeedback: Seq[InteractionTransformer] = Seq(
+      ChoiceInteractionTransformer,
+      new MPHottextInteractionTransformer(),
+      MPGraphicGapMatchInteractionTransformer,
+      MPMatchInteractionTransformer,
+      OrderInteractionTransformer,
+      SelectTextInteractionTransformer
+    )
+
     Seq(
       CalculatorTransformer,
-      ChoiceInteractionTransformer,
       CorespringTabTransformer,
       CoverflowInteractionTransformer,
       DragAndDropInteractionTransformer,
-      ExtendedTextInteractionTransformer,
+      MPExtendedTextInteractionTransformer,
       FeedbackBlockTransformer(qti),
       FocusTaskInteractionTransformer,
       FoldableInteractionTransformer,
-      MPHottextInteractionTransformer,
-      new GraphicGapMatchInteractionTransformer(),
       LineInteractionTransformer,
-      MPMatchInteractionTransformer,
       NumberedLinesTransformer(qti),
-      OrderInteractionTransformer,
       PointInteractionTransformer,
       MPRubricBlockTransformer,
-      SelectTextInteractionTransformer,
-      TextEntryInteractionTransformer(qti),
-      GapMatchInteractionTransformer
-    )
+      new MPTextEntryInteractionTransformer(qti),
+      GapMatchInteractionTransformer,
+      new UnsupportedInteractionTransformer("drawingInteraction"),
+      new UnsupportedInteractionTransformer("hotspotInteraction")
+    ) ++ hasFeedback.map(DefaultFeedbackTransformer(_))
   }
 
   override def statefulTransformers = Seq(

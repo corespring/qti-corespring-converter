@@ -7,10 +7,21 @@ import scala.xml._
 
 import scala.collection.JavaConversions._
 
-object HottextInteractionTransformer extends InteractionTransformer {
+class HottextInteractionTransformer extends InteractionTransformer {
 
   object Defaults {
     val shuffle = false
+  }
+
+  def passage(node: Node) = {
+    val doc = Jsoup.parse(node.child.mkString)
+    doc.getElementsByTag("hottext").foreach(hottext => {
+      val csToken = doc.createElement("span")
+      csToken.addClass("cs-token")
+      csToken.html(hottext.html)
+      hottext.replaceWith(csToken)
+    })
+    doc.select("body").html
   }
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] =
@@ -26,16 +37,7 @@ object HottextInteractionTransformer extends InteractionTransformer {
             }),
             "label" -> "",
             "availability" -> "all",
-            "passage" -> {
-              val doc = Jsoup.parse(node.child.mkString)
-              doc.getElementsByTag("hottext").foreach(hottext => {
-                val csToken = doc.createElement("span")
-                csToken.addClass("cs-token")
-                csToken.html(hottext.html)
-                hottext.replaceWith(csToken)
-              })
-              doc.select("body").html
-            }
+            "passage" -> passage(node)
           )
         ),
         "allowPartialScoring" -> false,
@@ -65,6 +67,8 @@ object HottextInteractionTransformer extends InteractionTransformer {
     case _ => node
   }
 
+}
 
-
+object HottextInteractionTransformer {
+  def apply() = new HottextInteractionTransformer()
 }

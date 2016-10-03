@@ -34,7 +34,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     FeedbackBlockTransformer(qti),
     FocusTaskInteractionTransformer,
     FoldableInteractionTransformer,
-    HottextInteractionTransformer,
+    new HottextInteractionTransformer,
     KDSChoiceInteractionTransformer,
     new KDSGraphicGapMatchInteractionTransformer(),
     LineInteractionTransformer,

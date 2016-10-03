@@ -42,10 +42,10 @@ class HottextInteractionTransformerSpec extends Specification {
         </itemBody>
       </assessmentItem>
 
-    val interactionJs = HottextInteractionTransformer.interactionJs(qti(), QTIManifest.EmptyManifest).get(responseIdentifier)
+    val interactionJs = new HottextInteractionTransformer().interactionJs(qti(), QTIManifest.EmptyManifest).get(responseIdentifier)
       .getOrElse(throw new IllegalStateException(s"Missing result for $responseIdentifier"))
 
-    val xhtml = new InteractionRuleTransformer(HottextInteractionTransformer).transform(qti()).mkString
+    val xhtml = new InteractionRuleTransformer(new HottextInteractionTransformer()).transform(qti()).mkString
 
 
     "interactionJs" should {
