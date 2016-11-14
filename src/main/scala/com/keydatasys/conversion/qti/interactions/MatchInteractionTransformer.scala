@@ -32,7 +32,14 @@ object MatchInteractionTransformer extends InteractionTransformer {
           case nonEmpty: String => nonEmpty
         })) +: columns.values.map(text => Json.obj("labelHtml" -> text)).toSeq),
         "rows" -> rows.map { case (id, text) => Json.obj("id" -> id, "labelHtml" -> text) }.toSeq,
-        "answerType" -> (if (columns.values.find(_.toLowerCase.contains("true")).nonEmpty) "TRUE_FALSE" else "YES_NO")))
+        "answerType" -> (if (columns.values.find(_.toLowerCase.contains("true")).nonEmpty) "TRUE_FALSE" else "YES_NO")),
+        "config" -> Json.obj(
+          "inputType" -> (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text).map(rd => ((rd \ "@cardinality").text match {
+            case "multiple" => "checkbox"
+            case _ => "radiobutton"
+          })),
+          "shuffle" -> false
+        ))
   }).toMap
 
   private def columns(implicit node: Node) = filter("Col.*", (choices, acc) => choices.size > acc.size)

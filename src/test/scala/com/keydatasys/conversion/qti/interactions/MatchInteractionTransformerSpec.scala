@@ -2,6 +2,7 @@ package com.keydatasys.conversion.qti.interactions
 
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
+import play.api.libs.json.Json
 
 class KDSMatchInteractionTransformerSpec extends Specification {
 
@@ -64,11 +65,12 @@ class KDSMatchInteractionTransformerSpec extends Specification {
     <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
   </assessmentItem>
 
-  MatchInteractionTransformer.interactionJs(qti, QTIManifest.EmptyManifest)
+  val json = MatchInteractionTransformer.interactionJs(qti, QTIManifest.EmptyManifest)
 
   "test" should {
 
     "be great" in {
+      println(Json.prettyPrint(json.seq.head._2))
       true === true
     }
 
