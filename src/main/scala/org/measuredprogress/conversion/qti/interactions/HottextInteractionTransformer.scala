@@ -29,6 +29,14 @@ class HottextInteractionTransformer extends CoreSpringHottextInteractionTransfor
         csToken.after(new TextNode(" ", ""))
       }
     })
+    doc.getElementsByTag("object").filter(_.attr("type").contains("image")).foreach(objectEl => {
+      val imgEl = doc.createElement("img")
+      imgEl.attr("src", objectEl.attr("data"))
+      Seq("height", "width").filter(attr => objectEl.attr(attr).nonEmpty).foreach(attr => {
+        imgEl.attr(attr, objectEl.attr(attr))
+      })
+      objectEl.replaceWith(imgEl)
+    })
     doc.select("body").html
   }
 }
