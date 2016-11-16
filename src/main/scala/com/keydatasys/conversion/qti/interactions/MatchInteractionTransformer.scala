@@ -32,18 +32,21 @@ object MatchInteractionTransformer extends InteractionTransformer {
           case nonEmpty: String => nonEmpty
         })) +: columns.values.map(text => Json.obj("labelHtml" -> text)).toSeq),
         "rows" -> rows.map { case (id, text) => Json.obj("id" -> id, "labelHtml" -> text) }.toSeq,
-        "answerType" -> (if (columns.values.find(_.toLowerCase.contains("true")).nonEmpty) "TRUE_FALSE" else "YES_NO")),
+        "answerType" -> (if (columns.values.find(_.toLowerCase.contains("true")).nonEmpty) "TRUE_FALSE" else "YES_NO"),
         "config" -> Json.obj(
           "inputType" -> (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text).map(rd => ((rd \ "@cardinality").text match {
             case "multiple" => "checkbox"
             case _ => "radiobutton"
           })),
+          "layout" -> layout,
           "shuffle" -> false
-        ))
+        )))
   }).toMap
 
   private def columns(implicit node: Node) = filter("Col.*", (choices, acc) => choices.size > acc.size)
   private def rows(implicit node: Node) = filter("Row.*", (choices, acc) => choices.size <= acc.size)
+  private def layout(implicit node: Node) =
+    s"${numberStrings.get(columns.size + 1).getOrElse(throw new IllegalArgumentException("Invalid number of columns"))}-columns"
   private def answers(qti: Node)(implicit node: Node) = {
     (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text)
       .map(rd => (rd \ "correctResponse" \ "value").toSeq.map(_.text)).getOrElse(Seq.empty)
@@ -88,5 +91,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
     }).getOrElse(Seq.empty)
     rowIds.filterNot(id => correctIds.contains(id))
   }
+
+  private val numberStrings = Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four", 5 -> "five")
 
 }
