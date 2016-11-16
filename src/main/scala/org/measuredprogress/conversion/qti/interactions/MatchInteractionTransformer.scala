@@ -15,23 +15,10 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
   }
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = (qti \\ "matchInteraction").map(implicit node => {
-    def matchSet(id: String, answers: Seq[String]): Seq[Boolean] =
-      ((qti \\ "simpleMatchSet").last \\ "simpleAssociableChoice").map(choice => answers.contains((choice \ "@identifier").text))
 
     (node \ "@responseIdentifier").text -> Json.obj(
       "componentType" -> "corespring-match",
-      "correctResponse" ->
-        (((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").zipWithIndex.map{ case (choice, index) => {
-          Json.obj(
-            "id" -> (choice \ "@identifier").text,
-            "matchSet" -> matchSet(
-              (choice \ "@identifier").text,
-              (qti \\ "correctResponse" \\ "value")
-                .find(_.text.trim.startsWith((choice \ "@identifier").text))
-                .map(_.text.split(" ").drop(1).toSeq).getOrElse(Seq.empty))
-          )
-        }}
-      ),
+      "correctResponse" -> correctResponse(qti),
       "allowPartialScoring" -> false,
       "partialScoring" -> Json.arr(Json.obj()),
       "feedback" -> Json.obj(
@@ -49,12 +36,36 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
           "labelHtml" -> convertObjectsToImages(row.child).toString
         )),
         "config" -> Json.obj(
-          "inputType" -> "radiobutton",
+          "inputType" -> inputType(qti),
           "shuffle" -> false
         )
       )
     )
   }).toMap
+
+  private def correctResponse(qti: Node)(implicit node: Node) = {
+    def matchSet(id: String, answers: Seq[String]): Seq[Boolean] =
+      ((qti \\ "simpleMatchSet").last \\ "simpleAssociableChoice").map(choice => answers.contains((choice \ "@identifier").text))
+
+    (((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").zipWithIndex.map{ case (choice, index) => {
+      Json.obj(
+        "id" -> (choice \ "@identifier").text,
+        "matchSet" -> matchSet(
+          (choice \ "@identifier").text,
+          (responseDeclaration(node, qti) \\ "correctResponse" \\ "value")
+            .filter(_.text.trim.startsWith((choice \ "@identifier").text))
+            .map(_.text.split(" ").drop(1).toSeq).flatten)
+      )
+    }})
+  }
+
+  private def inputType(qti: Node)(implicit node: Node) = {
+    val rows = (responseDeclaration(node, qti) \\ "correctResponse" \\ "value").map(_.text.split(" ").headOption).flatten
+    (rows.distinct.size != rows.size) match {
+      case true => "checkbox"
+      case _ => "radiobutton"
+    }
+  }
 
 
 }
