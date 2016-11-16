@@ -60,6 +60,7 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
   }
 
   private def inputType(qti: Node)(implicit node: Node) = {
+    println("WAT WAT WAT WAT")
     val rows = (responseDeclaration(node, qti) \\ "correctResponse" \\ "value").map(_.text.split(" ").headOption).flatten
     (rows.distinct.size != rows.size) match {
       case true => "checkbox"
