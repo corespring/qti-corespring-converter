@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.common.html.JsoupParser
 import org.jsoup.Jsoup
 import play.api.libs.json._
 
@@ -14,7 +15,7 @@ class HottextInteractionTransformer extends InteractionTransformer {
   }
 
   def passage(node: Node) = {
-    val doc = Jsoup.parse(node.child.mkString)
+    val doc = JsoupParser.parse(node.child.mkString)
     doc.getElementsByTag("hottext").foreach(hottext => {
       val csToken = doc.createElement("span")
       csToken.addClass("cs-token")
@@ -44,7 +45,7 @@ class HottextInteractionTransformer extends InteractionTransformer {
         "correctResponse" -> Json.obj(
           "value" -> {
             val correctIds = (responseDeclaration(node, qti) \ "correctResponse" \\ "value").map(_.text.trim)
-            val doc = Jsoup.parse(node.child.mkString)
+            val doc = JsoupParser.parse(node.child.mkString)
             doc.getElementsByTag("hottext").zipWithIndex.filter{ case (element, index) => {
               correctIds.contains(element.attr("identifier"))
             }}.map{ case (element, index) => index }

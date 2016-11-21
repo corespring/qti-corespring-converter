@@ -1,5 +1,6 @@
 package org.measuredprogress.conversion.qti.interactions
 
+import org.corespring.common.html.JsoupParser
 import org.corespring.conversion.qti.interactions.InteractionTransformer
 import org.jsoup.Jsoup
 import play.api.libs.json._
@@ -19,7 +20,7 @@ object GapMatchInteractionTransformer extends InteractionTransformer {
       }).toMap[String, Seq[String]],
       "model" -> Json.obj(
         "answerAreaXhtml" -> {
-          val doc = Jsoup.parse(node.child.mkString)
+          val doc = JsoupParser.parse(node.child.mkString)
           doc.getElementsByTag("prompt").foreach(prompt => {
             val div = doc.createElement("div")
             div.attr("class", "prompt")
@@ -34,8 +35,8 @@ object GapMatchInteractionTransformer extends InteractionTransformer {
           doc.select("gaptext").remove()
           doc.select("body").html
         },
-        "answerAreas" -> Jsoup.parse(node.child.mkString).select("gap").map(gap => Json.obj("id" -> gap.attr("identifier"))),
-        "choices" -> Jsoup.parse(node.child.mkString).select("gaptext").map(gaptext =>
+        "answerAreas" -> JsoupParser.parse(node.child.mkString).select("gap").map(gap => Json.obj("id" -> gap.attr("identifier"))),
+        "choices" -> JsoupParser.parse(node.child.mkString).select("gaptext").map(gaptext =>
           Json.obj("label" -> gaptext.html, "labelType" -> "text", "id" -> gaptext.attr("identifier"))
         ),
         "config" -> Json.obj(

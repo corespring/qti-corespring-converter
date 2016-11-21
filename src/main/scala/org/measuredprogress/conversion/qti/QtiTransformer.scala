@@ -1,6 +1,6 @@
 package org.measuredprogress.conversion.qti
 
-import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
@@ -46,4 +46,4 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   )
 }
 
-object ItemTransformer extends ItemTransformer(QtiTransformer)
+object ItemTransformer extends KDSItemTransformer(QtiTransformer)

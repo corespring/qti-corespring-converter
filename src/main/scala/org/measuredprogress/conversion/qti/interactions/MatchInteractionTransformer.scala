@@ -1,11 +1,12 @@
 package org.measuredprogress.conversion.qti.interactions
 
 import org.corespring.conversion.qti.interactions.InteractionTransformer
+import org.measuredprogress.conversion.qti.util.NamespaceStripper
 import play.api.libs.json._
 
 import scala.xml.Node
 
-object MatchInteractionTransformer extends InteractionTransformer with ImageConverter {
+object MatchInteractionTransformer extends InteractionTransformer with ImageConverter with NamespaceStripper {
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case node: Node if (node.label == "matchInteraction") =>
@@ -28,12 +29,12 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
       ),
       "model" -> Json.obj(
         "columns" -> {
-          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> convertObjectsToImages(col.child).toString))
-          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(n => convertObjectsToImages(n.child)).getOrElse(Seq.empty).toString)) +: cols
+          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(convertObjectsToImages(col.child).toString)))
+          Json.obj("labelHtml" -> JsString(stripNamespaces((node \ "prompt").headOption.map(n => convertObjectsToImages(n.child)).getOrElse(Seq.empty).toString))) +: cols
         },
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(
           "id" -> (row \ "@identifier").text,
-          "labelHtml" -> convertObjectsToImages(row.child).toString
+          "labelHtml" -> stripNamespaces(convertObjectsToImages(row.child).toString)
         )),
         "config" -> Json.obj(
           "inputType" -> inputType(qti),
@@ -60,7 +61,6 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
   }
 
   private def inputType(qti: Node)(implicit node: Node) = {
-    println("WAT WAT WAT WAT")
     val rows = (responseDeclaration(node, qti) \\ "correctResponse" \\ "value").map(_.text.split(" ").headOption).flatten
     (rows.distinct.size != rows.size) match {
       case true => "checkbox"

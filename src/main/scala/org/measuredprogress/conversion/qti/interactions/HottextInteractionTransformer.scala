@@ -1,14 +1,16 @@
 package org.measuredprogress.conversion.qti.interactions
 
+import org.corespring.common.html.JsoupParser
 import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer => CoreSpringHottextInteractionTransformer}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{TextNode, Node => JNode}
+import org.measuredprogress.conversion.qti.util.NamespaceStripper
 
 import scala.xml.Node
 
 import scala.collection.JavaConversions._
 
-class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer {
+class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer with NamespaceStripper with ImageConverter {
 
   def startsWithPunctuation(node: JNode) = {
     val punctuation = Seq(",", ";", ".")
@@ -19,7 +21,8 @@ class HottextInteractionTransformer extends CoreSpringHottextInteractionTransfor
   }
 
   override def passage(node: Node) = {
-    val doc = Jsoup.parse(node.child.mkString)
+    val converted = convertObjectsToImages(node)
+    val doc = JsoupParser.parse(converted.mkString)
     doc.getElementsByTag("hottext").foreach(hottext => {
       val csToken = doc.createElement("span")
       csToken.addClass("cs-token")
@@ -29,14 +32,6 @@ class HottextInteractionTransformer extends CoreSpringHottextInteractionTransfor
         csToken.after(new TextNode(" ", ""))
       }
     })
-    doc.getElementsByTag("object").filter(_.attr("type").contains("image")).foreach(objectEl => {
-      val imgEl = doc.createElement("img")
-      imgEl.attr("src", objectEl.attr("data").split("/").last)
-      Seq("height", "width").filter(attr => objectEl.attr(attr).nonEmpty).foreach(attr => {
-        imgEl.attr(attr, objectEl.attr(attr))
-      })
-      objectEl.replaceWith(imgEl)
-    })
-    doc.select("body").html
+    stripNamespaces(doc.select("body").html)
   }
 }

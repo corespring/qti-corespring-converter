@@ -118,7 +118,7 @@ class HottextInteractionTransformerSpec extends Specification {
     "xhtml" should {
 
       "contain <corespring-select-text/> node with correct response identifier" in {
-        val maybeSelectTextNode = Jsoup.parse(xhtml).getElementsByTag("corespring-select-text").toSet.headOption
+        val maybeSelectTextNode = JsoupParser.parse(xhtml).getElementsByTag("corespring-select-text").toSet.headOption
         maybeSelectTextNode must not beEmpty
         val selectTextNode: Element = maybeSelectTextNode.get
         selectTextNode.attr("id") must be equalTo(responseIdentifier)

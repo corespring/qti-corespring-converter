@@ -4,4 +4,5 @@ import org.corespring.conversion.qti.interactions.{GraphicGapMatchInteractionTra
 
 object GraphicGapMatchInteractionTransformer extends CoreSpringGraphicGapMatchInteractionTransformer {
   override val DefaultSnapEnabled = true
+  override val DefaultChoiceAreaPosition = "bottom"
 }
