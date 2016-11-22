@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.common.html.JsoupParser
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.jsoup.Jsoup

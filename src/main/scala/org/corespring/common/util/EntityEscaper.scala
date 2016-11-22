@@ -31,7 +31,7 @@ trait EntityEscaper {
           case _ => string
         }).apply(acc
           .replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)
-          .replaceAllLiterally(s"&#x${entity.hex};", entity.toXmlString)))
+          .replaceAll(s"&#x0*${entity.hex};", entity.toXmlString)))
       })
     } catch {
       case e: Exception => {
