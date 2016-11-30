@@ -46,7 +46,7 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
 
   private def correctResponse(qti: Node)(implicit node: Node) = {
     def matchSet(id: String, answers: Seq[String]): Seq[Boolean] =
-      ((qti \\ "simpleMatchSet").last \\ "simpleAssociableChoice").map(choice => answers.contains((choice \ "@identifier").text))
+      ((node \\ "simpleMatchSet").last \\ "simpleAssociableChoice").map(choice => answers.contains((choice \ "@identifier").text))
 
     (((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").zipWithIndex.map{ case (choice, index) => {
       Json.obj(

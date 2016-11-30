@@ -41,7 +41,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
     KDSMatchInteractionTransformer,
     NumberedLinesTransformer(qti),
     NumberLineInteractionTransformer,
-    OrderInteractionTransformer,
+    new OrderInteractionTransformer,
     PointInteractionTransformer,
     ProtractorWidgetTransformer,
     RubricBlockTransformer,

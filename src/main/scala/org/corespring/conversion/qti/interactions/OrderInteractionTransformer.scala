@@ -4,7 +4,7 @@ import play.api.libs.json._
 
 import scala.xml._
 
-object OrderInteractionTransformer extends InteractionTransformer {
+class OrderInteractionTransformer extends InteractionTransformer {
 
   override def interactionJs(qti: Node, manifest: Node) = (qti \\ "orderInteraction").map(implicit node => {
     val responses = (responseDeclaration(node, qti) \ "correctResponse" \\ "value").map(_.text)
@@ -35,13 +35,7 @@ object OrderInteractionTransformer extends InteractionTransformer {
             if (isPlacementOrdering(node)) Some(JsString("Place answers here")) else None),
           "placementType" -> (
             if (isPlacementOrdering(node)) Some(JsString("placement")) else Some(JsString("inPlace"))))),
-        "choices" -> Some(JsArray((node \\ "simpleChoice")
-          .map(choice => Json.obj(
-          "label" -> choice.child.filter(_.label != "feedbackInline").mkString.trim,
-          "value" -> (choice \ "@identifier").text,
-          "content" -> choice.child.filter(_.label != "feedbackInline").mkString.trim,
-          "id" -> (choice \ "@identifier").text,
-          "moveOnDrag" -> true)))),
+        "choices" -> choices(node),
         "correctResponse" -> Some(JsArray(responses.map(JsString(_)))),
         "feedback" -> (if (isPlacementOrdering(node)) None else Some(feedback(node, qti))))))
   }).toMap
@@ -53,6 +47,14 @@ object OrderInteractionTransformer extends InteractionTransformer {
     }
     case _ => node
   }
+
+  protected def choices(node: Node) = Some(JsArray((node \\ "simpleChoice")
+    .map(choice => Json.obj(
+      "label" -> choice.child.filter(_.label != "feedbackInline").mkString.trim,
+      "value" -> (choice \ "@identifier").text,
+      "content" -> choice.child.filter(_.label != "feedbackInline").mkString.trim,
+      "id" -> (choice \ "@identifier").text,
+      "moveOnDrag" -> true))))
 
   private def isPlacementOrdering(node: Node) = (node \ "@csOrderingType").text.equalsIgnoreCase("placement")
 

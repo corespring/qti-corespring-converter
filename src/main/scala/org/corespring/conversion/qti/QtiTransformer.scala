@@ -106,7 +106,7 @@ object QtiTransformer extends QtiTransformer {
     LineInteractionTransformer,
     MatchInteractionTransformer,
     NumberedLinesTransformer(qti),
-    OrderInteractionTransformer,
+    new OrderInteractionTransformer,
     PointInteractionTransformer,
     RubricBlockTransformer,
     SelectTextInteractionTransformer,
