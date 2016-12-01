@@ -71,7 +71,7 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
     temp.getAbsolutePath.substring(0, temp.getAbsolutePath.lastIndexOf(File.separator))
   }
 
-  private def convertMp3(filename: String, source: Option[SourceWrapper]) = source.map{ source =>
+  private def convertMp3(filename: String, source: Option[SourceWrapper]): Option[SourceWrapper] = source.map{ source => try {
     val mp3Bytes = source.toByteArray
     val fname = filename.split("/").lastOption.map(l => l.substring(0, l.indexOf("."))).getOrElse("temp")
     val mp3File = File.createTempFile(fname, ".mp3")
@@ -81,8 +81,10 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
     val oggFile = s"$tempFilePath/$fname.ogg"
     Mp3ToOgg.convert(mp3File, oggFile)
     new File(oggFile).deleteOnExit()
-    SourceWrapper(filename.replaceAll("mp3", "ogg"), new FileInputStream(oggFile))
-  }
+    Some(SourceWrapper(filename.replaceAll("mp3", "ogg"), new FileInputStream(oggFile)))
+  } catch {
+    case e: Exception => None
+  }}.flatten
 
   override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
