@@ -57,6 +57,7 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
                 case Some("mp3") => Seq(filename -> source, filename.replaceAll("mp3", "ogg") -> convertMp3(filename, source))
                 case _ => Seq(filename -> source)
               }}.flatten
+              .filter { case (filename, someSource) => someSource.nonEmpty }
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
         }
         case _ => Seq.empty[(String, Source)]
