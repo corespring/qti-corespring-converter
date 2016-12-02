@@ -51,15 +51,16 @@ class OrderInteractionTransformerTest extends Specification {
   "OrderInteractionTransformer" should {
 
     val responses = List("a", <img src="puppies.png"/>.toString, "c")
+    val transformer = new OrderInteractionTransformer()
 
     val input = qti(responses)
-    val componentsJson = OrderInteractionTransformer.interactionJs(input, QTIManifest.EmptyManifest)
-    val output = new InteractionRuleTransformer(OrderInteractionTransformer).transform(input)
+    val componentsJson = transformer.interactionJs(input, QTIManifest.EmptyManifest)
+    val output = new InteractionRuleTransformer(transformer).transform(input)
 
     val placementInput = qti(responses, Some("placement"))
-    val placementComponentsJson = OrderInteractionTransformer
+    val placementComponentsJson = transformer
       .interactionJs(placementInput, QTIManifest.EmptyManifest)
-    val placementOutput = new InteractionRuleTransformer(OrderInteractionTransformer).transform(placementInput)
+    val placementOutput = new InteractionRuleTransformer(transformer).transform(placementInput)
 
     val interactionResult =
       componentsJson.get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))
