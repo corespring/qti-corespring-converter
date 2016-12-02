@@ -37,7 +37,13 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
 
       def cutPathPrefix(path: String) = path.substring(path.lastIndexOf('/') + 1)
 
-      val correctResponses = (responseDeclaration(node, qti) \\ "value").toSeq.map(n => JsString(n.text.trim))
+      val correctResponses = {
+        val values = (responseDeclaration(node, qti) \\ "value").toSeq
+        values.nonEmpty match {
+          case true => values.map(n => JsString(n.text.trim))
+          case _ => (responseDeclaration(node, qti) \\ "mapEntry").toSeq.map(n => JsString((n \ "@mapKey").text.trim))
+        }
+      }
 
       def imageWidth = intValueOrZero((node \ "object" \ "@width").mkString)
       def mapValue(value: Float): Float = mapValueToRealImageSize(imageWidth, value)
