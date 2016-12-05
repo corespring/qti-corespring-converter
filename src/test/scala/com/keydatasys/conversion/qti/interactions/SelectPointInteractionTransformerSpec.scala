@@ -143,6 +143,14 @@ class SelectPointInteractionTransformerSpec extends Specification {
         (jsonOutput() \ "model" \ "config" \ "graphPadding").as[Int] must be equalTo (50)
       }
 
+      "contain domainGraphPadding" in {
+        (jsonOutput() \ "model" \ "config" \ "domainGraphPadding").as[Int] must be equalTo (SelectPointInteractionTransformer.Defaults.domainGraphPadding.toInt)
+      }
+
+      "contain rangeGraphPadding" in {
+        (jsonOutput() \ "model" \ "config" \ "rangeGraphPadding").as[Int] must be equalTo (SelectPointInteractionTransformer.Defaults.rangeGraphPadding.toInt)
+      }
+
     }
 
   }
@@ -281,6 +289,13 @@ class SelectPointInteractionTransformerSpec extends Specification {
 
       "contain correctResponse in y=mx+b format" in {
         (jsonOutput() \ "correctResponse").as[String] must be equalTo (s"y=${m}x+$b")
+      }
+      "contain domainGraphPadding" in {
+        (jsonOutput() \ "model" \ "config" \ "domainGraphPadding").as[Int] must be equalTo (SelectPointInteractionTransformer.Defaults.domainGraphPadding.toInt)
+      }
+
+      "contain rangeGraphPadding" in {
+        (jsonOutput() \ "model" \ "config" \ "rangeGraphPadding").as[Int] must be equalTo (SelectPointInteractionTransformer.Defaults.rangeGraphPadding.toInt)
       }
 
     }

@@ -105,6 +105,8 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
         "rangeSnapValue" -> property("rangeSnapValue").map(propertyNumber),
         "scale" -> property("xAxisStepValue").map(propertyNumber),
         "tickLabelFrequency" -> property("xAxisLabelPattern").map(propertyNumber),
+        "domainGraphPadding" -> Some(propertyNumber(property("domainGraphPadding").getOrElse(SelectPointInteractionTransformer.Defaults.domainGraphPadding))),
+        "rangeGraphPadding" -> Some(propertyNumber(property("rangeGraphPadding").getOrElse(SelectPointInteractionTransformer.Defaults.rangeGraphPadding))),
         "showCoordinates" -> Some(JsBoolean(false)),
         "maxPoints" -> ((node \ "@maxChoices") match {
           case n: NodeSeq if n.nonEmpty => Some(JsNumber(n.text.toInt))
@@ -190,6 +192,15 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
       (responseDeclaration(node, qti) \ "correctResponse" \ "value").toSeq
         .map(v => s"${(v \ "@xcoordinate").text},${(v \ "@ycoordinate").text}")
 
+  }
+
+}
+
+object SelectPointInteractionTransformer {
+
+  object Defaults {
+    val domainGraphPadding = "50"
+    val rangeGraphPadding = "50"
   }
 
 }
