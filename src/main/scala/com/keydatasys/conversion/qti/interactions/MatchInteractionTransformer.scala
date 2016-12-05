@@ -1,6 +1,7 @@
 package com.keydatasys.conversion.qti.interactions
 
 import org.corespring.conversion.qti.interactions.InteractionTransformer
+import org.measuredprogress.conversion.qti.interactions.MatchInteractionTransformer._
 import play.api.libs.json._
 
 import scala.collection.immutable.TreeMap
@@ -34,14 +35,20 @@ object MatchInteractionTransformer extends InteractionTransformer {
         "rows" -> rows.map { case (id, text) => Json.obj("id" -> id, "labelHtml" -> text) }.toSeq,
         "answerType" -> (if (columns.values.find(_.toLowerCase.contains("true")).nonEmpty) "TRUE_FALSE" else "YES_NO"),
         "config" -> Json.obj(
-          "inputType" -> (qti \\ "responseDeclaration").find(rd => (rd \ "@identifier").text == (node \ "@responseIdentifier").text).map(rd => ((rd \ "@cardinality").text match {
-            case "multiple" => "checkbox"
-            case _ => "radiobutton"
-          })),
+          "inputType" -> inputType(qti)(node),
           "layout" -> layout,
           "shuffle" -> false
         )))
   }).toMap
+
+
+  private def inputType(qti: Node)(implicit node: Node) = {
+    val rows = (responseDeclaration(node, qti) \\ "correctResponse" \\ "value").map(_.text.split(" ").headOption).flatten
+    (rows.distinct.size != rows.size) match {
+      case true => "checkbox"
+      case _ => "radiobutton"
+    }
+  }
 
   private def columns(implicit node: Node) = filter("Col.*", (choices, acc) => choices.size > acc.size)
   private def rows(implicit node: Node) = filter("Row.*", (choices, acc) => choices.size <= acc.size)
