@@ -16,7 +16,6 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
   }
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = (qti \\ "matchInteraction").map(implicit node => {
-
     (node \ "@responseIdentifier").text -> Json.obj(
       "componentType" -> "corespring-match",
       "correctResponse" -> correctResponse(qti),
@@ -27,6 +26,7 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
         "partialFeedbackType" -> "none",
         "incorrectFeedbackType" -> "none"
       ),
+      "legacyScoring" -> legacyScoring(qti),
       "model" -> Json.obj(
         "columns" -> {
           val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(convertObjectsToImages(col.child).toString)))
@@ -43,6 +43,20 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
       )
     )
   }).toMap
+
+  private def legacyScoring(qti: Node)(implicit node: Node): Map[String, Map[String, Float]] = {
+    def indexOf(column: String) =
+      ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice")
+        .map{ choice => (choice \ "@identifier").toString }.indexOf(column).toString
+
+    (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
+      .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
+      .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
+        val Array(row, column) = (mapEntry \ "@mapKey").toString.split(" ")
+        acc + (row -> (acc.get(row).getOrElse(Map.empty[String, Float]) +
+          (indexOf(column) -> (mapEntry \ "@mappedValue").toString.toFloat)))
+      }}
+  }
 
   private def correctResponse(qti: Node)(implicit node: Node) = {
     def matchSet(id: String, answers: Seq[String]): Seq[Boolean] =

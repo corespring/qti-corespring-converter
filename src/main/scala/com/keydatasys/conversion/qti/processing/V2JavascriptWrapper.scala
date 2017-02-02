@@ -22,7 +22,7 @@ trait V2JavascriptWrapper {
        |  }
        |
        |  function mapResponse(key) {
-       |    return (outcomes && outcomes[key]) ? (outcomes[key].correctNum) : undefined;
+       |    return (outcomes && outcomes[key]) ? (outcomes[key].legacyScore ? outcomes[key].legacyScore : outcomes[key].correctNum) : undefined;
        |  }
        |
        |  ${js.responseVars.map(responseVar => s"var ${responseVar.toVar} = answers['$responseVar'].answers;").mkString("\n|  ")}
