@@ -44,18 +44,32 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
     )
   }).toMap
 
-  private def legacyScoring(qti: Node)(implicit node: Node): Map[String, Map[String, Float]] = {
+  private def legacyScoring(qti: Node)(implicit node: Node): JsObject = {
     def indexOf(column: String) =
       ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice")
         .map{ choice => (choice \ "@identifier").toString }.indexOf(column).toString
 
-    (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
+    def mappingAttribute(attr: String) = {
+      val value = (responseDeclaration(node, qti) \ "mapping" \ s"@$attr").toString
+      value.isEmpty match {
+        case true => None
+        case _ => Some(JsNumber(BigDecimal(value)))
+      }
+    }
+
+    Json.obj(
+      "mapping" -> (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
       .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
       .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
         val Array(row, column) = (mapEntry \ "@mapKey").toString.split(" ")
         acc + (row -> (acc.get(row).getOrElse(Map.empty[String, Float]) +
           (indexOf(column) -> (mapEntry \ "@mappedValue").toString.toFloat)))
       }}
+    ).deepMerge(partialObj(
+      "defaultValue" -> mappingAttribute("defaultValue"),
+      "upperBound" -> mappingAttribute("upperBound"),
+      "lowerBound" -> mappingAttribute("lowerBound")
+    ))
   }
 
   private def correctResponse(qti: Node)(implicit node: Node) = {

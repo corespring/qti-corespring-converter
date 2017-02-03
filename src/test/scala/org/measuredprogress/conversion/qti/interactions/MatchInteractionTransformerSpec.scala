@@ -17,7 +17,7 @@ class MPMatchInteractionTransformerSpec extends Specification {
           <value>SAC-17312 SAC-17291</value>
           <value>SAC-17312 SAC-17293</value>
         </correctResponse>
-        <mapping defaultValue="0.00" lowerBound="0.00" upperBound="12.00">
+        <mapping defaultValue="0.00" f="0.00" upperBound="12.00">
           <mapEntry mapKey="SAC-17309 SAC-17289" mappedValue="0.00"/>
           <mapEntry mapKey="SAC-17309 SAC-17291" mappedValue="0.00"/>
           <mapEntry mapKey="SAC-17309 SAC-17293" mappedValue="0.00"/>
@@ -140,7 +140,7 @@ class MPMatchInteractionTransformerSpec extends Specification {
       </responseProcessing>
     </assessmentItem>
 
-    "be amazeballs" in {
+    "test" in {
       println(Json.prettyPrint(MatchInteractionTransformer.interactionJs(qti, QTIManifest.EmptyManifest).head._2))
       true === true
     }
