@@ -4,7 +4,7 @@ import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
-import org.measuredprogress.conversion.qti.interactions.{OrderingInteractionTransformer => MPOrderingInteractionTransformer, TextEntryInteractionTransformer => MPTextEntryInteractionTransformer, HottextInteractionTransformer => MPHottextInteractionTransformer, GraphicGapMatchInteractionTransformer => MPGraphicGapMatchInteractionTransformer, ExtendedTextInteractionTransformer => MPExtendedTextInteractionTransformer, MatchInteractionTransformer => MPMatchInteractionTransformer, RubricBlockTransformer => MPRubricBlockTransformer, DefaultFeedbackTransformer, GapMatchInteractionTransformer}
+import org.measuredprogress.conversion.qti.interactions.{OrderingInteractionTransformer => MPOrderingInteractionTransformer, ChoiceInteractionTransformer => MPChoiceInteractionTransformer, TextEntryInteractionTransformer => MPTextEntryInteractionTransformer, HottextInteractionTransformer => MPHottextInteractionTransformer, GraphicGapMatchInteractionTransformer => MPGraphicGapMatchInteractionTransformer, ExtendedTextInteractionTransformer => MPExtendedTextInteractionTransformer, MatchInteractionTransformer => MPMatchInteractionTransformer, RubricBlockTransformer => MPRubricBlockTransformer, DefaultFeedbackTransformer, GapMatchInteractionTransformer}
 
 import scala.xml.Elem
 
@@ -12,7 +12,7 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
   override def interactionTransformers(qti: Elem) = {
     val hasFeedback: Seq[InteractionTransformer] = Seq(
-      ChoiceInteractionTransformer,
+      MPChoiceInteractionTransformer,
       new MPHottextInteractionTransformer(),
       MPGraphicGapMatchInteractionTransformer,
       MPMatchInteractionTransformer,
