@@ -7,12 +7,13 @@ import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
+import org.measuredprogress.conversion.qti.interactions.ImageConverter
 import play.api.libs.json._
 
 import scala.xml._
 import scala.xml.transform._
 
-trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
+trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
   def statefulTransformers: Seq[Transformer]
@@ -83,8 +84,8 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer {
     }, ItemBodyTransformer).transform(html).head.toString
 
     Json.obj(
-      "xhtml" -> finalHtml,
-      "components" -> components) ++ customScoring(qti, components)
+      "xhtml" -> convertHtml(finalHtml),
+      "components" -> components.map{case (id, json) => id -> convertJson(json)}) ++ customScoring(qti, components)
   }
 
 }

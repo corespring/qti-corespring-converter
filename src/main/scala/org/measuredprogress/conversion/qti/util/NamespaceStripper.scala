@@ -18,6 +18,7 @@ trait NamespaceStripper {
         }
         case _ => {}
       }
+      el.removeAttr("xmlns")
     }
     doc.select("body").html
   }

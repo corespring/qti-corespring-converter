@@ -1,6 +1,7 @@
 package org.measuredprogress.conversion.qti.interactions
 
 import org.corespring.common.html.JsoupParser
+import org.corespring.common.util.EntityEscaper
 import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer => CoreSpringHottextInteractionTransformer}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{TextNode, Node => JNode}
@@ -10,7 +11,7 @@ import scala.xml.Node
 
 import scala.collection.JavaConversions._
 
-class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer with NamespaceStripper with ImageConverter {
+class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer with NamespaceStripper with ImageConverter with EntityEscaper {
 
   def startsWithPunctuation(node: JNode) = {
     val punctuation = Seq(",", ";", ".")
@@ -26,7 +27,7 @@ class HottextInteractionTransformer extends CoreSpringHottextInteractionTransfor
     doc.getElementsByTag("hottext").foreach(hottext => {
       val csToken = doc.createElement("span")
       csToken.addClass("cs-token")
-      csToken.html(hottext.html)
+      csToken.html(escapeEntities(stripNamespaces(escapeMathML(unescapeEntities(hottext.html)))))
       hottext.replaceWith(csToken)
       if (!startsWithPunctuation(csToken.nextSibling())) {
         csToken.after(new TextNode(" ", ""))
@@ -34,4 +35,17 @@ class HottextInteractionTransformer extends CoreSpringHottextInteractionTransfor
     })
     stripNamespaces(doc.select("body").html)
   }
+
+  private def escapeMathML(string: String) = {
+    val chars = Map(
+      "&#60;" -> "<",
+      "&#62;" -> ">",
+      "&#38;" -> "&"
+    )
+
+    chars.foldLeft(string){ case(acc, (code, replacement)) => {
+      acc.replaceAll(code, replacement)
+    }}
+  }
+
 }

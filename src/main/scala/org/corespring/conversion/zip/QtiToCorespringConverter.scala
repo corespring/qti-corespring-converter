@@ -38,11 +38,19 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
     val zipFile = new ZipOutputStream(bos)
     files.foreach{ case (filename, contents) => {
       zipFile.putNextEntry(new ZipEntry(filename))
-      zipFile.write(contents.map(_.toByte).toArray)
+      zipFile.write(asBytes(contents, filename))
     }}
     zipFile.close
     bos.toByteArray
   }
+
+  private def asBytes(contents: Source, filename: String) = {
+    filename.endsWith(".png") match {
+      case true => contents.map(_.toByte).toArray
+      case _  => contents.mkString.getBytes
+    }
+  }
+
 
 
   def writeZip(byteArray: Array[Byte], path: String) = {
