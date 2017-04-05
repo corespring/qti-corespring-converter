@@ -19,8 +19,10 @@ import scalaz.{Validation, Success, Failure}
 
 object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener with HtmlProcessor with JsonUtil {
 
-  private val collectionName = "kds"
-  private val collectionId = "5453b4e4e4b05f38dd6440a8"
+//  private val collectionName = "kds"
+//  private val collectionId = "5453b4e4e4b05f38dd6440a8"
+  private val collectionName = "Performance Task"
+  private val collectionId = "58da7ce1e4b055bcf66742c9"
 
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 

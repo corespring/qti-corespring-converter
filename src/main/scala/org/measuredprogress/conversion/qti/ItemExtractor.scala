@@ -118,6 +118,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
         f.id -> Success(itemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))
       } catch {
         case e: Exception => {
+          e.printStackTrace()
           println(s"Error: ${e.getMessage}")
           f.id -> Failure(new Error(s"There was an error translating ${f.id} into CoreSpring JSON"))
         }

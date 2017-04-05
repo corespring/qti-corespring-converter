@@ -11,22 +11,12 @@ object ChoiceInteractionTransformer extends InteractionTransformer with Namespac
 
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = {
     SuperChoiceInteractionTransformer.interactionJs(qti, manifest).map {
-      case (id, json) => id -> json.deepMerge(partialObj(
-        "feedback" -> ((json \ "componentType").asOpt[String] match {
-          case Some("corespring-inline-choice") =>
-            Some(JsArray((json \ "model" \ "choices").as[Seq[JsObject]].map { choice =>
-              Json.obj("value" -> (choice \ "value").as[String], "feedbackType" -> "default")
-            }))
-          case _ => None
-        }),
-        "rationales" -> Some(JsArray((json \ "model" \ "choices").as[Seq[JsObject]].map(c => Json.obj(
-          "choice" -> Some(stripNamespaces((c \ "value").as[String]))
-        )))),
-        "model" -> Some(Json.obj("shuffle" -> false)))
-      )
+      case (id, json) =>
+        id -> json.deepMerge(Json.obj("model" -> Json.obj("choices" -> JsArray((json \ "model" \ "choices").as[Seq[JsObject]].map { choice =>
+          Json.obj("label" -> stripNamespaces((choice \ "label").as[String]))
+        }))))
     }
   }
-
 
   override def transform(node: Node, manifest: Node): Seq[Node] =
     SuperChoiceInteractionTransformer.transform(node, manifest)

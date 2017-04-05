@@ -32,7 +32,7 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
   }
 
   override def interactionJs(qti: Node, manifest: Node) = (qti \\ "graphicGapMatchInteraction")
-    .map(node => {
+    .map(implicit node => {
       val componentId = (node \ "@responseIdentifier").text.trim
 
       def cutPathPrefix(path: String) = path.substring(path.lastIndexOf('/') + 1)
@@ -85,6 +85,7 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
       val bgImgWidth = mapValue(intValueOrZero((node \ "object" \ "@width").mkString.replaceAll("[^0-9]", "")))
       val json = Json.obj(
         "componentType" -> "corespring-graphic-gap-match",
+        "legacyScoring" -> legacyScoring(qti),
         "model" -> Json.obj(
           "config" -> Json.obj(
             "shuffle" -> false,
@@ -118,4 +119,29 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
       componentId -> json
 
     }).toMap
+
+  def legacyScoring(qti: Node)(implicit node: Node): JsObject = {
+
+    def mappingAttribute(attr: String) = {
+      val value = (responseDeclaration(node, qti) \ "mapping" \ s"@$attr").toString
+      value.isEmpty match {
+        case true => None
+        case _ => Some(JsNumber(BigDecimal(value)))
+      }
+    }
+
+    Json.obj(
+      "mapping" -> (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
+        .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
+        .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
+          val Array(choice, hotspot) = (mapEntry \ "@mapKey").toString.split(" ")
+          acc + (hotspot -> (acc.get(hotspot).getOrElse(Map.empty[String, Float]) +
+            (choice -> (mapEntry \ "@mappedValue").toString.toFloat)))
+        }}
+    ).deepMerge(partialObj(
+      "defaultValue" -> mappingAttribute("defaultValue"),
+      "upperBound" -> mappingAttribute("upperBound"),
+      "lowerBound" -> mappingAttribute("lowerBound")
+    ))
+  }
 }
