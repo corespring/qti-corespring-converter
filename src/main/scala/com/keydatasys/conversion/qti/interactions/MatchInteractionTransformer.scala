@@ -24,11 +24,11 @@ object MatchInteractionTransformer extends InteractionTransformer {
       case true => println(s"Interaction ${(qti \ "@identifier").text}, <matchInteraction/> ${(node \\ "@responseIdentifier").text} missing correctResponses for ${missing.mkString(", ")}")
       case _ => {}
     }
-    (node \ "@responseIdentifier").text -> Json.obj(
-      "componentType" -> "corespring-match",
-      "correctResponse" -> answers(qti)(node),
+    (node \ "@responseIdentifier").text -> partialObj(
+      "componentType" -> Some(JsString("corespring-match")),
+      "correctResponse" -> Some(JsArray(answers(qti)(node))),
       "legacyScoring" -> legacyScoring(qti),
-      "model" -> Json.obj(
+      "model" -> Some(Json.obj(
         "columns" -> (Json.obj("labelHtml" -> ((node \ "cornerText").text.toString match {
           case empty if (empty.isEmpty) => DefaultCornerText
           case nonEmpty: String => nonEmpty
@@ -39,7 +39,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
           "inputType" -> inputType(qti)(node),
           "layout" -> layout,
           "shuffle" -> false
-        )))
+        ))))
   }).toMap
 
 
@@ -100,7 +100,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
     rowIds.filterNot(id => correctIds.contains(id))
   }
 
-  private def legacyScoring(qti: Node)(implicit node: Node): JsObject = {
+  private def legacyScoring(qti: Node)(implicit node: Node): Option[JsObject] = {
     def indexOf(column: String) =
       ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice")
         .map{ choice => (choice \ "@identifier").toString }.indexOf(column).toString
@@ -113,19 +113,23 @@ object MatchInteractionTransformer extends InteractionTransformer {
       }
     }
 
-    Json.obj(
-      "mapping" -> (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
-        .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
-        .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
-          val Array(row, column) = (mapEntry \ "@mapKey").toString.split(" ")
-          acc + (row -> (acc.get(row).getOrElse(Map.empty[String, Float]) +
-            (indexOf(column) -> (mapEntry \ "@mappedValue").toString.toFloat)))
-        }}
-    ).deepMerge(partialObj(
-      "defaultValue" -> mappingAttribute("defaultValue"),
-      "upperBound" -> mappingAttribute("upperBound"),
-      "lowerBound" -> mappingAttribute("lowerBound")
-    ))
+    (responseDeclaration(node, qti) \ "mapping").isEmpty match {
+      case true => None
+      case _ => Some(Json.obj(
+        "mapping" -> (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
+          .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
+          .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
+            val Array(row, column) = (mapEntry \ "@mapKey").toString.split(" ")
+            acc + (row -> (acc.get(row).getOrElse(Map.empty[String, Float]) +
+              (indexOf(column) -> (mapEntry \ "@mappedValue").toString.toFloat)))
+          }}
+      ).deepMerge(partialObj(
+        "defaultValue" -> mappingAttribute("defaultValue"),
+        "upperBound" -> mappingAttribute("upperBound"),
+        "lowerBound" -> mappingAttribute("lowerBound")
+      )))
+    }
+
   }
 
   private val numberStrings = Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four", 5 -> "five", 6 -> "six", 7 -> "seven", 8 -> "eight", 9 -> "nine", 10 -> "ten")
