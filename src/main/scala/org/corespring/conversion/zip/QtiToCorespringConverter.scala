@@ -45,9 +45,9 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
   }
 
   private def asBytes(contents: Source, filename: String) = {
-    filename.endsWith(".png") match {
-      case true => contents.map(_.toByte).toArray
-      case _  => contents.mkString.getBytes
+    filename.endsWith(".xml") match {
+      case true => contents.mkString.getBytes
+      case _  => contents.map(_.toByte).toArray
     }
   }
 
