@@ -3,15 +3,17 @@ package com.keydatasys.conversion.qti
 import com.keydatasys.conversion.qti.manifest.ManifestReader
 import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener, PassageTransformer}
 import org.corespring.common.file.SourceWrapper
+import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor
 import org.corespring.conversion.qti.AbstractItemExtractor
 import org.corespring.conversion.qti.manifest.QTIManifest
 import play.api.libs.json._
 
+import scala.xml.Node
 import scalaz.{Failure, Success, Validation}
 
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber {
+  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => {
@@ -21,9 +23,9 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
   lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
 
   lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
-    manifest.map(_.items.map(f =>
+    manifest.map(_.items.map(f => {
       f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
-    )).getOrElse(Seq.empty).toMap
+    })).getOrElse(Seq.empty).toMap
 
   def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
     .getOrElse(Seq.empty).map(_.path.flattenPath)
