@@ -50,7 +50,6 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
       result match {
         case Success((json, profile)) => {
           val basePath = s"${collectionName}_${collectionId}/$id"
-          println(Json.prettyPrint(profile))
           Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
             s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(profile))) ++
             extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
