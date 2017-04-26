@@ -41,7 +41,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
   lazy val itemJson: Map[String, Validation[Error, JsValue]] =
     manifest.map(_.items.map(f => sources.get(f.filename.flattenPath).map(s => {
       try {
-        f.id -> Success(itemTransformer.transform(scrub(preprocessHtml(s.getLines.mkString)), f, sources))
+        f.id -> Success(itemTransformer.transform(scrub(preprocessHtml(s.getLines.mkString)), f, sources.filter{case (filename, _) => !filename.endsWith("css")}))
       } catch {
         case e: Exception => {
           println(s"Err3: ${e.getMessage}")

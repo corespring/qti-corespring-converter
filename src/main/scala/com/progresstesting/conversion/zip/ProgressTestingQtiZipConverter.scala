@@ -24,7 +24,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
   override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
 
     val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
-      entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
+      entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
     val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
@@ -52,8 +52,8 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
           val basePath = s"${collectionName}_${collectionId}/$id"
           Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
             s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(profile))) ++
-            extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
-              .filter { case (filename, maybeSource) => maybeSource.nonEmpty }
+            extractor.filesFromManifest(id).filter(filename => filename.endsWith("css")).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
+              .filter { case (filename, maybeSource) => { maybeSource.nonEmpty } }
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
         }
         case _ => Seq.empty[(String, Source)]
