@@ -52,7 +52,7 @@ object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with Unic
           val basePath = s"${collectionName}_${collectionId}/$id"
           Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
             s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(profile))) ++
-            extractor.filesFromManifest(id).filterNot(filename => filename.endsWith("css")).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
+            extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
               .filter { case (filename, maybeSource) => { maybeSource.nonEmpty } }
               .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
         }
