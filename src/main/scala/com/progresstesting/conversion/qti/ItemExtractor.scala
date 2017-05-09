@@ -66,13 +66,13 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
         "depthOfKnowledge" -> getLike("DOK").map(JsString(_)),
         "bloomsTaxonomy" -> getLike("Bloom").map(JsString(_))
       )),
-      "extended" -> Some(Json.obj(
-        "progresstesting" -> partialObj(
-          "sourceId" -> Some(JsString(id)),
-          "teacherOrDistrict" -> getLike("teacherOrDistrict").map(JsString(_))
-        )
-      )),
       "taskInfo" -> Some(partialObj(
+        "extended" -> Some(Json.obj(
+          "progresstesting" -> partialObj(
+            "sourceId" -> Some(JsString(id)),
+            "teacherOrDistrict" -> getLike("teacherOrDistrict").map(JsString(_))
+          )
+        )),
         "originId" -> Some(JsString(id)),
         "title" -> Some(JsString(id)),
         "subjects" -> getLike("subject").map(subject => {
