@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p1.xsd"
+    identifier="item-8409" title="Item-8409" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="directedPair">
+        <correctResponse>
+            <value>SA RA</value>
+            <value>SC RB</value>
+            <value>SB RC</value>
+        </correctResponse>
+        <mapping defaultValue="0">
+            <mapEntry mapKey="SA RA" mappedValue="1"/>
+            <mapEntry mapKey="SC RB" mappedValue="1"/>
+            <mapEntry mapKey="SB RC" mappedValue="1"/>
+        </mapping>
+    </responseDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE"/>
+    <stylesheet href="styles/export_package_cc_math_district_grade-4.css" type="text/css"/>
+    <itemBody>
+        <div>Select the category of measure for each angle.</div>
+        <matchInteraction responseIdentifier="RESPONSE" shuffle="false" maxAssociations="3">
+            <simpleMatchSet>
+                <simpleAssociableChoice identifier="SA" matchMax="1" fixed="true">
+                    Less than 90°
+                </simpleAssociableChoice>
+                <simpleAssociableChoice identifier="SB" matchMax="1" fixed="true">
+                    Between 90° and 180°
+                </simpleAssociableChoice>
+                <simpleAssociableChoice identifier="SC" matchMax="1" fixed="true">
+                    Greater than 180°
+                </simpleAssociableChoice>
+            </simpleMatchSet>
+            <simpleMatchSet>
+                <simpleAssociableChoice identifier="RA" matchMax="1" fixed="true">
+                    <img alt="" src="images/4m_etm_20141113_02a.png" style="width:124px;height:90px; " />
+                </simpleAssociableChoice>
+                <simpleAssociableChoice identifier="RB" matchMax="1" fixed="true">
+                    <img alt="" src="images/4m_etm_20141113_02b.png" style="width:192px;height:83px; " />
+                </simpleAssociableChoice>
+                <simpleAssociableChoice identifier="RC" matchMax="1" fixed="true">
+                    <img alt="" src="images/4m_etm_20141113_02c.png" style="width:197px;height:64px; " />
+                </simpleAssociableChoice>
+            </simpleMatchSet>
+        </matchInteraction>
+    </itemBody>
+</assessmentItem>

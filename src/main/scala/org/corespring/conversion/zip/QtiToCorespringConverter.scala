@@ -2,17 +2,26 @@ package org.corespring.conversion.zip
 
 import java.io._
 import java.util.zip._
+
 import org.corespring.common.util._
 import play.api.libs.json._
 
+import scala.concurrent.Future
 import scala.io.Source
+
+case class ConversionOpts(limit: Int = 0)
 
 /**
  * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
  */
 trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
 
-  def convert(zip: ZipFile, path: String, metadata: Option[JsObject]): ZipFile
+  def convert(
+               zip: ZipFile,
+               path: String,
+               metadata: Option[JsObject],
+               opts : ConversionOpts = ConversionOpts()
+             ): Future[ZipFile]
 
   /**
     * Scala's XML parser won't even preserve these characters in CDATA tags.

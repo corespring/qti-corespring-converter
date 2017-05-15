@@ -1,3 +1,4 @@
+import sbt._
 import sbt.Keys._
 import org.corespring.sbt.repo.RepoAuthPlugin.Keys._
 
@@ -35,9 +36,14 @@ lazy val root = Project("qti-corespring-converter", file("."))
     "commons-io" % "commons-io" % "2.4",
     "com.phloc" % "phloc-css" % "3.7.6",
     "org.mozilla" % "rhino" % "1.7R4",
-    "org.specs2" %% "specs2" % "2.1.1" % "test",
+    "org.specs2" %% "specs2" % "2.1.1" % "it,test",
     "com.typesafe.play" %% "play" % "2.2.1",
-    "org.jsoup" % "jsoup" % "1.8.1"
+    "org.jsoup" % "jsoup" % "1.8.1",
+    "org.zeroturnaround" % "zt-zip" % "1.11"
   ),
-  publishTo := authPublishTo.value
-).dependsOn(qti).aggregate(qti)
+  publishTo := authPublishTo.value,
+  parallelExecution in IntegrationTest := false
+)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings : _*)
+  .dependsOn(qti).aggregate(qti)

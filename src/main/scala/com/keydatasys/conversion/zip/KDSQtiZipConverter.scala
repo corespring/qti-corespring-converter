@@ -1,21 +1,24 @@
 package com.keydatasys.conversion.zip
 
-import java.io.{FileInputStream, FileOutputStream, File, ByteArrayOutputStream}
-import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
+import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
+import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
 
 import com.keydatasys.conversion.audio.Mp3ToOgg
-import com.keydatasys.conversion.qti.{ItemTransformer, ItemExtractor}
+import com.keydatasys.conversion.qti.{ItemExtractor, ItemTransformer}
 import com.keydatasys.conversion.qti.util.PathFlattener
 import org.apache.commons.io.FileUtils
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.{HtmlProcessor, Rewriter}
-import org.corespring.conversion.zip.QtiToCorespringConverter
+import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import play.api.libs.json._
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Future
 import scala.io.Source
-import scalaz.{Validation, Success, Failure}
+import scalaz.{Failure, Success, Validation}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener with HtmlProcessor with JsonUtil {
 
@@ -24,13 +27,17 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
 //  private val collectionName = "Performance Task"
 //  private val collectionId = "58da7ce1e4b055bcf66742c9"
 
-  override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
+  override def convert(
+                        zip: ZipFile,
+                        path: String = "target/corespring-json.zip",
+                        metadata: Option[JsObject] = None,
+                        opts: ConversionOpts): Future[ZipFile] = Future{
 
     val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), ItemTransformer)
+    val extractor = new ItemExtractor(zip, fileMap, metadata.getOrElse(Json.obj()), ItemTransformer)
     val itemCount = extractor.ids.length
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")

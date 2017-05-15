@@ -1,8 +1,13 @@
 package org.corespring.conversion.qti.manifest
 
+import org.slf4j.LoggerFactory
+
 import scala.xml.Node
 
 object ManifestResourceType extends Enumeration {
+
+  lazy val logger = LoggerFactory.getLogger(ManifestResourceType.this.getClass)
+
   type ManifestResourceType = Value
   val QTI, Passage, Video, Audio, Image, Unknown = Value
 
@@ -11,20 +16,24 @@ object ManifestResourceType extends Enumeration {
     "passage" -> Passage)
 
   private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image, Seq("mp3") -> Audio)
-  private val pathFunctions: Seq[String => Option[ManifestResourceType.Value]] = Seq(
-    (path => path.startsWith("passages/") match {
-      case true => Some(ManifestResourceType.Passage)
-      case _ => None
-    }))
 
-  private def fromPathString(path: String): ManifestResourceType.Value = {
-    def getExtension(path: String) = path.split("\\.").lastOption.getOrElse("").toLowerCase
-    pathFunctions.map(_(path)).find(_.nonEmpty).flatten.getOrElse(
-      extensionMap.find { case (extensions, resourceType) => extensions.contains(getExtension(path)) }
-        .map(_._2).getOrElse(Unknown))
+  private def fromPathString(path: String): ManifestResourceType.Value =  if( path.startsWith("passages/")){
+    ManifestResourceType.Passage
+  } else {
+    val extension = path.split("\\.").lastOption.getOrElse("").toLowerCase
+    logger.trace(s"path: $path, extension: $extension")
+    extensionMap.find{ case (extensions, t) => extensions.contains(extension)}
+      .map(_._2).getOrElse(Unknown)
   }
 
-  def fromPath(path: String)(implicit xml: Node): ManifestResourceType.Value =
+
+  def fromPath(path:String, resource: Node): ManifestResourceType.Value = {
+    val rawType = (resource \ "@type").headOption.map(_.text)
+    logger.trace(s"rawType: $rawType")
+    rawType.flatMap(typeMap.get(_)).getOrElse(fromPathString(path))
+  }
+
+  def fromPathOld(path: String)(implicit xml: Node): ManifestResourceType.Value =
     (xml \ "resources" \\ "resource").find(resource => (resource \ "@href").text.toString == path)
       .map(resource => (resource \ "@type").text.toString).map(typeMap.get(_)).flatten.getOrElse(fromPathString(path))
 

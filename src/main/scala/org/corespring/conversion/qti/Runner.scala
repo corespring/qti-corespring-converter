@@ -3,16 +3,20 @@ package org.corespring.conversion.qti
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
-import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
+import com.progresstesting.conversion.zip.{NewProgressTestingQtiZipConverter, ProgressTestingQtiZipConverter}
+import org.corespring.conversion.zip.ConversionOpts
 import org.measuredprogress.conversion.zip.MeasuredProgressQtiZipConverter
 import play.api.libs.json._
-
+import scala.concurrent.Await._
+import scala.concurrent.duration._
 import scalaz.{Failure, Success, Validation}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Runner extends App {
 
   val parsed = new FlagMap(Seq(
     Flag("input", "i", None),
+    Flag("limit", "l", None),
     Flag("output", "o", None),
     Flag("metadata", "m", Some("{}")),
     Flag("vendor", "v", Some("kds"))
@@ -21,6 +25,7 @@ object Runner extends App {
   val converters = Map(
     "kds" -> KDSQtiZipConverter,
     "progresstesting" -> ProgressTestingQtiZipConverter,
+    "pt" -> NewProgressTestingQtiZipConverter,
     "measuredprogress" -> MeasuredProgressQtiZipConverter
   )
 
@@ -33,7 +38,12 @@ object Runner extends App {
       val metadata = Json.parse(usefulArgs.get("metadata").getOrElse("{}")).as[JsObject]
       val converter = converters
         .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
-      converter.convert(input, outputPath, Some(metadata))
+
+      val opts = ConversionOpts(usefulArgs.get("limit").map(_.toInt).getOrElse(0))
+      result(converter.convert(input, outputPath, Some(metadata), opts)
+        .map( _ => {
+          println("all done")
+        }), 25.minutes)
     }
     case Failure(error) => {
       println(error.getMessage)

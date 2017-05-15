@@ -1,0 +1,26 @@
+{
+  "originId" : "8409",
+  "otherAlignments" : {
+    "depthOfKnowledge" : "1",
+    "bloomsTaxonomy" : "Understand"
+  },
+  "taskInfo" : {
+    "extended" : {
+      "progresstesting" : {
+        "sourceId" : "8409",
+        "teacherOrDistrict" : "district"
+      }
+    },
+    "originId" : "8409",
+    "title" : "8409",
+    "subjects" : {
+      "primary" : {
+        "$oid" : "4ffb535f6bb41e469c0bf2c2"
+      }
+    },
+    "gradeLevel" : [ "04" ],
+    "description" : "district",
+    "relatedSubject" : [ ],
+    "domains" : [ ]
+  }
+}

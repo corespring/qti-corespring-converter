@@ -1,8 +1,10 @@
 package com.progresstesting.conversion.qti
 
+import java.util.zip.ZipFile
+
 import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestReader
-import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener, PassageTransformer}
+import com.keydatasys.conversion.qti.util.{PassageScrubber, PassageTransformer, PathFlattener}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor
@@ -14,44 +16,19 @@ import scala.xml.Node
 import scalaz.{Failure, Success, Validation}
 
 
-class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
+object MetadataExtractor extends JsonUtil{
 
   val elaId = "4ffb535f6bb41e469c0bf2ac"
   val scienceId = "4ffb535f6bb41e469c0bf2d1"
   val socialStudiesId = "4ffb535f6bb41e469c0bf2de"
   val mathId = "4ffb535f6bb41e469c0bf2c2"
-
-  val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
-    .map { case(_, manifest) => {
-      ManifestReader.read(manifest, sources)
-    } }
-
-  lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
-
-  lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
-    manifest.map(_.items.map(f => {
-      f.id -> Success(Some(
-        commonMetadata ++ metadataFromManifest(f.manifest, "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
-    })).getOrElse(Seq.empty).toMap
-
-  def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
-    .getOrElse(Seq.empty).map(_.path.flattenPath)
-
-  lazy val itemJson: Map[String, Validation[Error, JsValue]] =
-    manifest.map(_.items.map(f => sources.get(f.filename.flattenPath).map(s => {
-      try {
-        f.id -> Success(itemTransformer.transform(scrub(preprocessHtml(s.getLines.mkString)), f, sources.filter{case (filename, _) => !filename.endsWith("css")}))
-      } catch {
-        case e: Exception => {
-          println(s"Err3: ${e.getMessage}")
-          f.id -> Failure(new Error(s"There was an error translating ${f.id} into CoreSpring JSON"))
-        }
-      }
-    })).flatten).getOrElse(Seq.empty).toMap
-
-
-  def metadataFromManifest(node: Node, id: String) = {
+  /**
+    * extract metadata from <resource></resource>
+    * @param node
+    * @param id
+    * @return
+    */
+  def metadataFromResourceNode(node: Node, id: String) = {
     val map = (node \ "metadata" \ "lom" \ "classification" \\ "taxonPath").map(taxon => {
       (taxon \ "source" \ "string").text -> (taxon \ "taxon" \ "entry" \ "string").text
     }).filter(_._2.nonEmpty).toMap
@@ -89,5 +66,44 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
       ))
     )
   }
+}
+
+class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
+  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
+
+  val elaId = "4ffb535f6bb41e469c0bf2ac"
+  val scienceId = "4ffb535f6bb41e469c0bf2d1"
+  val socialStudiesId = "4ffb535f6bb41e469c0bf2de"
+  val mathId = "4ffb535f6bb41e469c0bf2c2"
+
+  val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
+    .map { case(_, manifest) => {
+      ManifestReader.read(manifest, sources)
+    } }
+
+  lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
+
+  lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
+    manifest.map(_.items.map(f => {
+      f.id -> Success(Some(
+        commonMetadata ++ metadataFromManifest(f.manifest, "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
+    })).getOrElse(Seq.empty).toMap
+
+  def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
+    .getOrElse(Seq.empty).map(_.path.flattenPath)
+
+  lazy val itemJson: Map[String, Validation[Error, JsValue]] =
+    manifest.map(_.items.map(f => sources.get(f.filename.flattenPath).map(s => {
+      try {
+        f.id -> Success(itemTransformer.transform(scrub(preprocessHtml(s.getLines.mkString)), f, sources.filter{case (filename, _) => !filename.endsWith("css")}))
+      } catch {
+        case e: Exception => {
+          println(s"Err3: ${e.getMessage}")
+          f.id -> Failure(new Error(s"There was an error translating ${f.id} into CoreSpring JSON"))
+        }
+      }
+    })).flatten).getOrElse(Seq.empty).toMap
+
+  def metadataFromManifest(node: Node, id: String) = MetadataExtractor.metadataFromResourceNode(node, id)
 
 }

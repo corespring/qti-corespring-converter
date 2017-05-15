@@ -1,36 +1,56 @@
 package com.progresstesting.conversion.zip
 
-import java.io.{FileOutputStream, File, ByteArrayOutputStream}
-import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
+import java.io.{ByteArrayOutputStream, File, FileOutputStream}
+import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
 
-import com.keydatasys.conversion.qti.{ItemTransformer}
+import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.manifest.ManifestReader
 import com.progresstesting.conversion.qti.ItemExtractor
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.{UnicodeCleaner, Rewriter}
+import org.corespring.common.util.{Rewriter, UnicodeCleaner}
 import org.corespring.conversion.qti.QtiTransformer
-import org.corespring.conversion.zip.QtiToCorespringConverter
-import play.api.libs.json.{JsString, JsValue, Json, JsObject}
+import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
+import org.slf4j.LoggerFactory
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Future
 import scala.io.Source
-import scalaz.{Success, Failure, Validation}
+import scalaz.{Failure, Success, Validation}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
   private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
 
-  override def convert(zip: ZipFile, path: String = "target/corespring-json.zip", metadata: Option[JsObject] = None): ZipFile = {
+
+  private val logger = LoggerFactory.getLogger("converter")
+  override def convert(
+                        zip: ZipFile,
+                        path: String = "target/corespring-json.zip",
+                        metadata: Option[JsObject] = None,
+                      opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = Future{
+
+
+    val manifestXml = zip.getEntry("imsmanifest.xml")
 
     val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
+    //logger.info(s"fileMap: $fileMap")
+
+    val extractor = new ItemExtractor(zip, fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
     val itemCount = extractor.ids.length
-    val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
-      println(s"Processing ${id} (${index+1}/$itemCount)")
+
+    logger.trace(s"itemCount $itemCount")
+
+    val processedFiles = extractor.ids.take(10).zipWithIndex.map{ case(id, index) => {
+      logger.info(s"Processing ${id} (${index+1}/$itemCount)")
       val itemJson = extractor.itemJson
       val meta = extractor.metadata
       val result: Validation[Error, (JsValue, JsObject

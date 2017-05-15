@@ -1,7 +1,9 @@
 package com.keydatasys.conversion.qti
 
+import java.util.zip.ZipFile
+
 import com.keydatasys.conversion.qti.manifest.ManifestReader
-import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener, PassageTransformer}
+import com.keydatasys.conversion.qti.util.{PassageScrubber, PassageTransformer, PathFlattener}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor
@@ -12,7 +14,7 @@ import play.api.libs.json._
 import scala.xml.Node
 import scalaz.{Failure, Success, Validation}
 
-class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
+class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
   extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
