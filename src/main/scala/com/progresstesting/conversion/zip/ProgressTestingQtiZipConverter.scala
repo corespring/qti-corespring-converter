@@ -1,92 +1,147 @@
 package com.progresstesting.conversion.zip
 
-import java.io.{ByteArrayOutputStream, File, FileOutputStream}
-import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
+import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.ItemTransformer
-import com.keydatasys.conversion.qti.manifest.ManifestReader
-import com.progresstesting.conversion.qti.ItemExtractor
-import com.keydatasys.conversion.zip.KDSQtiZipConverter._
+import com.keydatasys.conversion.qti.{QtiTransformer, ItemTransformer}
+import com.keydatasys.conversion.qti.manifest.ManifestFilter
+import com.progresstesting.conversion.qti.MetadataExtractor
+import org.apache.commons.io.IOUtils
+import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.{Rewriter, UnicodeCleaner}
-import org.corespring.conversion.qti.QtiTransformer
-import org.corespring.conversion.qti.manifest.QTIManifest
+import org.corespring.conversion.qti.manifest._
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-
-import scala.collection.JavaConversions._
-import scala.concurrent.Future
-import scala.io.Source
-import scalaz.{Failure, Success, Validation}
+import play.api.libs.json.{JsObject, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.xml.Node
 
-object ProgressTestingQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
+object ProgressTestingQtiZipConverter
+  extends QtiToCorespringConverter
+  with ManifestFilter {
 
   private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
 
+  val itemTransformer = new ItemTransformer(QtiTransformer)
 
-  private val logger = LoggerFactory.getLogger("converter")
-  override def convert(
-                        zip: ZipFile,
-                        path: String = "target/corespring-json.zip",
-                        metadata: Option[JsObject] = None,
-                      opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = Future{
+  val logger = LoggerFactory.getLogger(ProgressTestingQtiZipConverter.this.getClass)
+
+  def convert(
+               zip: ZipFile,
+               output: String = "target/corespring-json.zip",
+               metadata: Option[JsObject] = None,
+               opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
+
+    logger.info(s"output: $output, opts: $opts")
+
+    val tmpDir = Files.createTempDirectory("qti-conversion")
+    logger.debug(s"Created temp dir: $tmpDir")
+
+    val manifestEntry = zip.getEntry("imsmanifest.xml")
+    val is = zip.getInputStream(manifestEntry)
+    val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
+
+    val (qtiResources, resources) = (xml \ "resources" \\ "resource")
+      .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
 
-    val manifestXml = zip.getEntry("imsmanifest.xml")
+    def toManifestItem(node: Node) : Future[ManifestItem] = Future{
+      val out = ManifestItem(node, zip)
+      logger.info(s"[toManifestItem] converted ${out.id}")
+      out
+    }
 
-    val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
-      entry.getName.flattenPath -> SourceWrapper(entry.getName, zip.getInputStream(entry))
-    }).toMap
+    def toCorespringItem(m:ManifestItem) : Future[Option[CorespringItem]] = Future{
+      val qti = ZipReader.fileContents(zip, m.filename)
 
-    //logger.info(s"fileMap: $fileMap")
-
-    val extractor = new ItemExtractor(zip, fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
-    val itemCount = extractor.ids.length
-
-    logger.trace(s"itemCount $itemCount")
-
-    val processedFiles = extractor.ids.take(10).zipWithIndex.map{ case(id, index) => {
-      logger.info(s"Processing ${id} (${index+1}/$itemCount)")
-      val itemJson = extractor.itemJson
-      val meta = extractor.metadata
-      val result: Validation[Error, (JsValue, JsObject
-        )] = (itemJson.get(id).getOrElse(Failure(new Error("Missing item JSON"))),
-        meta.get(id).getOrElse(Failure(new Error("Missing item metadata")))) match {
-        case (Failure(error), _) => Failure(error)
-        case (_, Failure(error)) => Failure(error)
-        case (Success(itemJson), Success(md)) => {
-          implicit val metadata = md
-          val profile = metadata match {
-            case Some(js: JsObject) => js.deepMerge(Json.obj("taskInfo" -> taskInfo))
-            case _ => Json.obj("taskInfo" -> taskInfo)
-          }
-          Success((postProcess(itemJson), profile))
+      qti.map{ q =>
+        val sources : Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+        val playerDefinition = itemTransformer.transform(q, m, sources)
+        sources.mapValues{ v =>
+          IOUtils.closeQuietly(v.inputStream )
         }
+
+        val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
+        val common = metadata.getOrElse(Json.obj())
+        val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
+        val profile = common ++ resourceMetadata
+        val out = CorespringItem(m.id, playerDefinition, profile, m.resources.map(_.path))
+        logger.info(s"[toCorespringItem] id: ${m.id}")
+        out
       }
-      result match {
-        case Success((json, profile)) => {
-          val basePath = s"${collectionName}_${collectionId}/$id"
-          Seq(s"$basePath/player-definition.json" -> Source.fromString(Json.prettyPrint(json)),
-            s"$basePath/profile.json" -> Source.fromString(Json.prettyPrint(profile))) ++
-            extractor.filesFromManifest(id).map(filename => s"$basePath/data/${filename.flattenPath}" -> fileMap.get(filename))
-              .filter { case (filename, maybeSource) => { maybeSource.nonEmpty } }
-              .map { case (filename, someSource) => (filename, someSource.get.toSource()) }
+    }
+
+    def writeCorespringItem(item: Option[CorespringItem]) : Future[Option[CorespringItem]] = item.map{ i =>
+      Future {
+        val basePath = Paths.get(s"${collectionName}_$collectionId/${i.id}")
+        val resolved = tmpDir.resolve(basePath)
+        val dataPath = resolved.resolve(Paths.get("data"))
+
+        logger.debug(s"[writeCorespringItem] resolved: $resolved")
+        logger.debug(s"[writeCorespringItem] dataPath: $dataPath")
+
+        if(Files.notExists(resolved)){
+          Files.createDirectories(resolved)
         }
-        case _ => Seq.empty[(String, Source)]
+
+        if(Files.notExists(dataPath)){
+          Files.createDirectory(dataPath)
+        }
+
+        val pd = Json.prettyPrint(i.playerDefinition)
+        val pr = Json.prettyPrint(i.profile)
+
+        Files.write(
+          resolved.resolve("player-definition.json"),
+          pd.getBytes(StandardCharsets.UTF_8))
+
+        Files.write(
+          resolved.resolve("profile.json"),
+          pr.getBytes(StandardCharsets.UTF_8))
+
+        logger.debug(s"[writeCorespringItem] assets: length: ${i.assets.length} - ${i.assets}")
+
+        def flattenPath(p:String) = p.split("/").last
+
+        i.assets.map{
+          a =>
+            val entry = zip.getEntry(a)
+            val is = zip.getInputStream(entry)
+            val dest = dataPath.resolve(flattenPath(a))
+            logger.debug(s"[writeCorespringItem] write $a to $dest")
+            Files.copy(is, dest)
+            IOUtils.closeQuietly(is)
+        }
+        Some(i)
       }
-    }}.flatten.toMap
-    writeZip(toZipByteArray(processedFiles), path)
-  }
 
-  private def taskInfo(implicit metadata: Option[JsValue]): JsObject = {
-    partialObj(
-      "relatedSubject" -> Some(Json.arr()),
-      "domains" -> Some(Json.arr())
-    )
-  }
+    }.getOrElse(Future.successful(None))
 
+    def convertResource(n:Node) = toManifestItem(n)
+      .flatMap( mi => toCorespringItem(mi) )
+      .flatMap(ci => writeCorespringItem(ci))
+
+    val futures = if (opts.limit != 0) {
+      qtiResources.take(opts.limit).map(convertResource)
+    } else {
+      qtiResources.map(convertResource)
+    }
+
+    logger.trace(s"futures: ${futures}")
+
+    Future.sequence(futures)
+      .map( results => {
+        val ids = results.map(ci =>ci.map(_.id).getOrElse("?"))
+        logger.info(s"all resources have been written, no of items written: ${ids.length}, zipping...")
+        ZipWriter.compressDir(tmpDir.toFile(), output)
+        val outFile = new File(output)
+        logger.info(s"zip complete ${outFile.getAbsolutePath}")
+        new ZipFile(outFile)
+      })
+  }
 }

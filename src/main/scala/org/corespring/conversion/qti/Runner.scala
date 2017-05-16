@@ -2,8 +2,8 @@ package org.corespring.conversion.qti
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.zip.KDSQtiZipConverter
-import com.progresstesting.conversion.zip.{NewProgressTestingQtiZipConverter, ProgressTestingQtiZipConverter}
+import com.keydatasys.conversion.zip.{KDSQtiZipConverter, KDSQtiZipConverter}
+import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
 import org.measuredprogress.conversion.zip.MeasuredProgressQtiZipConverter
 import play.api.libs.json._
@@ -25,7 +25,6 @@ object Runner extends App {
   val converters = Map(
     "kds" -> KDSQtiZipConverter,
     "progresstesting" -> ProgressTestingQtiZipConverter,
-    "pt" -> NewProgressTestingQtiZipConverter,
     "measuredprogress" -> MeasuredProgressQtiZipConverter
   )
 
@@ -43,6 +42,7 @@ object Runner extends App {
       result(converter.convert(input, outputPath, Some(metadata), opts)
         .map( _ => {
           println("all done")
+          Runtime.getRuntime().halt(0)
         }), 25.minutes)
     }
     case Failure(error) => {

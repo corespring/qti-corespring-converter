@@ -14,6 +14,14 @@ import play.api.libs.json._
 import scala.xml.Node
 import scalaz.{Failure, Success, Validation}
 
+object MetadataExtractor {
+
+  def metadataFromResourceNode(node: Node, id: String) = {
+    Json.obj("sourceId" -> id)
+  }
+
+}
+
 class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
   extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
 

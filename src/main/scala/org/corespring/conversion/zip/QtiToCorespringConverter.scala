@@ -3,7 +3,9 @@ package org.corespring.conversion.zip
 import java.io._
 import java.util.zip._
 
+import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util._
+import org.corespring.conversion.qti.manifest.ManifestResource
 import play.api.libs.json._
 
 import scala.concurrent.Future
@@ -15,6 +17,17 @@ case class ConversionOpts(limit: Int = 0)
  * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
  */
 trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
+
+  implicit class ManifestResourcesToSourceMap(manifestResources: Seq[ManifestResource]) {
+
+    def toSourceMap(zip: ZipFile) : Map[String, SourceWrapper] = {
+      manifestResources.map{ r =>
+        val entry = zip.getEntry(r.path)
+        r.path -> SourceWrapper(r.path, zip.getInputStream(entry))
+      }.toMap
+    }
+
+  }
 
   def convert(
                zip: ZipFile,

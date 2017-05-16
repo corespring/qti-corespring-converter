@@ -4,7 +4,7 @@ import scala.collection.JavaConversions._
 import java.io.File
 import java.util.zip.ZipFile
 
-import com.progresstesting.conversion.zip.{NewProgressTestingQtiZipConverter, ProgressTestingQtiZipConverter}
+import com.progresstesting.conversion.zip.NewProgressTestingQtiZipConverter
 import org.specs2.mutable.Specification
 import org.specs2.time.NoTimeConversions
 
