@@ -5,11 +5,12 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.{QtiTransformer, ItemTransformer}
+import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestFilter
 import com.progresstesting.conversion.qti.MetadataExtractor
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
+import org.corespring.conversion.qti.QtiTransformer
 import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.manifest._
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
