@@ -2,7 +2,7 @@ package org.corespring.conversion.qti
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.zip.{KDSQtiZipConverter, KDSQtiZipConverter}
+import com.keydatasys.conversion.zip.{KDSQtiZipConverter}
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
 import org.measuredprogress.conversion.zip.MeasuredProgressQtiZipConverter
