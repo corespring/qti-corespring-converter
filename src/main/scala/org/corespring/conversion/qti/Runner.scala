@@ -17,7 +17,9 @@ object Runner extends App {
   val parsed = new FlagMap(Seq(
     Flag("input", "i", None),
     Flag("limit", "l", None),
+    Flag("sourceId", "s", None),
     Flag("output", "o", None),
+    Flag("killRuntime", "kr", Some("true")),
     Flag("metadata", "m", Some("{}")),
     Flag("vendor", "v", Some("kds"))
   )).toMap(args)
@@ -38,11 +40,18 @@ object Runner extends App {
       val converter = converters
         .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
 
-      val opts = ConversionOpts(usefulArgs.get("limit").map(_.toInt).getOrElse(0))
+      val opts = ConversionOpts(
+        usefulArgs.get("limit").map(_.toInt).getOrElse(0),
+        usefulArgs.get("sourceId")
+      )
+
       result(converter.convert(input, outputPath, Some(metadata), opts)
         .map( _ => {
           println("all done")
-          Runtime.getRuntime().halt(0)
+
+          if(usefulArgs.get("killRuntime") == Some("true")) {
+            Runtime.getRuntime().halt(0)
+          }
         }), 25.minutes)
     }
     case Failure(error) => {
