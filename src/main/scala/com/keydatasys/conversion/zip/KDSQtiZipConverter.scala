@@ -67,7 +67,14 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val common = metadata.getOrElse(Json.obj())
           val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
-          val profile = common ++ resourceMetadata
+
+          //set a default title
+          val title = (common \ "scoringType").asOpt[String].map{ st =>
+            s"${m.id} - $st"
+          }.getOrElse(m.id)
+
+          val md = Json.obj("taskInfo" -> Json.obj("extended" -> Json.obj("kds" -> common )))
+          val profile = Json.obj("title" -> title, "description" -> title) ++ common ++ resourceMetadata
           val out = CorespringItem(m.id, postProcess(playerDefinition), profile, m.resources.map(_.path))
           logger.info(s"[toCorespringItem] id: ${m.id}")
           Some(out)
