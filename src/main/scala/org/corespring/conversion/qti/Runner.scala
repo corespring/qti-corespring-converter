@@ -1,28 +1,65 @@
 package org.corespring.conversion.qti
 
+import java.io.File
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.zip.{KDSQtiZipConverter}
+import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
 import org.measuredprogress.conversion.zip.MeasuredProgressQtiZipConverter
+import org.slf4j.LoggerFactory
 import play.api.libs.json._
+
 import scala.concurrent.Await._
 import scala.concurrent.duration._
-import scalaz.{Failure, Success, Validation}
 import scala.concurrent.ExecutionContext.Implicits.global
+
+case class RunOpts(
+                  input:String,
+                  output:String,
+                  vendor: String,
+                  metadata: String = "{}",
+                  limit:Int = 0,
+                  sourceId: Option[String] = None,
+                  killRuntime: Boolean = true
+                  )
+
 
 object Runner extends App {
 
-  val parsed = new FlagMap(Seq(
-    Flag("input", "i", None),
-    Flag("limit", "l", None),
-    Flag("sourceId", "s", None),
-    Flag("output", "o", None),
-    Flag("killRuntime", "kr", Some("true")),
-    Flag("metadata", "m", Some("{}")),
-    Flag("vendor", "v", Some("kds"))
-  )).toMap(args)
+
+  val logger = LoggerFactory.getLogger(Runner.this.getClass)
+
+  val parser = new scopt.OptionParser[RunOpts]("run") {
+    head("run", "version")
+
+    opt[Int]('l', "limit").action((l,c) => c.copy(limit = l))
+
+    opt[String]('i', "input").required().action((i, c) => c.copy(input = i))
+
+    opt[String]('o', "output").required().action((o,c) => c.copy(output = o))
+
+    opt[String]('v', "vendor")
+      .required().action((v, c) => c.copy(vendor = v))
+        .validate(v => {
+          val vendors = converters.keys.toSeq
+          if ( vendors.contains(v)) success else failure("unknown vendor")
+        })
+
+    opt[String]('m', "metadata")
+      .action((m, c) =>  c.copy(metadata = m))
+      .validate(m => {
+        try {
+          Json.parse(m).as[JsObject]
+          success
+        } catch {
+          case t: Throwable => failure("not valid json")
+        }
+      })
+    opt[String]('s', "sourceId").action((s, c) => c.copy(sourceId = Some(s)))
+    opt[Boolean]('r', "killRuntime").action((r, c) => c.copy(killRuntime = r))
+  }
+
 
   val converters = Map(
     "kds" -> KDSQtiZipConverter,
@@ -30,62 +67,45 @@ object Runner extends App {
     "measuredprogress" -> MeasuredProgressQtiZipConverter
   )
 
-  parsed match {
-    case Success(usefulArgs) => {
-      val input =
-        new ZipFile(usefulArgs.get("input").getOrElse(throw new IllegalStateException("Undefined for input")))
-      val outputPath = usefulArgs.get("output").getOrElse(throw new IllegalStateException("Undefined for output"))
-      val vendor = usefulArgs.get("vendor").getOrElse(throw new IllegalStateException("Undefined for vendor"))
-      val metadata = Json.parse(usefulArgs.get("metadata").getOrElse("{}")).as[JsObject]
+  parser.parse(args, RunOpts("", "", "")) match {
+    case Some(runOpts) => {
+      val input = new ZipFile(runOpts.input)
+      val outputPath = runOpts.output
+      val vendor = runOpts.vendor
+      val metadata = Json.parse(runOpts.metadata).as[JsObject]
+
       val converter = converters
         .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
 
       val opts = ConversionOpts(
-        usefulArgs.get("limit").map(_.toInt).getOrElse(0),
-        usefulArgs.get("sourceId")
+        runOpts.limit,
+        runOpts.sourceId
       )
+
+
+      logger.info(s"convertion opts: $opts")
+
+      val outFile = new File(runOpts.output)
+
+      if(outFile.exists()){
+        logger.info(s"Deleting ${runOpts.output}")
+        outFile.delete
+      }
 
       result(converter.convert(input, outputPath, Some(metadata), opts)
         .map( _ => {
           println("all done")
 
-          if(usefulArgs.get("killRuntime") == Some("true")) {
+          if(runOpts.killRuntime) {
             Runtime.getRuntime().halt(0)
           }
         }), 25.minutes)
     }
-    case Failure(error) => {
-      println(error.getMessage)
-      println(
-        """ Usage:
-          |   sbt run --input qti.zip --output json.zip --vendor kds --metadata \"{\\\"scoringType\\\": \\\"PARCC\\\"}\""""".stripMargin)
+    case None => {
+      println(parser.usage)
       sys.exit(1)
     }
   }
 
 }
 
-case class Flag(long: String, short: String, default: Option[String])
-
-class FlagMap(flags: Seq[Flag]) {
-
-  private def defaults = flags.map(flag => flag.default.map(flag.long -> _)).flatten.toMap
-
-  private def fromArgs(args: Array[String]) = args.sliding(2).map{ case Array(key, value) => {
-    flags.find(flag => (key == s"--${flag.long}" || key == s"-${flag.short}")) match {
-      case Some(flag) => Some(flag.long -> value)
-      case _ => None
-    }
-  }}.flatten.toMap
-
-  private def missing(args: Map[String, String]) = flags.map(_.long).filterNot(flag => args.keySet.contains(flag))
-
-  def toMap(args: Array[String]): Validation[Error, Map[String, String]] = {
-    val result = defaults ++ fromArgs(args)
-    missing(result) match {
-      case empty: Seq[String] if (empty.isEmpty) => Success(result)
-      case missingFields => Failure(new Error(s"Missing values for ${missingFields.mkString(", ")}"))
-    }
-  }
-
-}

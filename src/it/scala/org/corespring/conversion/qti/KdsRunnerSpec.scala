@@ -1,12 +1,12 @@
 package org.corespring.conversion.qti
 
 import java.io.File
-import java.nio.file.{Files, Paths}
-import java.util.zip.ZipFile
+import java.nio.file.Files
+import java.util.zip.{ZipEntry, ZipFile}
 
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
-import org.specs2.mutable.{Before, Specification}
+import org.specs2.mutable.Specification
 import play.api.libs.json.Json
 
 import scala.collection.JavaConversions._
@@ -30,32 +30,40 @@ class KdsRunnerSpec extends Specification {
     "--sourceId", "670508",
     "--output", sbacOutput.toString,
     "--killRuntime", "false",
-    "--metadata", """{"scoringType": "SBAC"}"""
+    "--metadata",
+    """{"scoringType": "SBAC"}"""
   ))
+
+  def json(zip: ZipFile, e: ZipEntry) = {
+    val jsonString = IOUtils.toString(zip.getInputStream(e))
+    Json.parse(jsonString)
+  }
 
   "kds --sourceId 670508" should {
 
+    val zip = new ZipFile(new File(sbacOutput.toString))
 
-    "convert corespring-number-line" in {
+    val playerDef = zip.entries.find {
+      e =>
+        logger.info(s"e.getName: ${e.getName}")
+        e.getName.contains("player-definition.json")
+    }
 
-      true must_== true
+    val profile = zip.entries.find {
+      e => e.getName.contains("profile.json")
+    }
 
-      val zip = new ZipFile(new File(sbacOutput.toString))
-      val playerDef = zip.entries.find{
-        e =>
-          logger.info(s"e.getName: ${e.getName}")
-          e.getName.contains("player-definition.json")
-      }
+    "add scoringType to profile.json" in {
+      profile.map(json(zip, _))
+        .map { json =>
+          (json \ "scoringType").as[String] must_== "SBAC"
+        }.getOrElse(ko)
+    }
 
-      playerDef.map{ pd =>
-        val jsonString = IOUtils.toString(zip.getInputStream(pd))
-        val json = Json.parse(jsonString)
-        logger.info(Json.prettyPrint(json))
-        json
-      }.map{json =>
+    "add corespring-number-line as the componentType for RESPONSE1" in {
+      playerDef.map(json(zip, _)).map { json =>
         (json \ "components" \ "RESPONSE1" \ "componentType").as[String] must_== "corespring-number-line"
       }.getOrElse(ko)
-
     }
   }
 
