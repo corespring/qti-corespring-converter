@@ -2,27 +2,33 @@ package com.keydatasys.conversion.zip
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.MetadataExtractor
+import com.keydatasys.conversion.qti.manifest.ManifestFilter
+import com.keydatasys.conversion.qti.{ItemTransformer, MetadataExtractor}
 import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener}
-import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter._
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor
-import org.corespring.conversion.qti.manifest.{ZipWriter, ManifestItem, ZipReader}
+import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsValue, Json, JsObject}
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Node
 
-object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener with HtmlProcessor with JsonUtil with PassageScrubber {
+object KDSQtiZipConverter
+  extends QtiToCorespringConverter
+    with PathFlattener
+    with HtmlProcessor
+    with JsonUtil
+    with PassageScrubber
+with ManifestFilter {
 
   private val collectionName = "kds"
   private val collectionId = "5453b4e4e4b05f38dd6440a8"
@@ -47,21 +53,21 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
-    def toManifestItem(node: Node) : Future[ManifestItem] = Future{
+    def toManifestItem(node: Node): Future[ManifestItem] = Future {
       val out = ManifestItem(node, zip)
       logger.info(s"[toManifestItem] converted ${out.id}")
       out
     }
 
-    def toCorespringItem(m: ManifestItem) : Future[Option[CorespringItem]] = Future{
+    def toCorespringItem(m: ManifestItem): Future[Option[CorespringItem]] = Future {
       val qti = ZipReader.fileContents(zip, m.filename)
 
-      qti.map{ q =>
+      qti.map { q =>
         try {
-          val sources : Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = itemTransformer.transform(scrub(preprocessHtml(q)), m, sources)
-          sources.mapValues{ v =>
-            IOUtils.closeQuietly(v.inputStream )
+          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+          val playerDefinition = ItemTransformer.transform(scrub(preprocessHtml(q)), m, sources)
+          sources.mapValues { v =>
+            IOUtils.closeQuietly(v.inputStream)
           }
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
@@ -79,7 +85,7 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
       }.flatten
     }
 
-    def writeCorespringItem(item: Option[CorespringItem]) : Future[Option[CorespringItem]] = item.map{ i =>
+    def writeCorespringItem(item: Option[CorespringItem]): Future[Option[CorespringItem]] = item.map { i =>
       Future {
         val basePath = Paths.get(s"${collectionName}_$collectionId/${i.id}")
         val resolved = tmpDir.resolve(basePath)
@@ -88,11 +94,11 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
         logger.debug(s"[writeCorespringItem] resolved: $resolved")
         logger.debug(s"[writeCorespringItem] dataPath: $dataPath")
 
-        if(Files.notExists(resolved)){
+        if (Files.notExists(resolved)) {
           Files.createDirectories(resolved)
         }
 
-        if(Files.notExists(dataPath)){
+        if (Files.notExists(dataPath)) {
           Files.createDirectory(dataPath)
         }
 
@@ -109,9 +115,9 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
 
         logger.debug(s"[writeCorespringItem] assets: length: ${i.assets.length} - ${i.assets}")
 
-        def flattenPath(p:String) = p.split("/").last
+        def flattenPath(p: String) = p.split("/").last
 
-        i.assets.map{
+        i.assets.map {
           a =>
             val entry = zip.getEntry(a)
             val is = zip.getInputStream(entry)
@@ -125,15 +131,24 @@ object KDSQtiZipConverter extends QtiToCorespringConverter with PathFlattener wi
 
     }.getOrElse(Future.successful(None))
 
-    def convertResource(n:Node) = toManifestItem(n)
-      .flatMap( mi => toCorespringItem(mi) )
+    def convertResource(n: Node) = toManifestItem(n)
+      .flatMap(mi => toCorespringItem(mi))
       .flatMap(ci => writeCorespringItem(ci))
 
-    val futures = if (opts.limit != 0) {
-      qtiResources.take(opts.limit).map(convertResource)
-    } else {
-      qtiResources.map(convertResource)
+
+    val nodes = {
+      val n = opts.sourceId match  {
+        case Some(sid) => qtiResources.filter { n =>
+          val id = (n \ "@identifier").text.toString
+          id == sid
+        }
+        case _ => qtiResources
+      }
+      if (opts.limit > 0) n.take(opts.limit) else n
     }
+
+
+    val futures = nodes.map(convertResource)
 
     logger.trace(s"futures: ${futures}")
 

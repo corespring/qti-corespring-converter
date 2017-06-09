@@ -7,7 +7,7 @@ import com.keydatasys.conversion.zip.KDSQtiZipConverter._
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.UnicodeCleaner
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
-import org.measuredprogress.conversion.qti.{ItemExtractor, QtiTransformer}
+import org.measuredprogress.conversion.qti.{ItemExtractor, QtiTransformer => MeasuredProgressQtiTransformer}
 import play.api.libs.json._
 
 import scala.collection.JavaConversions._
@@ -34,8 +34,11 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
-    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(QtiTransformer))
+    //TODO: linking to kds ItemTransformer - should be a common transformer?
+    val extractor = new ItemExtractor(fileMap, metadata.getOrElse(Json.obj()), new ItemTransformer(MeasuredProgressQtiTransformer))
+
     val itemCount = extractor.ids.length
+
     val processedFiles = extractor.ids.zipWithIndex.map{ case(id, index) => {
       println(s"Processing ${id} (${index+1}/$itemCount)")
       val itemJson = extractor.itemJson

@@ -10,7 +10,7 @@ import com.keydatasys.conversion.qti.manifest.ManifestFilter
 import com.progresstesting.conversion.qti.MetadataExtractor
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
-import org.corespring.conversion.qti.QtiTransformer
+import org.corespring.conversion.qti.{QtiTransformer => DefaultQtiTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.manifest._
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
@@ -28,7 +28,7 @@ object ProgressTestingQtiZipConverter
   private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
 
-  val itemTransformer = new ItemTransformer(QtiTransformer)
+  val itemTransformer = new ItemTransformer(DefaultQtiTransformer)
 
   val logger = LoggerFactory.getLogger(ProgressTestingQtiZipConverter.this.getClass)
 
