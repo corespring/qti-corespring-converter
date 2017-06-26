@@ -8,12 +8,16 @@ import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.measuredprogress.conversion.qti.interactions.ImageConverter
+import org.slf4j.LoggerFactory
 import play.api.libs.json._
-
 import scala.xml._
 import scala.xml.transform._
 
+
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
+
+  private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
+
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
   def statefulTransformers: Seq[Transformer]
@@ -73,15 +77,23 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
     val finalHtml = QtiTransformer.KDSTableReset.toString ++ new RuleTransformer(new RewriteRule {
       override def transform(node: Node) = node match {
-        case node: Node if node.label == "stylesheet" =>
-          (sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }.map(_._2)) match {
-            case Some(cssSource) =>
-              <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>
-            case _ => node
-          }
+        case node: Node if node.label == "stylesheet" => {
+
+          logger.trace(s"Sources: $sources")
+
+          val src = sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }
+
+          src
+            .map{ case (_,s) => s }
+            .map(cssSource => <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>)
+            .getOrElse(node)
+
+        }
         case _ => node
       }
     }, ItemBodyTransformer).transform(html).head.toString
+
+    logger.trace(s"finalHtml: $finalHtml")
 
     Json.obj(
       "xhtml" -> convertHtml(finalHtml),

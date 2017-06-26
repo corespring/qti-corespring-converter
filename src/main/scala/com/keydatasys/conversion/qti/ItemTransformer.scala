@@ -1,10 +1,11 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.util.{PathTransformer, TableTransformer, PassageTransformer}
+import com.keydatasys.conversion.qti.util.{PassageTransformer, PathTransformer, TableTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 import org.corespring.conversion.qti.manifest._
+import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
 import scala.xml._
@@ -12,6 +13,7 @@ import scala.xml.transform._
 
 class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
   def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
     val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
       .map(transformPassage(_)(sources).getOrElse(""))
@@ -21,6 +23,7 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
     }
     try {
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
+      logger.info(s"call super qti transformer: sources: $sources")
       qtiTransformer.transform(xml, sources, manifestItem.manifest)
     } catch {
       case e: Exception => {

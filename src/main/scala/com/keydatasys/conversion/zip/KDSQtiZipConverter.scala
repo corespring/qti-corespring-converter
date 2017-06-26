@@ -20,6 +20,7 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.parsing.json.JSON
 import scala.xml.Node
 
 object KDSQtiZipConverter
@@ -69,6 +70,8 @@ with ManifestFilter {
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
+
+          logger.info(s"playerDefinition: ${Json.prettyPrint(playerDefinition)}")
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val common = metadata.getOrElse(Json.obj())

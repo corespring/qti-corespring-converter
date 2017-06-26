@@ -46,4 +46,7 @@ lazy val root = Project("qti-corespring-converter", file("."))
 )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings : _*)
+  .settings(
+    fork in IntegrationTest := false
+    )
   .dependsOn(qti).aggregate(qti)
