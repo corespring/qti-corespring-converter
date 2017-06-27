@@ -7,6 +7,8 @@ import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 import org.corespring.conversion.qti.manifest._
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
+import org.corespring.macros.DescribeMacro._
+
 
 import scala.xml._
 import scala.xml.transform._
@@ -23,8 +25,10 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
     }
     try {
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
-      logger.info(s"call super qti transformer: sources: $sources")
-      qtiTransformer.transform(xml, sources, manifestItem.manifest)
+      logger.info(describe(sources))
+      val out = qtiTransformer.transform(xml, sources, manifestItem.manifest)
+      logger.trace(describe(out))
+      out
     } catch {
       case e: Exception => {
         throw e

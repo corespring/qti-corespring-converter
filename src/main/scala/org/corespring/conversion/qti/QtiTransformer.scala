@@ -13,6 +13,7 @@ import play.api.libs.json._
 import scala.xml._
 import scala.xml.transform._
 
+import org.corespring.macros.DescribeMacro._
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
@@ -75,28 +76,31 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
+    logger.trace(describe(html))
+
     val finalHtml = QtiTransformer.KDSTableReset.toString ++ new RuleTransformer(new RewriteRule {
       override def transform(node: Node) = node match {
         case node: Node if node.label == "stylesheet" => {
 
-          logger.trace(s"Sources: $sources")
+          val name = (node \ "@href").text
 
-          val src = sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }
+         val src = sources.find{ case (key, _) => key == name}
 
           src
             .map{ case (_,s) => s }
             .map(cssSource => <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>)
-            .getOrElse(node)
+            .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $name"))
 
         }
         case _ => node
       }
     }, ItemBodyTransformer).transform(html).head.toString
 
-    logger.trace(s"finalHtml: $finalHtml")
-
+    logger.trace(describe(finalHtml))
+    val converted = convertHtml(finalHtml)
+    logger.trace(describe(converted))
     Json.obj(
-      "xhtml" -> convertHtml(finalHtml),
+      "xhtml" -> converted,
       "components" -> components.map{case (id, json) => id -> convertJson(json)}) ++ customScoring(qti, components)
   }
 

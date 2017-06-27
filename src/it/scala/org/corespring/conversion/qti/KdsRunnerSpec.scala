@@ -68,7 +68,7 @@ class KdsRunnerSpec extends Specification {
 
     "add the inline css" in {
       playerDef.map(json(zip, _)).map { json =>
-        (json \ "xhtml").as[String] must_== "hi"
+        (json \ "xhtml").as[String].contains(".qti.kds") must_== true
       }.getOrElse(ko)
 
     }
