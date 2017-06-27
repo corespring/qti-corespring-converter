@@ -20,7 +20,9 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.parsing.json.JSON
 import scala.xml.Node
+import org.corespring.macros.DescribeMacro._
 
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
@@ -28,7 +30,7 @@ object KDSQtiZipConverter
     with HtmlProcessor
     with JsonUtil
     with PassageScrubber
-with ManifestFilter {
+    with ManifestFilter {
 
   private val collectionName = "kds"
   private val collectionId = "5453b4e4e4b05f38dd6440a8"
@@ -41,10 +43,10 @@ with ManifestFilter {
                metadata: Option[JsObject] = None,
                opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
 
-    logger.info(s"output: $output, opts: $opts")
+    logger.info(describe(output, opts))
 
     val tmpDir = Files.createTempDirectory("qti-conversion")
-    logger.debug(s"Created temp dir: $tmpDir")
+    logger.debug(describe(tmpDir))
 
     val manifestEntry = zip.getEntry("imsmanifest.xml")
     val is = zip.getInputStream(manifestEntry)
@@ -55,7 +57,7 @@ with ManifestFilter {
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
       val out = ManifestItem(node, zip)
-      logger.info(s"[toManifestItem] converted ${out.id}")
+      logger.info(describe(out))
       out
     }
 
@@ -70,12 +72,14 @@ with ManifestFilter {
             IOUtils.closeQuietly(v.inputStream)
           }
 
+          logger.trace(describe(playerDefinition))
+
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val common = metadata.getOrElse(Json.obj())
           val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
           val profile = common ++ resourceMetadata
           val out = CorespringItem(m.id, postProcess(playerDefinition), profile, m.resources.map(_.path))
-          logger.info(s"[toCorespringItem] id: ${m.id}")
+          logger.info(describe(id))
           Some(out)
         } catch {
           case e: Exception => {
@@ -137,7 +141,7 @@ with ManifestFilter {
 
 
     val nodes = {
-      val n = opts.sourceId match  {
+      val n = opts.sourceId match {
         case Some(sid) => qtiResources.filter { n =>
           val id = (n \ "@identifier").text.toString
           id == sid
@@ -154,7 +158,7 @@ with ManifestFilter {
 
     Future.sequence(futures)
       .map(results => {
-        val ids = results.map(ci =>ci.map(_.id).getOrElse("?"))
+        val ids = results.map(ci => ci.map(_.id).getOrElse("?"))
         logger.info(s"all resources have been written, no of items written: ${ids.length}, zipping...")
         ZipWriter.compressDir(tmpDir.toFile(), output)
         val outFile = new File(output)
@@ -173,7 +177,6 @@ with ManifestFilter {
     }
     case _ => item
   }
-
 
 
 }

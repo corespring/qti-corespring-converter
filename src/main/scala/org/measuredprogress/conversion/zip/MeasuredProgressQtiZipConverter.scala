@@ -18,8 +18,6 @@ import scalaz.{Failure, Success, Validation}
 
 object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
-//  val collectionId = "57dac29977c896d6a7cafac4"
-//  val collectionId = "57daeaece4b00d6de0ff5f35" // all but until now
   val collectionId = "57eeb030e4b01a332ddfc0f9"
   val collectionName = "Measured Progress"
 
@@ -30,7 +28,8 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
                         metadata: Option[JsObject] = None,
                         opts : ConversionOpts = ConversionOpts()): Future[ZipFile] = Future{
 
-    val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
+    throw new RuntimeException("This converter needs to be updated to use a similar pattern to KDS and progress testing")
+    /*val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap
 
@@ -65,7 +64,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         case _ => Seq.empty[(String, Source)]
       }
     }}.flatten.toMap
-    writeZip(toZipByteArray(processedFiles), path)
+    writeZip(toZipByteArray(processedFiles), path)*/
   }
 
 }
