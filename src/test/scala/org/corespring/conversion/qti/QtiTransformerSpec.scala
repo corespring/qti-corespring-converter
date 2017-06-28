@@ -46,16 +46,17 @@ class QtiTransformerSpec extends Specification {
    "with sources" should {
      "convert stylesheets" in {
 
-       val qtiData = qti(<stylesheet href="styles/LiveInspect.css"></stylesheet>)
-       val sources: Map[String,SourceWrapper] = Map("styles/LiveInspect.css" ->
-         SourceWrapper( "styles/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
+       val qtiData = qti(<stylesheet href="style/LiveInspect.css"></stylesheet>)
+       val sources: Map[String,SourceWrapper] = Map("style/LiveInspect.css" ->
+         SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
        ))
+
        val manifest : Node = MockManifest.manifest
 
        val json = QtiTransformer.transform(qtiData, sources, manifest)
 
-       val xml = XML.loadString( (json \ "xhtml").as[String] )
-       (xml \ "style").head.text must_== """.qti.kds body { color:red; }"""
+       val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
+       (xml \\ "style")(1).text must_== """.qti.kds body { color:red; }"""
      }
    }
 
