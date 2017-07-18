@@ -17,10 +17,11 @@ import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWrite
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.Json._
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.parsing.json.JSON
 import scala.xml.Node
 import org.corespring.macros.DescribeMacro._
 
@@ -40,7 +41,7 @@ object KDSQtiZipConverter
   def convert(
                zip: ZipFile,
                output: String = "target/corespring-json.zip",
-               metadata: Option[JsObject] = None,
+               maybeMetadata: Option[JsObject] = None,
                opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
 
     logger.info(describe(output, opts))
@@ -75,11 +76,23 @@ object KDSQtiZipConverter
           logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
-          val common = metadata.getOrElse(Json.obj())
-          val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
-          val profile = common ++ resourceMetadata
+          val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
+
+          //set a default title
+          val title = (metadata \ "scoringType").asOpt[String].map{ st =>
+            s"${m.id} - $st"
+          }.getOrElse(m.id)
+
+          val profile = obj("taskInfo" -> obj(
+            "title" -> title,
+            "description" -> title,
+            "extended" -> obj(
+              "kds" -> metadata
+            )
+          ))
+
           val out = CorespringItem(m.id, postProcess(playerDefinition), profile, m.resources.map(_.path))
-          logger.info(describe(id))
+          logger.trace(describe(id, out))
           Some(out)
         } catch {
           case e: Exception => {
@@ -169,7 +182,7 @@ object KDSQtiZipConverter
 
   override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      json ++ Json.obj(
+      json ++ obj(
         "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
         "components" -> postprocessHtml((json \ "components")),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))

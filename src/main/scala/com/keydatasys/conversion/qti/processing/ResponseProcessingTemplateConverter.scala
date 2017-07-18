@@ -1,15 +1,15 @@
 package com.keydatasys.conversion.qti.processing
 
-import com.ning.http.client.AsyncHttpClientConfig
 import org.corespring.common.xml.XMLNamespaceClearer
+import org.slf4j.LoggerFactory
 import play.api.libs.ws.WS
 
 import scala.collection._
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-
+import scala.concurrent.duration._
 import scala.xml._
 import scala.xml.transform._
+import org.corespring.macros.DescribeMacro.describe
 
 class ResponseProcessingTemplateConverter(get: (String => Node) = ResponseProcessingTemplateConverter.getXMLFromURL)
   extends XMLNamespaceClearer {
@@ -57,10 +57,12 @@ class ResponseProcessingTemplateConverter(get: (String => Node) = ResponseProces
 
 object ResponseProcessingTemplateConverter {
 
-  val timeout = 60000 * 10
-  val builder = new AsyncHttpClientConfig.Builder()
+  private lazy val logger = LoggerFactory.getLogger(ResponseProcessingTemplateConverter.this.getClass)
 
   val client = WS
 
-  def getXMLFromURL(url: String): Node = XML.loadString(Await.result(client.url(url).get(), Duration.Inf).body)
+  def getXMLFromURL(url: String): Node = {
+    logger.info(describe(url))
+    XML.loadString(Await.result(client.url(url).get(), 10.seconds).body)
+  }
 }

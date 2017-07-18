@@ -53,11 +53,22 @@ class KdsRunnerSpec extends Specification {
       e => e.getName.contains("profile.json")
     }
 
+    val profileJson = profile.map(json(zip, _)).get
+
     "add scoringType to profile.json" in {
-      profile.map(json(zip, _))
-        .map { json =>
-          (json \ "scoringType").as[String] must_== "SBAC"
-        }.getOrElse(ko)
+      (profileJson \ "taskInfo" \ "extended" \ "kds" \ "scoringType").as[String] must_== "SBAC"
+    }
+
+    "add sourceId to profile.json" in {
+      (profileJson \ "taskInfo" \ "extended" \ "kds" \ "sourceId").as[String] must_== "670508"
+    }
+
+    "add title to profile.json" in {
+      (profileJson \ "taskInfo" \ "title").as[String] must_== "670508 - SBAC"
+    }
+
+    "add description to profile.json" in {
+      (profileJson \ "taskInfo" \ "description").as[String] must_== "670508 - SBAC"
     }
 
     "add corespring-number-line as the componentType for RESPONSE1" in {
