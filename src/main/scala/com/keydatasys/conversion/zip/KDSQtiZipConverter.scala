@@ -22,7 +22,6 @@ import play.api.libs.json.Json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.parsing.json.JSON
 import scala.xml.Node
 import org.corespring.macros.DescribeMacro._
 
@@ -77,7 +76,7 @@ object KDSQtiZipConverter
           logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
-          val metadata = maybeMetadata.getOrElse(Json.obj()) ++ MetadataExtractor.sourceIdObj(id)
+          val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
 
           //set a default title
           val title = (metadata \ "scoringType").asOpt[String].map{ st =>
@@ -183,7 +182,7 @@ object KDSQtiZipConverter
 
   override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      json ++ Json.obj(
+      json ++ obj(
         "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
         "components" -> postprocessHtml((json \ "components")),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
