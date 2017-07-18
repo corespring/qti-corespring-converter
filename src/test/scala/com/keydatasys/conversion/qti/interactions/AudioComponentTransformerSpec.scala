@@ -1,10 +1,8 @@
 package com.keydatasys.conversion.qti.interactions
 
-import org.corespring.conversion.qti.interactions.HottextInteractionTransformer
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.specs2.mutable.Specification
-import play.api.libs.json.JsObject
 
 import scala.xml.XML
 
@@ -26,7 +24,7 @@ class AudioComponentTransformerSpec extends Specification {
     val xhtml = XML.loadString(new InteractionRuleTransformer(AudioComponentTransformer).transform(qti).mkString)
 
     "contain <cs-audio/> tag with proper id" in {
-      (xhtml \\ "cs-audio" \ "@id").text must be equalTo(id)
+      (xhtml \\ "corespring-audio" \ "@id").text must be equalTo(id)
     }
 
     "not contain <audio/> tag" in {
@@ -40,15 +38,13 @@ class AudioComponentTransformerSpec extends Specification {
     val result =
       AudioComponentTransformer.interactionJs(qti, QTIManifest.EmptyManifest).get(id).getOrElse(throw new Exception("Oops"))
 
-    "formats" should {
-      val formats = (result \ "formats").as[JsObject]
-
-      "contain 'audio/mpeg' and 'audio/ogg' formats for identifier" in {
-        (formats \ "audio/mpeg").as[String] must be equalTo(s"$id.mp3")
-        (formats \ "audio/ogg").as[String] must be equalTo(s"$id.ogg")
-      }
-
-    }
+    "have weight" in ((result \ "weight").asOpt[Int] must_== Some(0))
+    "have componentType" in ((result \ "componentType").asOpt[String] must_== Some("corespring-audio"))
+    "have filename" in ((result \ "fileName").asOpt[String] must_== Some(s"$id.mp3"))
+    "have pauseButtonLabel" in ((result \ "pauseButtonLabel").asOpt[String] must_== Some("Stop"))
+    "have playButtonLabel" in ((result \ "playButtonLabel").asOpt[String] must_== Some("Listen"))
+    "have title" in ((result \ "title").asOpt[String] must_== Some("Audio"))
+    "have ui" in ((result \ "ui").asOpt[String] must_== Some("fullControls"))
 
   }
 

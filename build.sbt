@@ -39,11 +39,15 @@ lazy val root = Project("qti-corespring-converter", file("."))
     "org.specs2" %% "specs2" % "2.1.1" % "it,test",
     "com.typesafe.play" %% "play" % "2.2.1",
     "org.jsoup" % "jsoup" % "1.8.1",
-    "org.zeroturnaround" % "zt-zip" % "1.11"
+    "com.github.scopt" %% "scopt" % "3.6.0",
+    "org.corespring" %% "macros" % "1.1.0"
   ),
   publishTo := authPublishTo.value,
   parallelExecution in IntegrationTest := false
 )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings : _*)
+  .settings(
+    fork in IntegrationTest := false
+    )
   .dependsOn(qti).aggregate(qti)

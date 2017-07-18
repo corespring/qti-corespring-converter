@@ -50,7 +50,7 @@ class RRubricBlockTransformerSpec extends Specification {
 
         "be translated into <img src='image.png'/>" in {
           (result \\ "img") must not beEmpty;
-          (result \\ "img" \ "@src").text must be equalTo(imageUrl)
+          (result \\ "img" \ "@src").text must be equalTo(imageUrl.split("/").last)
         }
 
       }

@@ -8,12 +8,20 @@ import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.measuredprogress.conversion.qti.interactions.ImageConverter
+import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
 import scala.xml._
 import scala.xml.transform._
+import org.corespring.macros.DescribeMacro._
+import org.measuredprogress.conversion.qti.QtiTransformer
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
+
+  private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
+
+  private val KDSTableReset =
+    <style type="text/css">{""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}</style>
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
   def statefulTransformers: Seq[Transformer]
@@ -71,20 +79,32 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
-    val finalHtml = QtiTransformer.KDSTableReset.toString ++ new RuleTransformer(new RewriteRule {
+    logger.trace(describe(html))
+
+    val finalHtml = new RuleTransformer(new RewriteRule {
       override def transform(node: Node) = node match {
-        case node: Node if node.label == "stylesheet" =>
-          (sources.find { case (file, source) => file == (node \ "@href").text.split("/").last }.map(_._2)) match {
-            case Some(cssSource) =>
-              <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>
-            case _ => node
-          }
+        case node: Node if node.label == "stylesheet" => {
+
+          val name = (node \ "@href").text
+
+         val src = sources.find{ case (key, _) => key == name}
+
+          src
+            .map{ case (_,s) => s }
+            .map(cssSource => <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>)
+            .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $name"))
+
+        }
         case _ => node
       }
     }, ItemBodyTransformer).transform(html).head.toString
 
+    logger.trace(describe(finalHtml))
+    val converted = convertHtml(finalHtml)
+    logger.trace(describe(converted))
+
     Json.obj(
-      "xhtml" -> convertHtml(finalHtml),
+      "xhtml" -> s"${KDSTableReset} ${converted}",
       "components" -> components.map{case (id, json) => id -> convertJson(json)}) ++ customScoring(qti, components)
   }
 
@@ -118,8 +138,5 @@ object QtiTransformer extends QtiTransformer {
     FeedbackBlockTransformer,
     NumberedLinesTransformer
   )
-
-  private val KDSTableReset =
-    <style type="text/css">{""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}</style>
 
 }

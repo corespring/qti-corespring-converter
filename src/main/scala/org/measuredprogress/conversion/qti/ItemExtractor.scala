@@ -1,6 +1,6 @@
 package org.measuredprogress.conversion.qti
 
-import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor
@@ -12,7 +12,7 @@ import scala.util.matching.Regex
 import scala.xml.{Node, XML}
 import scalaz.{Failure, Success, Validation}
 
-class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
+class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: KDSItemTransformer)
   extends AbstractItemExtractor with HtmlProcessor with JsonUtil {
 
   val elaId = "4ffb535f6bb41e469c0bf2ac"

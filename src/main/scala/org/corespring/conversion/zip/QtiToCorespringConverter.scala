@@ -11,7 +11,7 @@ import play.api.libs.json._
 import scala.concurrent.Future
 import scala.io.Source
 
-case class ConversionOpts(limit: Int = 0)
+case class ConversionOpts(limit: Int = 0, sourceId: Option[String] = None)
 
 /**
  * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
