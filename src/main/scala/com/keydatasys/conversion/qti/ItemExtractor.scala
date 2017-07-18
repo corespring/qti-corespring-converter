@@ -16,7 +16,7 @@ import scalaz.{Failure, Success, Validation}
 
 object MetadataExtractor {
 
-  def metadataFromResourceNode(node: Node, id: String) = {
+  def sourceIdObj(id: String) = {
     Json.obj("sourceId" -> id)
   }
 

@@ -17,6 +17,8 @@ import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWrite
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.Json._
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -40,7 +42,7 @@ object KDSQtiZipConverter
   def convert(
                zip: ZipFile,
                output: String = "target/corespring-json.zip",
-               metadata: Option[JsObject] = None,
+               maybeMetadata: Option[JsObject] = None,
                opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
 
     logger.info(describe(output, opts))
@@ -75,18 +77,23 @@ object KDSQtiZipConverter
           logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
-          val common = metadata.getOrElse(Json.obj())
-          val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
+          val metadata = maybeMetadata.getOrElse(Json.obj()) ++ MetadataExtractor.sourceIdObj(id)
 
           //set a default title
-          val title = (common \ "scoringType").asOpt[String].map{ st =>
+          val title = (metadata \ "scoringType").asOpt[String].map{ st =>
             s"${m.id} - $st"
           }.getOrElse(m.id)
 
-          val md = Json.obj("taskInfo" -> Json.obj("extended" -> Json.obj("kds" -> common )))
-          val profile = Json.obj("title" -> title, "description" -> title) ++ common ++ resourceMetadata
+          val profile = obj("taskInfo" -> obj(
+            "title" -> title,
+            "description" -> title,
+            "extended" -> obj(
+              "kds" -> metadata
+            )
+          ))
+
           val out = CorespringItem(m.id, postProcess(playerDefinition), profile, m.resources.map(_.path))
-          logger.info(describe(id))
+          logger.trace(describe(id, out))
           Some(out)
         } catch {
           case e: Exception => {
