@@ -5,6 +5,13 @@ import play.api.libs.json._
 
 import scala.xml._
 
+
+object Normalizer {
+  def identifier(s: String): String = s
+    .trim
+    .replace("...", "_ellipsis")
+}
+
 class GraphicGapMatchInteractionTransformer extends InteractionTransformer with NumberParsers {
   val DefaultChoiceAreaPosition = "left"
   val DefaultSnapEnabled = false
@@ -19,14 +26,16 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
     }
   }
 
-  override def transform(node: Node, manifest: Node): Seq[Node] =  {
+  override def transform(node: Node, manifest: Node): Seq[Node] = {
     val identifier = (node \ "@responseIdentifier").text
     node.label match {
       case "graphicGapMatchInteraction" =>
         node.child.filter(_.label == "prompt").map(n => n.label match {
-          case "prompt" => <p class="prompt">{ n.child }</p>
+          case "prompt" => <p class="prompt">
+            {n.child}
+          </p>
           case _ => n
-        }) ++ <corespring-graphic-gap-match id={ identifier }></corespring-graphic-gap-match>
+        }) ++ <corespring-graphic-gap-match id={identifier}></corespring-graphic-gap-match>
       case _ => node
     }
   }
@@ -46,6 +55,7 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
       }
 
       def imageWidth = intValueOrZero((node \ "object" \ "@width").mkString)
+
       def mapValue(value: Float): Float = mapValueToRealImageSize(imageWidth, value)
 
       def hotspots = {
@@ -59,15 +69,19 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
               "height" -> Math.abs(coordsArray(3) - coordsArray(1)))
             case "poly" =>
               def xCoords = coordsArray.zipWithIndex.collect { case (x, i) if i % 2 == 0 => x }
+
               def yCoords = coordsArray.zipWithIndex.collect { case (x, i) if i % 2 == 1 => x }
+
               def coordPairs = xCoords.zip(yCoords)
+
               JsArray(coordPairs.map(p => Json.obj("x" -> mapValue(p._1), "y" -> p._2)))
           }
         }
+
         JsArray(((node \\ "associableHotspot").toSeq).map { n =>
           val shape = (n \ "@shape").text.trim
           Json.obj(
-            "id" -> (n \ "@identifier").text.trim,
+            "id" -> Normalizer.identifier( (n \ "@identifier").text),
             "shape" -> shape,
             "coords" -> coords(shape, (n \ "@coords").text.trim))
         })
@@ -76,7 +90,7 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
       def choices = JsArray(((node \\ "gapImg").toSeq).map { n =>
         val imgWidth = mapValue(intValueOrZero((n \ "object" \ "@width").mkString.replaceAll("[^0-9]", "")))
         Json.obj(
-          "id" -> (n \ "@identifier").text.trim,
+          "id" -> Normalizer.identifier((n \ "@identifier").text),
           "label" -> s"<img src='${cutPathPrefix((n \ "object" \ "@data").mkString)}' width='${imgWidth}' height='${(n \ "object" \ "@height").mkString}' />",
           "matchMax" -> intValueOrZero((n \ "@matchMax").text.trim),
           "matchMin" -> intValueOrZero((n \ "@matchMin").text.trim))
@@ -110,7 +124,7 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
           val idHotspotRegex = """([^\s]*) ([^\s]*)""".r
           cr.asOpt[String] match {
             case Some(idHotspotRegex(id, hotspot)) => Json.obj(
-              "id" -> id,
+              "id" -> Normalizer.identifier(id),
               "hotspot" -> hotspot)
             case _ => Json.obj()
           }
@@ -133,11 +147,12 @@ class GraphicGapMatchInteractionTransformer extends InteractionTransformer with 
     Json.obj(
       "mapping" -> (responseDeclaration(node, qti) \ "mapping" \\ "mapEntry")
         .filter(mapEntry => (mapEntry \ "@mappedValue").toString.toFloat != 0)
-        .foldLeft(Map.empty[String, Map[String, Float]]){ case (acc, mapEntry) => {
+        .foldLeft(Map.empty[String, Map[String, Float]]) { case (acc, mapEntry) => {
           val Array(choice, hotspot) = (mapEntry \ "@mapKey").toString.split(" ")
           acc + (hotspot -> (acc.get(hotspot).getOrElse(Map.empty[String, Float]) +
-            (choice -> (mapEntry \ "@mappedValue").toString.toFloat)))
-        }}
+            (Normalizer.identifier(choice) -> (mapEntry \ "@mappedValue").toString.toFloat)))
+        }
+        }
     ).deepMerge(partialObj(
       "defaultValue" -> mappingAttribute("defaultValue"),
       "upperBound" -> mappingAttribute("upperBound"),

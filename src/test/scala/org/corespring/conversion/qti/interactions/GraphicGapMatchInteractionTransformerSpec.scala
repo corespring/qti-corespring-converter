@@ -89,6 +89,53 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
 
   "GraphicGapMatchInteractionTransformer" should {
 
+    /**
+      * See sourceId: 665134-PARCC
+      */
+    "with a ellipsis in the identifier" should {
+
+      val graphicGapMatchInteraction = XML.loadString(
+        s"""
+    <assessmentItem>
+      <responseDeclaration identifier="1" cardinality="multiple" baseType="directedPair">
+        <mapping lowerBound="0" upperBound="3" defaultValue="0">
+          <mapEntry mapKey="GI... Hotspot" mappedValue="1"/>
+         </mapping>
+      </responseDeclaration>
+      <graphicGapMatchInteraction responseIdentifier="1">
+        <prompt>prompt</prompt>
+        <object data="../images/ROGJOH370_Rocket_stem_01_o_b288978462.png" height="343" type="image/png" />
+        <gapImg identifier="GI..." matchMax="1">
+          <object data="../images/ROGJOH370_Rocket_opt_C01_o_4fad1b2ea3.png" height="49" type="image/png" width="175"/>
+        </gapImg>
+        <associableHotspot matchMax="0" matchMin="0" identifier="Hotspot" shape="rect" coords="10,113,207,284" height="171" width="197" />
+      </graphicGapMatchInteraction>
+    </assessmentItem>
+  """)
+
+      val out = new InteractionRuleTransformer(GraphicGapMatchInteractionTransformer).transform(graphicGapMatchInteraction)
+      val componentsJson =
+        GraphicGapMatchInteractionTransformer.interactionJs(graphicGapMatchInteraction, QTIManifest.EmptyManifest)
+      val q1 = componentsJson.get("1").getOrElse(throw new RuntimeException("No component called Q_01"))
+
+      "set the key in legacyScoring.mapping.Hotspot" in {
+//        println(s"out: ${Json.prettyPrint(out)")
+        println(s"q1: ${Json.prettyPrint(q1)}")
+        (q1 \ "legacyScoring" \ "mapping" \ "Hotspot" \ "GI_ellipsis").asOpt[Float] must_== Some(1.0)
+      }
+
+      "set correctResponse.id" in {
+        val arr = (q1 \ "correctResponse").as[JsArray]
+        (arr(0) \ "id").as[String] must_== "GI_ellipsis"
+      }
+
+      "sets model.choices.id" in {
+        val arr = (q1 \ "model" \ "choices").as[JsArray]
+        (arr(0) \ "id").as[String] must_== "GI_ellipsis"
+
+      }
+    }
+
     "transform interaction" in {
       val out = new InteractionRuleTransformer(GraphicGapMatchInteractionTransformer).transform(interaction)
       val componentsJson =
