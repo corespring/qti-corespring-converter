@@ -28,7 +28,8 @@ trait ImageConverter {
   }
 
   def convertHtml(html: String): String = {
-    val doc = JsoupParser.parse(html)
+    /** Note: we parse as xml so as not to corrupt the markup structure */
+    val doc = JsoupParser.parseXml(html)
     doc.select("object").foreach(obj => {
       obj.attr("type") match {
         case "image/png" => {
@@ -39,7 +40,7 @@ trait ImageConverter {
         case _ => {}
       }
     })
-    doc.select("body").html
+    doc.outerHtml()
   }
 
   def convertJson(json: JsValue): JsValue = {

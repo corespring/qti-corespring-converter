@@ -226,7 +226,6 @@ class SelectPointInteractionTransformerSpec extends Specification {
       "not return <object/>" in {
         (output() \\ "object").isEmpty must beTrue
       }
-
     }
 
     "interactionJS" should {

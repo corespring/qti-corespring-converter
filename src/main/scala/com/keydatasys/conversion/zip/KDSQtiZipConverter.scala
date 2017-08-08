@@ -67,13 +67,18 @@ object KDSQtiZipConverter
 
       qti.map { q =>
         try {
+          logger.debug(describe(q))
+          val preprocessed = preprocessHtml(q)
+          logger.debug(describe(preprocessed))
+          val scrubbed = scrub(preprocessed)
+          logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(scrub(preprocessHtml(q)), m, sources)
+          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
 
-          logger.trace(describe(playerDefinition))
+//          logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
