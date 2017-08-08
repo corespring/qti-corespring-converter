@@ -226,15 +226,6 @@ class SelectPointInteractionTransformerSpec extends Specification {
       "not return <object/>" in {
         (output() \\ "object").isEmpty must beTrue
       }
-
-      "transform the prompt" in {
-        val node = BadPrompt.QTI
-        val t = new SelectPointInteractionTransformer(BadPrompt.QTI)
-        val out = t.transform( (node \\ "selectPointInteraction")(0))
-        println(s"out: $out")
-        true must_== false
-      }
-
     }
 
     "interactionJS" should {
