@@ -1,0 +1,32 @@
+{
+  "RESPONSE116": {
+    "correctness": "correct",
+    "score": 1,
+    "feedback": {},
+    "studentResponse": "5"
+  },
+  "RESPONSE114": {
+    "correctness": "correct",
+    "score": 0,
+    "feedback": {},
+    "studentResponse": "10"
+  },
+  "RESPONSE117": {
+    "correctness": "correct",
+    "score": 0,
+    "feedback": {},
+    "studentResponse": "40"
+  },
+  "RESPONSE115": {
+    "correctness": "correct",
+    "score": 1,
+    "feedback": {},
+    "studentResponse": "10"
+  },
+  "RESPONSE113": {
+    "correctness": "correct",
+    "score": 1,
+    "feedback": {},
+    "studentResponse": "54"
+  }
+}

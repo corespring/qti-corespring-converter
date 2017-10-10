@@ -1,0 +1,169 @@
+{
+  "_id": {
+    "$oid": "57f1bf4848e7c3d20168c386"
+  },
+  "supportingMaterials": [],
+  "profile": {
+    "taskInfo": {
+      "title": "CS-API-COPY - MP-259"
+    }
+  },
+  "components": {
+    "RESPONSE116": {
+      "weight": 1,
+      "componentType": "corespring-text-entry",
+      "model": {
+        "answerBlankSize": 5,
+        "answerAlignment": "left"
+      },
+      "feedback": {
+        "correctFeedbackType": "none",
+        "incorrectFeedbackType": "none"
+      },
+      "correctResponses": {
+        "award": 100,
+        "values": [
+          "5"
+        ],
+        "ignoreWhitespace": true,
+        "ignoreCase": true,
+        "feedback": {
+          "type": "none",
+          "specific": []
+        }
+      },
+      "incorrectResponses": {
+        "award": 0,
+        "feedback": {
+          "type": "none",
+          "value": ""
+        }
+      }
+    },
+    "RESPONSE114": {
+      "weight": 1,
+      "componentType": "corespring-text-entry",
+      "model": {
+        "answerBlankSize": 5,
+        "answerAlignment": "left"
+      },
+      "feedback": {
+        "correctFeedbackType": "none",
+        "incorrectFeedbackType": "none"
+      },
+      "correctResponses": {
+        "award": 100,
+        "values": [
+          "10"
+        ],
+        "ignoreWhitespace": true,
+        "ignoreCase": true,
+        "feedback": {
+          "type": "none",
+          "specific": []
+        }
+      },
+      "incorrectResponses": {
+        "award": 0,
+        "feedback": {
+          "type": "none",
+          "value": ""
+        }
+      }
+    },
+    "RESPONSE117": {
+      "weight": 1,
+      "componentType": "corespring-text-entry",
+      "model": {
+        "answerBlankSize": 5,
+        "answerAlignment": "left"
+      },
+      "feedback": {
+        "correctFeedbackType": "none",
+        "incorrectFeedbackType": "none"
+      },
+      "correctResponses": {
+        "award": 100,
+        "values": [
+          "40"
+        ],
+        "ignoreWhitespace": true,
+        "ignoreCase": true,
+        "feedback": {
+          "type": "none",
+          "specific": []
+        }
+      },
+      "incorrectResponses": {
+        "award": 0,
+        "feedback": {
+          "type": "none",
+          "value": ""
+        }
+      }
+    },
+    "RESPONSE115": {
+      "weight": 1,
+      "componentType": "corespring-text-entry",
+      "model": {
+        "answerBlankSize": 5,
+        "answerAlignment": "left"
+      },
+      "feedback": {
+        "correctFeedbackType": "none",
+        "incorrectFeedbackType": "none"
+      },
+      "correctResponses": {
+        "award": 100,
+        "values": [
+          "10"
+        ],
+        "ignoreWhitespace": true,
+        "ignoreCase": true,
+        "feedback": {
+          "type": "none",
+          "specific": []
+        }
+      },
+      "incorrectResponses": {
+        "award": 0,
+        "feedback": {
+          "type": "none",
+          "value": ""
+        }
+      }
+    },
+    "RESPONSE113": {
+      "weight": 1,
+      "componentType": "corespring-text-entry",
+      "model": {
+        "answerBlankSize": 5,
+        "answerAlignment": "left"
+      },
+      "feedback": {
+        "correctFeedbackType": "none",
+        "incorrectFeedbackType": "none"
+      },
+      "correctResponses": {
+        "award": 100,
+        "values": [
+          "5"
+        ],
+        "ignoreWhitespace": true,
+        "ignoreCase": true,
+        "feedback": {
+          "type": "none",
+          "specific": []
+        }
+      },
+      "incorrectResponses": {
+        "award": 0,
+        "feedback": {
+          "type": "none",
+          "value": ""
+        }
+      }
+    }
+  },
+  "xhtml": "<div class=\"item-body qti\"> <stylesheet href=\"../styles/bundled.css\" type=\"text/css\"></stylesheet> <stylesheet href=\"../styles/inline.css\" type=\"text/css\"></stylesheet> <div></div>  <div class=\"stimulus\">   <div>    <p>Akio has a business taking care of dogs. She charges a registration fee of $10, plus $5 for each hour she works.</p>    <p>Akio wrote a function to represent the total amount of money, in dollars, she earned including the registration fee after <em>x</em>&#160; hours of working.</p>    <p>     <m:math>      <m:mi>      f     </m:mi>      <m:mo stretchy=\"false\">      (     </m:mo>      <m:mi>      x     </m:mi>      <m:mo stretchy=\"false\">      )     </m:mo>      <m:mo>      =     </m:mo>      <m:mi>      a     </m:mi>      <m:mi>      x     </m:mi>      <m:mo>      +     </m:mo>      <m:mi>      b     </m:mi>     </m:math> </p>   </div>  </div>  <div class=\"stem stem_inline\">  <div class=\"stem_prompt\">   <p>Fill in the missing values.</p>  </div>  <p>What is the value of <em>a</em>?    <corespring-text-entry class=\"\" id=\"RESPONSE113\"></corespring-text-entry></p>   <p>What is the value of <em>b</em>?    <corespring-text-entry class=\"\" id=\"RESPONSE114\"></corespring-text-entry></p>   <p>If a customer is charged the registration fee and Aiko works 0 hours, what will be the cost to the customer?</p>   <p>$   <corespring-text-entry class=\"\" id=\"RESPONSE115\"></corespring-text-entry></p>   <p>What is the value of the rate of change that relates cost to time? $   <corespring-text-entry class=\"\" id=\"RESPONSE116\"></corespring-text-entry> per hour</p>   <p>How much money will Aiko earn after 6 hours working? $   <corespring-text-entry class=\"\" id=\"RESPONSE117\"></corespring-text-entry></p> </div> </div>"
+}

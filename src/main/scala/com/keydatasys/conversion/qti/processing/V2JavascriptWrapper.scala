@@ -22,21 +22,39 @@ trait V2JavascriptWrapper {
        |  }
        |
        |  function mapResponse(key) {
-       |    return (outcomes && outcomes[key]) ? (outcomes[key].legacyScore ? outcomes[key].legacyScore : outcomes[key].correctNum) : undefined;
+       |
+       |    var o = (outcomes && outcomes[key]) || {};
+       |
+       |    if(o.legacyScore){
+       |      return o.legacyScore;
+       |    } else if(o.correctNum) {
+       |       return o.correctNum;
+       |    } else {
+       |      return o.score || 0;
+       |    }
        |  }
        |
        |  ${js.responseVars.map(responseVar => s"var ${responseVar.toVar} = answers['$responseVar'].answers;").mkString("\n|  ")}
-        |
-        |  ${js.vars.map { case (name, value) => s"var ${name.toVar} = $value;" }.mkString("\n|  ")}
-        |
-        |  ${js.lines.mkString("\n|  ")}
-        |
-        |  return {
-        |    summary: {
-        |      ${js.vars.keySet.map(name => s"'${name.toLowerCase}': ${name.toVar}").mkString(",\n|      ")}
-        |    }
-        |  };
-        |};""".stripMargin
+       |
+       |  ${js.vars.map { case (name, value) => s"var ${name.toVar} = $value;" }.mkString("\n|  ")}
+       |
+       |  ${js.lines.mkString("\n|  ")}
+       |
+       |  var normalizedScore = SCORE / ${js.responseVars.length};
+       |  var maxPoints = ${js.responseVars.length};
+       |
+       |  var summary = {
+       |    ${js.vars.keySet.map(name => s"'${name.toLowerCase}': ${name.toVar}").mkString(",\n|      ")}
+       |  };
+       |  summary.maxPoints = maxPoints;
+       |  summary.points = SCORE;
+       |  summary.score = normalizedScore;
+       |  summary.percentage = (normalizedScore * 100).toFixed();
+       |
+       |  return {
+       |    summary: summary
+       |  };
+       |};""".stripMargin
   }
 
 }
