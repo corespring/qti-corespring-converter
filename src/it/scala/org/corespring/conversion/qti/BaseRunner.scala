@@ -18,6 +18,8 @@ trait BaseRunner extends Specification {
 
   def sourceId: String
 
+  def vendor: String = "kds"
+
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val tmpDir = Files.createTempDirectory(s"sbac-runner-test-$sourceId")
@@ -57,7 +59,7 @@ trait BaseRunner extends Specification {
 
   Runner.main(Array(
     "--input", pathToSbac,
-    "--vendor", "kds",
+    "--vendor", vendor,
     "--limit", "0",
     "--sourceId", sourceId,
     "--output", sbacOutput.toString,

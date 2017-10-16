@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<assessmentItem adaptive="false" identifier="ITEM-LOGIC-MP-688" timeDependent="false"
+                title="Part A Based on &quot;Ho, for Sacramento,&quot;&#xA0;which best describes the attitude of the gold prospectors?"
+                toolName="ItemLogic" toolVersion="2.0.0" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"
+                xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1.xsd">
+    <responseDeclaration baseType="identifier" cardinality="single" identifier="RESPONSE618">
+        <correctResponse>
+            <value>SC-9833</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration baseType="identifier" cardinality="multiple" identifier="RESPONSE619">
+        <correctResponse>
+            <value>HT-16083</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration
+            baseType="float" cardinality="single" identifier="SCORE618">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float"
+                        cardinality="single"
+                        identifier="SCORE619">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float"
+                        cardinality="single"
+                        identifier="SCORE">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="../styles/bundled.css" type="text/css"/>
+    <stylesheet href="../styles/inline.css" type="text/css"/>
+    <itemBody>
+        <rubricBlock
+                use="context"
+                view="candidate author proctor scorer testConstructor tutor">
+            <div>
+                <object
+                        data="../passages/RSC-LOGIC-MP-1649.html"
+                        type="text/html"/>
+            </div>
+        </rubricBlock>
+        <choiceInteraction
+                maxChoices="1"
+                responseIdentifier="RESPONSE618"
+                shuffle="false">
+
+            <prompt>Part A
+                <br/>
+                Based on "Ho, for Sacramento," which best describes the attitude of the gold prospectors?
+                <br/>
+            </prompt>
+
+
+            <simpleChoice
+                    fixed="true"
+                    identifier="SC-9831">
+                <p>They were upset that the journey was more difficult than they imagined.</p>
+            </simpleChoice>
+
+            <simpleChoice
+                    fixed="true"
+                    identifier="SC-9832">
+                <p>They cared more about having fun on the journey than on actually reaching their goal.
+                </p>
+            </simpleChoice>
+
+            <simpleChoice
+                    fixed="true"
+                    identifier="SC-9833">
+                <p>
+                    They were committed to getting to California no matter the cost.
+                </p>
+            </simpleChoice>
+
+
+            <simpleChoice
+                    fixed="true"
+                    identifier="SC-9844">
+                <p>
+                    They wondered whether they were too inexperienced to make it all the way to California.
+                </p>
+            </simpleChoice>
+        </choiceInteraction>
+
+        <hottextInteraction
+                maxChoices="0"
+                responseIdentifier="RESPONSE619">
+            <prompt>Part B
+                <br/>
+                Select the sentence from paragraphs 1&#x2013;8 that best supports the answer in Part A.
+                <br/>
+            </prompt>
+            <p>
+                <span>&#xA0;<strong>6</strong>&#xA0;
+                </span>
+                In 1849 the West was still very new. Even Chicago had not heard the whistle of the locomotive. <hottext
+                    identifier="HT-16080">Illinois, Iowa, and Missouri were, for the most part, an unbroken prairie with
+                ten to twenty miles between neighbors.
+            </hottext> The cooing of prairie chickens filled the air like the roar of a distant waterfall. The
+                grasslands were strewn with antlers of deer and elk, attesting to the abundance of this game.
+            </p>
+            <p>
+                <span>&#xA0;<strong>7</strong>&#xA0;
+                </span>
+                <hottext identifier="HT-16081">Westward of Iowa and Missouri, the vast area of mountains and plains
+                    stretched away to where the surf beat of the Pacific laves the golden shore.
+                </hottext>
+                This region was laid down on maps as <span class="italic_text">Terra Incognita</span>, the Unknown Land.
+                <hottext identifier="HT-16082">Except at three or four isolated spots, where a mission or military post
+                    had been set up, not an abode of the white man was to be seen.
+                </hottext>
+            </p>
+            <p>
+                <span>&#xA0;<strong>8</strong>&#xA0;
+                </span>
+                <hottext identifier="HT-16083">This was the land we were determined to cross to reach our goal:
+                    California or bust!
+                </hottext>
+            </p>
+        </hottextInteraction>
+    </itemBody>
+
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE618"/>
+                    <correct identifier="RESPONSE618"/>
+                </match>
+                <setOutcomeValue identifier="SCORE618">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE618">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE619"/>
+                    <correct identifier="RESPONSE619"/>
+                </match>
+                <setOutcomeValue identifier="SCORE619">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE619">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <setOutcomeValue identifier="SCORE">
+            <sum>
+                <variable identifier="SCORE618"/>
+                <variable identifier="SCORE619"/>
+            </sum>
+        </setOutcomeValue>
+    </responseProcessing>
+
+</assessmentItem>

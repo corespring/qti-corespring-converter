@@ -1,5 +1,6 @@
 package org.measuredprogress.conversion.zip
 
+import java.nio.file.Files
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.ItemTransformer
@@ -15,6 +16,7 @@ import scala.concurrent.Future
 import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.{Failure, Success, Validation}
+import org.corespring.macros.DescribeMacro._
 
 object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
@@ -24,11 +26,21 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
   override def convert(
 
                         zip: ZipFile,
-                        path: String = "target/corespring-json.zip",
+                        output: String = "target/corespring-json.zip",
                         metadata: Option[JsObject] = None,
                         opts : ConversionOpts = ConversionOpts()): Future[ZipFile] = Future{
 
-    throw new RuntimeException("This converter needs to be updated to use a similar pattern to KDS and progress testing")
+    logger.info(describe(output, opts))
+
+    val tmpDir = Files.createTempDirectory("qti-conversion")
+    logger.debug(describe(tmpDir))
+
+    val manifestEntry = zip.getEntry("imsmanifest.xml")
+    val is = zip.getInputStream(manifestEntry)
+    val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
+
+    val (qtiResources, resources) = (xml \ "resources" \\ "resource")
+      .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
     /*val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap

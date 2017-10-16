@@ -3,7 +3,7 @@ package org.corespring.conversion.qti
 
 class KdsRunnerSpec extends BaseRunner {
 
-  def sourceId = "670508"
+  override def sourceId = "670508"
 
   "kds --sourceId 670508" should {
 

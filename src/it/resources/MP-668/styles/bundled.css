@@ -1,0 +1,282 @@
+.default {
+  display: block;
+  font-family: 'Verdana', 'Arial', 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  text-align: left;
+  text-decoration: none;
+  line-height: 1.5em; }
+.passage_title {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.4;
+  padding-top: 1em;
+  margin-bottom: .5em; }
+.passage_subtitle {
+  text-transform: uppercase; }
+.passage_purpose {
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_subtitle {
+  display: block;
+  font-size: 1.3em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: .5em; }
+.passage_byline {
+  display: block;
+  font-size: 1.2em;
+  font-weight: normal;
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_author {
+  display: block;
+  font-size: 1.2em;
+  font-weight: normal;
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_ack {
+  display: block;
+  font-size: .8em;
+  text-align: left;
+  margin-top: 3em; }
+.passage_poem_number {
+  font-style: normal;
+  font-weight: bold;
+  margin-left: -3.3em;
+  padding-right: 1.9em; }
+.passage_poem_text {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1.2em;
+  margin-left: 4em; }
+.para_number {
+  font-style: normal;
+  font-weight: bold;
+  padding-right: 3em; }
+.num_para_text {
+  display: block;
+  font-style: normal;
+  text-indent: -3em;
+  padding-left: 3em; }
+.italic_text {
+  font-style: italic; }
+.bold_text {
+  display: inline;
+  font-weight: bold; }
+.underline_text {
+  text-decoration: underline; }
+.passage_ack {
+  display: block;
+  font-size: .8em;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 3em; }
+.para_center {
+  display: block;
+  text-align: center;
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px; }
+.div-28c71d5f-62b6-4dcb-8492-ef0ecf6f0658 {
+  margin-left: 30%;
+  margin-right: 30%; }
+.para_left {
+  display: block;
+  text-align: left;
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px; }
+.para_text {
+  font-style: normal;
+  margin-left: 3em; }
+.superscript_text {
+  display: inline;
+  font-size: 8pt;
+  vertical-align: super; }
+.multi-cell_table {
+  border: 1pt solid black;
+  border-collapse: collapse; }
+.multi-cell_table td {
+  border: 1pt solid black;
+  padding: 4pt; }
+.table-7fb450c6-3a38-4c31-bec5-8b1fdff89f5e {
+  width: 500px; }
+.passage_poem_number {
+  font-style: normal;
+  font-weight: bold;
+  margin-left: -3.3em;
+  padding-right: 1.9em; }
+.passage_poem_text {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1.2em;
+  margin-left: 4em; }
+.table-8fe50973-2184-4024-b464-13901a886713 {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  width: 300px;
+  margin-right: auto;
+  margin-left: auto; }
+.table-e4a6adfa-09a9-4b75-b680-a343bd0fb0de {
+  margin-right: auto;
+  margin-left: auto; }
+.td-d972bf45-0a80-42a8-938e-47316722af11 {
+  width: 10; }
+.td-345838c6-4eb9-484f-8d9b-db978d402e75 {
+  text-align: right; }
+.td-475f1a71-949f-4295-8e3a-93eef63032ab {
+  margin-left: auto; }
+.item_atom_content table {
+  border: solid 1px #000;
+  width: 100%; }
+.item_atom_content table td {
+  border: solid 1px #000; }
+.default {
+  display: block;
+  font-family: 'Verdana', 'Arial', 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  text-align: left;
+  text-decoration: none;
+  line-height: 1.5em; }
+.passage_title {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.4;
+  padding-top: 1em;
+  margin-bottom: .5em; }
+.passage_subtitle {
+  text-transform: uppercase; }
+.passage_purpose {
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_subtitle {
+  display: block;
+  font-size: 1.3em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: .5em; }
+.passage_byline {
+  display: block;
+  font-size: 1.2em;
+  font-weight: normal;
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_author {
+  display: block;
+  font-size: 1.2em;
+  font-weight: normal;
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 2em; }
+.passage_ack {
+  display: block;
+  font-size: .8em;
+  text-align: left;
+  margin-top: 3em; }
+.passage_poem_number {
+  font-style: normal;
+  font-weight: bold;
+  margin-left: -3.3em;
+  padding-right: 1.9em; }
+.passage_poem_text {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1.2em;
+  margin-left: 4em; }
+.para_number {
+  font-style: normal;
+  font-weight: bold;
+  padding-right: 3em; }
+.num_para_text {
+  display: block;
+  font-style: normal;
+  text-indent: -3em;
+  padding-left: 3em; }
+.italic_text {
+  font-style: italic; }
+.bold_text {
+  display: inline;
+  font-weight: bold; }
+.passage_ack {
+  display: block;
+  font-size: .8em;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 3em; }
+.para_center {
+  display: block;
+  text-align: center;
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px; }
+.para_left {
+  display: block;
+  text-align: left;
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px; }
+.para_text {
+  font-style: normal;
+  margin-left: 3em; }
+.superscript_text {
+  display: inline;
+  font-size: 8pt;
+  vertical-align: super; }
+.multi-cell_table {
+  border: 1pt solid black;
+  border-collapse: collapse; }
+.multi-cell_table td {
+  border: 1pt solid black;
+  padding: 4pt; }
+.passage_poem_number {
+  font-style: normal;
+  font-weight: bold;
+  margin-left: -3.3em;
+  padding-right: 1.9em; }
+.passage_poem_text {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1.2em;
+  margin-left: 4em; }
+.passage_footnotes {
+  margin-top: 1em;
+  font-size: 0.8em; }
+.passage_footnote_divider {
+  height: 1px;
+  border-bottom: solid 1px #000;
+  width: 100px; }
+.item_atom_content table {
+  border: solid 1px #000;
+  width: 100%; }
+.item_atom_content table td {
+  border: solid 1px #000; }
+				
+.context {
+	margin-top: 1em; }
+.context:first-child {
+	margin-top: 0; }
+.context_passage span.flag {
+	position: absolute;
+	left: 0;
+	color: #555;
+	font-weight: bold; }
+.context_passage.with_gutter {
+	padding-left: 50px; }
+.math {
+	margin: 0 3px;
+	vertical-align: center; }
