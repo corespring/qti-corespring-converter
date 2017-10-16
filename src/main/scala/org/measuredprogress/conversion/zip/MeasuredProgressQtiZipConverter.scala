@@ -5,8 +5,11 @@ import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.zip.KDSQtiZipConverter._
+import org.apache.commons.io.IOUtils
+import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.UnicodeCleaner
+import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.measuredprogress.conversion.qti.{ItemExtractor, QtiTransformer => MeasuredProgressQtiTransformer}
 import play.api.libs.json._
@@ -17,6 +20,8 @@ import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.{Failure, Success, Validation}
 import org.corespring.macros.DescribeMacro._
+
+import scala.xml.Node
 
 object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
 
@@ -41,6 +46,57 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
 
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
+
+
+    def toManifestItem(node: Node): Future[ManifestItem] = Future {
+      val out = ManifestItem(node, zip)
+      logger.info(describe(out))
+      out
+    }
+
+
+    def toCorespringItem(m: ManifestItem): Future[Option[CorespringItem]] = Future {
+      val qti = ZipReader.fileContents(zip, m.filename)
+
+      qti.map { q =>
+        try {
+          logger.debug(describe(q))
+          val preprocessed = preprocessHtml(q)
+          logger.debug(describe(preprocessed))
+          val scrubbed = scrub(preprocessed)
+          logger.debug(describe(scrubbed))
+          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
+          sources.mapValues { v =>
+            IOUtils.closeQuietly(v.inputStream)
+          }
+
+          //          logger.trace(describe(playerDefinition))
+
+          val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
+          val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
+
+          //set a default title
+          val title = (metadata \ "scoringType").asOpt[String].map{ st =>
+            s"${m.id} - $st"
+          }.getOrElse(m.id)
+
+          val profile = obj("taskInfo" -> obj(
+            "title" -> title,
+            "description" -> title,
+            "extended" -> obj(
+              "kds" -> metadata
+            )
+          ))
+
+          val out = CorespringItem(m.id, postProcess(playerDefinition), profile, m.resources.map(_.path))
+          logger.trace(describe(id, out))
+          Some(out)
+        } catch {
+          case e: Exception => {
+            None
+          }
+        }
     /*val fileMap = zip.entries.filterNot(_.isDirectory).map(entry => {
       entry.getName -> SourceWrapper(entry.getName, zip.getInputStream(entry))
     }).toMap

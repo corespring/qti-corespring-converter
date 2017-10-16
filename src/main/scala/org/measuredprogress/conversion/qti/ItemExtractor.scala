@@ -58,7 +58,7 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
     f.id -> getId(f.filename)
   })).getOrElse(Seq.empty).toMap
 
-  lazy val meta: Map[String, Option[JsObject]] =
+  private lazy val meta: Map[String, Option[JsObject]] =
     manifest.map(_.items.map(f => {
       val lom = f.manifest
       println(s""""${f.id}":"${getId(f.filename)}",""")
