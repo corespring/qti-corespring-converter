@@ -9,13 +9,16 @@ object ManifestResourceType extends Enumeration {
   lazy val logger = LoggerFactory.getLogger(ManifestResourceType.this.getClass)
 
   type ManifestResourceType = Value
-  val QTI, Passage, Video, Audio, Image, Unknown = Value
+  val QTI, Passage, Video, Audio, Image, StyleSheet, Unknown = Value
 
   private val typeMap = Map(
     "imsqti_item_xmlv2p1" -> QTI,
     "passage" -> Passage)
 
-  private val extensionMap = Map(Seq("gif", "jpeg", "jpg", "png") -> Image, Seq("mp3") -> Audio)
+  private val extensionMap = Map(
+    Seq("gif", "jpeg", "jpg", "png") -> Image,
+    Seq("mp3") -> Audio,
+    Seq("css") -> StyleSheet)
 
   private def fromPathString(path: String): ManifestResourceType.Value =  if( path.startsWith("passages/")){
     ManifestResourceType.Passage

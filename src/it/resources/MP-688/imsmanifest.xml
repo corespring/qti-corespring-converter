@@ -17,12 +17,14 @@
 		<resource href="styles/inline.css" identifier="RES-576d6022-7e88-435e-9182-056167109c03" type="webcontent">
 			<file href="styles/inline.css"/>
 		</resource>
-		<resource href="items/ITEM-LOGIC-MP-668.xml" identifier="RES-5512cf90-9e58-4b8b-ab35-382e0a238824" type="imsqti_item_xmlv2p1">
+
+		<resource href="items/ITEM-LOGIC-MP-688.xml" identifier="RES-55158e3c-056c-4f06-b1a8-182e0a1ff4b4" type="imsqti_item_xmlv2p1">
 			<metadata>
 				<qtiMetadata xmlns="http://www.imsglobal.org/xsd/imsqti_metadata_v2p1">
 					<timeDependent>false</timeDependent>
-					<composite>false</composite>
-					<interactionType>inlineChoiceInteraction</interactionType>
+					<composite>true</composite>
+					<interactionType>choiceInteraction</interactionType>
+					<interactionType>hottextInteraction</interactionType>
 					<feedbackType>none</feedbackType>
 					<solutionAvailable>false</solutionAvailable>
 				</qtiMetadata>
@@ -38,6 +40,18 @@
 					<rights/>
 					<curriculumStandardsMetadataSet xmlns="http://www.imsglobal.org/xsd/imsccv1p2/imscsmd_v1p0">
 						<curriculumStandardsMetadata>
+							<setOfGUIDs region="CCSS.ELA-LITERACY">
+								<labelledGUID>
+									<label>CCSS.ELA-Literacy.RL.6.1</label>
+									<GUID>801A9116-7440-11DF-93FA-01FD9CFF4B22</GUID>
+								</labelledGUID>
+								<labelledGUID>
+									<label>CCSS.ELA-Literacy.RL.6.3</label>
+									<GUID>801B8198-7440-11DF-93FA-01FD9CFF4B22</GUID>
+								</labelledGUID>
+							</setOfGUIDs>
+						</curriculumStandardsMetadata>
+						<curriculumStandardsMetadata>
 							<setOfGUIDs region="DOK">
 								<labelledGUID>
 									<label>DOK.2</label>
@@ -45,37 +59,14 @@
 								</labelledGUID>
 							</setOfGUIDs>
 						</curriculumStandardsMetadata>
-						<curriculumStandardsMetadata>
-							<setOfGUIDs region="CCSS.MATH.PRACTICE">
-								<labelledGUID>
-									<label>CCSS.Math.Practice.MP4</label>
-									<GUID>A6446404-6F89-11DF-BAEE-EA329DFF4B22</GUID>
-								</labelledGUID>
-							</setOfGUIDs>
-						</curriculumStandardsMetadata>
-						<curriculumStandardsMetadata>
-							<setOfGUIDs region="CCSS.MATH">
-								<labelledGUID>
-									<label>CCSS.Math.Content.5.OA.B.3</label>
-									<GUID>1DA8E6C2-7053-11DF-8EBF-BE719DFF4B22</GUID>
-								</labelledGUID>
-							</setOfGUIDs>
-						</curriculumStandardsMetadata>
-						<curriculumStandardsMetadata>
-							<setOfGUIDs region="SBAC">
-								<labelledGUID>
-									<label>SBAC.MATH.ALL.4.A</label>
-									<GUID>502f1dfa-af44-416b-a9dd-c32bc329be52</GUID>
-								</labelledGUID>
-							</setOfGUIDs>
-						</curriculumStandardsMetadata>
 					</curriculumStandardsMetadataSet>
 				</lom>
 			</metadata>
-			<file href="items/ITEM-LOGIC-MP-668.xml"/>
-			<file href="images/IGOMOL668_grid2_64f74cc63c.png"/>
+			<file href="items/ITEM-LOGIC-MP-688.xml"/>
+			<dependency identifierref="RSC-LOGIC-MP-1649"/>
 			<dependency identifierref="RES-576d6022-0a20-4666-b739-056167109c03"/>
 			<dependency identifierref="RES-576d6022-7e88-435e-9182-056167109c03"/>
 		</resource>
+
 	</resources>
 </manifest>

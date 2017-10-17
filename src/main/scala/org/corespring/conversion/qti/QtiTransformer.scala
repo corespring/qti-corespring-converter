@@ -21,9 +21,12 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
   private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
   private val KDSTableReset =
-    <style type="text/css">{""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}</style>
+    <style type="text/css">
+      {""".kds table,.kds table th{color:initial}.kds table td a,.kds table td a:hover{text-decoration:initial}.kds table tfoot td,.kds table th{background:initial}.kds table{border-collapse:initial;line-height:initial;margin:initial}.kds table td,.kds table th{padding:initial;vertical-align:initial;min-width:initial}.kds table td a{color:inherit}"""}
+    </style>
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
+
   def statefulTransformers: Seq[Transformer]
 
   def transform(qti: Elem): JsValue = {
@@ -50,7 +53,9 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     override def transform(node: Node): Seq[Node] = {
       node match {
         case elem: Elem if elem.label == "itemBody" => {
-          <div class="item-body qti">{ elem.child }</div>
+          <div class="item-body qti">
+            {elem.child}
+          </div>
         }
         case _ => node
       }
@@ -59,7 +64,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
 
   def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
-      toJs(qti).map(wrap) match {
+    toJs(qti).map(wrap) match {
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
@@ -81,17 +86,37 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
     logger.trace(describe(html))
 
+
+    def baseName(s: String) : String = {
+      val out = s.split("/").last
+      logger.trace(describe(out, s))
+      out
+    }
+
     val finalHtml = new RuleTransformer(new RewriteRule {
       override def transform(node: Node) = node match {
         case node: Node if node.label == "stylesheet" => {
 
-          val name = (node \ "@href").text
+          logger.trace(s"sources - names: ${sources.map(_._1)}")
+          val href = (node \ "@href").text
+          val baseHref = baseName(href)
 
-         val src = sources.find{ case (key, _) => key == name}
+          logger.trace(describe(baseHref))
+
+          /**
+            * TODO: This uses base name matching, should have a function that honors the paths in the href
+            * relative the path of the qti file.
+            */
+          val src = sources.collectFirst {
+            case (key, src) if (baseName(key) == baseHref) => src
+          }
+
+          logger.debug(describe(src))
 
           src
-            .map{ case (_,s) => s }
-            .map(cssSource => <style type="text/css">{ CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds") }</style>)
+            .map(cssSource => <style type="text/css">
+              {CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds")}
+            </style>)
             .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $name"))
 
         }
@@ -105,7 +130,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${converted}",
-      "components" -> components.map{case (id, json) => id -> convertJson(json)}) ++ customScoring(qti, components)
+      "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
   }
 
 }

@@ -36,7 +36,7 @@ object KDSQtiZipConverter
   private val collectionName = "kds"
   private val collectionId = "5453b4e4e4b05f38dd6440a8"
 
-  val logger = LoggerFactory.getLogger(KDSQtiZipConverter.this.getClass)
+  private val logger = LoggerFactory.getLogger(KDSQtiZipConverter.this.getClass)
 
   def convert(
                zip: ZipFile,

@@ -9,7 +9,10 @@
         </encoder>
     </appender>
 
-    <root level="trace">
+
+    <logger name="org.corespring.conversion.qti.manifest" level="TRACE"></logger>
+
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
