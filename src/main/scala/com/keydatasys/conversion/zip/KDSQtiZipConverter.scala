@@ -78,13 +78,13 @@ object KDSQtiZipConverter
             IOUtils.closeQuietly(v.inputStream)
           }
 
-//          logger.trace(describe(playerDefinition))
+          //          logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
 
           //set a default title
-          val title = (metadata \ "scoringType").asOpt[String].map{ st =>
+          val title = (metadata \ "scoringType").asOpt[String].map { st =>
             s"${m.id} - $st"
           }.getOrElse(m.id)
 
@@ -159,16 +159,20 @@ object KDSQtiZipConverter
 
 
     val nodes = {
-      val n = opts.sourceId match {
-        case Some(sid) => qtiResources.filter { n =>
-          val id = (n \ "@identifier").text.toString
-          id == sid
+
+      val n = if (opts.sourceIds.isEmpty) {
+        qtiResources
+      } else {
+        qtiResources.filter { n =>
+          val id = (n \ "@identifier").text.toString.trim
+          opts.sourceIds.contains(id)
         }
-        case _ => qtiResources
       }
+
       if (opts.limit > 0) n.take(opts.limit) else n
     }
 
+    logger.info(s"nodes length: ${nodes.length}")
 
     val futures = nodes.map(convertResource)
 

@@ -52,7 +52,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
 
-    def nodeToSourceId(node:Node) =
+    def nodeToSourceId(node: Node) =
       MeasuredProgressExtractor.getId((node \\ "@href").text.trim)
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
@@ -158,13 +158,11 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
       .flatMap(ci => writeCorespringItem(ci))
 
     val nodes = {
-      val n = opts.sourceId match {
-        case Some(sid) => qtiResources.filter { n =>
-          val id = nodeToSourceId(n)
-          id == sid
-        }
-        case _ => qtiResources
+      val n = if (opts.sourceIds.isEmpty) qtiResources else qtiResources.filter { n =>
+        val id = nodeToSourceId(n)
+        opts.sourceIds.contains(id)
       }
+
       if (opts.limit > 0) n.take(opts.limit) else n
     }
 

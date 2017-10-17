@@ -13,15 +13,16 @@ import play.api.libs.json._
 import scala.concurrent.Await._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.io.Source
 
 case class RunOpts(
-                  input:String,
-                  output:String,
-                  vendor: String,
-                  metadata: String = "{}",
-                  limit:Int = 0,
-                  sourceId: Option[String] = None,
-                  killRuntime: Boolean = true
+                    input: String,
+                    output: String,
+                    vendor: String,
+                    metadata: String = "{}",
+                    limit: Int = 0,
+                    sourceIds: Seq[String] = Seq.empty,
+                    killRuntime: Boolean = true
                   )
 
 
@@ -33,21 +34,21 @@ object Runner extends App {
   val parser = new scopt.OptionParser[RunOpts]("run") {
     head("run", "version")
 
-    opt[Int]('l', "limit").action((l,c) => c.copy(limit = l))
+    opt[Int]('l', "limit").action((l, c) => c.copy(limit = l))
 
     opt[String]('i', "input").required().action((i, c) => c.copy(input = i))
 
-    opt[String]('o', "output").required().action((o,c) => c.copy(output = o))
+    opt[String]('o', "output").required().action((o, c) => c.copy(output = o))
 
     opt[String]('v', "vendor")
       .required().action((v, c) => c.copy(vendor = v))
-        .validate(v => {
-          val vendors = converters.keys.toSeq
-          if ( vendors.contains(v)) success else failure("unknown vendor")
-        })
+      .validate(v => {
+        val vendors = converters.keys.toSeq
+        if (vendors.contains(v)) success else failure("unknown vendor")
+      })
 
     opt[String]('m', "metadata")
-      .action((m, c) =>  c.copy(metadata = m))
+      .action((m, c) => c.copy(metadata = m))
       .validate(m => {
         try {
           Json.parse(m).as[JsObject]
@@ -56,7 +57,20 @@ object Runner extends App {
           case t: Throwable => failure("not valid json")
         }
       })
-    opt[String]('s', "sourceId").action((s, c) => c.copy(sourceId = Some(s)))
+
+    opt[String]('s', "sourceId").action((s, c) => c.copy(sourceIds = c.sourceIds ++ Seq(s)))
+
+    opt[String]('l', "sourceIdList")
+      .text("A path to a file with a source id on its own line")
+      .action((l, c) => {
+      val ids = Source.fromFile(new File(l))
+        .getLines()
+        .map(_.trim)
+        .filterNot(_.isEmpty)
+        .toSeq
+      c.copy(sourceIds = c.sourceIds ++ ids)
+    })
+
     opt[Boolean]('r', "killRuntime").action((r, c) => c.copy(killRuntime = r))
   }
 
@@ -80,7 +94,7 @@ object Runner extends App {
 
       val opts = ConversionOpts(
         runOpts.limit,
-        runOpts.sourceId
+        runOpts.sourceIds
       )
 
 
@@ -88,16 +102,16 @@ object Runner extends App {
 
       val outFile = new File(runOpts.output)
 
-      if(outFile.exists()){
+      if (outFile.exists()) {
         logger.info(s"Deleting ${runOpts.output}")
         outFile.delete
       }
 
       result(converter.convert(input, outputPath, Some(metadata), opts)
-        .map( _ => {
-          println("all done")
+        .map(_ => {
+          println(s"all done sourceIds: ${opts.sourceIds}")
 
-          if(runOpts.killRuntime) {
+          if (runOpts.killRuntime) {
             Runtime.getRuntime().halt(0)
           }
         }), 25.minutes)

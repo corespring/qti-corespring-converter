@@ -34,7 +34,7 @@ private[measuredprogress] object MeasuredProgressExtractor extends JsonUtil {
       case itemLogicRegex(id) => Some(id)
       case numberARegex(id) => Some(id)
       case _ => None
-    }).getOrElse(throw new Exception(s"Could not parse id for $string"))
+    }).getOrElse(string)
   }
 
   private def lomStandardLabel(lom: Node, regex: Regex): Seq[String] = {
