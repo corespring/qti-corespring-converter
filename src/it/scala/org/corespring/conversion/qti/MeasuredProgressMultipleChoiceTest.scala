@@ -11,7 +11,7 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
 
   //  override def vendor = "measuredprogress"
 
-  val sourceId = "RES-55158e3c-056c-4f06-b1a8-182e0a1ff4b4"
+  val sourceId = "MP-688"
 
   "measuredprogress " should {
 
@@ -41,20 +41,20 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
       }
 
 
-      RunHelper.run(
-        zip.toAbsolutePath.toString,
-        legacy.toString,
-        "old-measuredprogress",
-        sourceId
-      )
+//      RunHelper.run(
+//        zip.toAbsolutePath.toString,
+//        legacy.toString,
+//        "old-measuredprogress",
+//        sourceId
+//      )
 
-      val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{
-        e =>
-          e.getName.contains("player-definition.json")
-      }
+//      val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{
+//        e =>
+//          e.getName.contains("player-definition.json")
+//      }
 
       println(s"playerDefinition: $playerDef")
-      println(s"playerDefinition: $legacyPlayerDef")
+//      println(s"legacy: playerDefinition: $legacyPlayerDef")
       println(s"dir: $dir")
 
       true === true

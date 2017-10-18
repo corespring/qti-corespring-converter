@@ -13,7 +13,7 @@ import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.UnicodeCleaner
 import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
-import org.measuredprogress.conversion.qti.MeasuredProgressExtractor
+import org.measuredprogress.conversion.qti.{MeasuredProgressExtractor, QtiTransformer => MPQtiTransformer}
 import play.api.libs.json._
 import play.api.libs.json.Json._
 
@@ -76,7 +76,8 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
           val scrubbed = scrub(preprocessed)
           logger.trace(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
+                    //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
 
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
