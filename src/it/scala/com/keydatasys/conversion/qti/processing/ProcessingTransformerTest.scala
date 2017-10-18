@@ -61,28 +61,40 @@ class ProcessingTransformerTest extends Specification {
   }
 
   "V2JavascriptWrapperTest" should {
-    "return 1.0 for score key" in new score(mkOutcomes()) {
-      (result \ "summary" \ "score").as[Float] must_== 1
+    "return 5.0 for score key" in new score(mkOutcomes()) {
+      (result \ "summary" \ "score").as[Float] must_== 5
     }
 
-    "return 0.5 for score key when score is 0.5" in new score(mkOutcomes(value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 0.5
+    "return 1.0 for normalizedScore key" in new score(mkOutcomes()) {
+      (result \ "summary" \ "normalizedScore").as[Float] must_== 1
     }
 
-    "return 1.0 for score when key is legacyScore is 1.0" in new score(mkOutcomes(key="legacyScore")) {
-      (result \ "summary" \ "score").as[Float] must_== 1.0
+    "return 2.5 for score key when each outcome is 0.5" in new score(mkOutcomes(value = 0.5)) {
+      (result \ "summary" \ "score").as[Float] must_== 2.5
     }
 
-    "return 0.5 for score when key is legacyScore and score is 0.5" in new score(mkOutcomes(key="legacyScore", value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 0.5
+    "return 0.5 for normalizedScore key when each outcome is 0.5" in new score(mkOutcomes(value = 0.5)) {
+      (result \ "summary" \ "normalizedScore").as[Float] must_== 0.5
     }
 
-    "return 1.0 for score when key is correctNum is 1.0" in new score(mkOutcomes(key="correctNum")) {
-      (result \ "summary" \ "score").as[Float] must_== 1.0
+    "return 5.0 for score when key is legacyScore is 1.0" in new score(mkOutcomes(key="legacyScore")) {
+      (result \ "summary" \ "score").as[Float] must_== 5.0
     }
 
-    "return 0.5 for score when key is correctNum and score is  0.5" in new score(mkOutcomes(key="correctNum", value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 0.5
+    "return 1.0 for normalizedScore when key is legacyScore is 1.0" in new score(mkOutcomes(key="legacyScore")) {
+      (result \ "summary" \ "normalizedScore").as[Float] must_== 1.0
+    }
+
+    "return 2.5 for score when key is legacyScore and score is 0.5" in new score(mkOutcomes(key="legacyScore", value = 0.5)) {
+      (result \ "summary" \ "score").as[Float] must_== 2.5
+    }
+
+    "return 5.0 for score when key is correctNum is 1.0" in new score(mkOutcomes(key="correctNum")) {
+      (result \ "summary" \ "score").as[Float] must_== 5.0
+    }
+
+    "return 2.5 for score when key is correctNum and score is  0.5" in new score(mkOutcomes(key="correctNum", value = 0.5)) {
+      (result \ "summary" \ "score").as[Float] must_== 2.5
     }
 
   }
