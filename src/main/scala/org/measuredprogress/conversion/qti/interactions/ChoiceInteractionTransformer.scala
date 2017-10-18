@@ -33,8 +33,7 @@ object ChoiceInteractionTransformer extends InteractionTransformer with Namespac
   override def interactionJs(qti: Node, manifest: Node): Map[String, JsObject] = {
     val transformed = SuperChoiceInteractionTransformer.interactionJs(qti, manifest)
     val out = transformed.map { case (id, json) => id -> updateChoiceLabels(json) }
-    logger.trace(describe(transformed))
-    logger.trace(prettyPrint(out.get("Q_01").get))
+    logger.trace(describe(out))
     out
   }
 

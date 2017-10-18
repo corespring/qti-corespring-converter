@@ -41,20 +41,20 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
       }
 
 
-//      RunHelper.run(
-//        zip.toAbsolutePath.toString,
-//        legacy.toString,
-//        "old-measuredprogress",
-//        sourceId
-//      )
+      RunHelper.run(
+        zip.toAbsolutePath.toString,
+        legacy.toString,
+        "old-measuredprogress",
+        sourceId
+      )
 
-//      val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{
-//        e =>
-//          e.getName.contains("player-definition.json")
-//      }
+      val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{
+        e =>
+          e.getName.contains("player-definition.json")
+      }
 
       println(s"playerDefinition: $playerDef")
-//      println(s"legacy: playerDefinition: $legacyPlayerDef")
+      println(s"legacy: playerDefinition: $legacyPlayerDef")
       println(s"dir: $dir")
 
       true === true
