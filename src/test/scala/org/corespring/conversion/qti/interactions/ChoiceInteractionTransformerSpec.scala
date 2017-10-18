@@ -7,9 +7,7 @@ import play.api.libs.json._
 
 import scala.xml._
 
-class ChoiceInteractionTransformerTest extends Specification {
-
-  val a = <img src="test.jpg"/>
+trait ChoiceInteractionBuilder {
 
   def qti(rd: Elem, body: Elem): Node =
     <assessmentItem>
@@ -24,6 +22,13 @@ class ChoiceInteractionTransformerTest extends Specification {
     <responseDeclaration identifier="Q_01" cardinality={ cardinality } baseType="identifier">
       { correctResponse }
     </responseDeclaration>
+
+}
+class ChoiceInteractionTransformerTest extends Specification with ChoiceInteractionBuilder {
+
+  val a = <img src="test.jpg"/>
+
+
 
   def prompt = "ITEM <b>PROMPT</b>"
 

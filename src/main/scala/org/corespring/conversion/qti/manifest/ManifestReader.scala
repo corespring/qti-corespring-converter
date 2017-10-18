@@ -11,10 +11,9 @@ import org.slf4j.LoggerFactory
 import scala.xml._
 
 object ManifestReader
-    extends PassageScrubber
+  extends PassageScrubber
     with EntityEscaper
-    with PathFlattener
-{
+    with PathFlattener {
 
   val logger = LoggerFactory.getLogger(ManifestReader.this.getClass)
 
@@ -31,7 +30,7 @@ object ManifestReader
     regexes.foldLeft(path)((acc, r) => r._1.replaceAllIn(acc, r._2))
   }
 
-  def read(xml:Node, zip : ZipFile) : QTIManifest = {
+  def read(xml: Node, zip: ZipFile): QTIManifest = {
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
@@ -48,7 +47,8 @@ object ManifestReader
       Map(
         ManifestResourceType.Image -> (n => (n \\ "img").map(_ \ "@src").map(_.toString)),
         ManifestResourceType.Video -> (n => (n \\ "video").map(_ \ "source").map(_ \ "@src").map(_.toString)),
-        ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)))
+        ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)),
+        ManifestResourceType.StyleSheet -> (n => (n \\ "stylesheet").map(_ \ "@href").map(_.toString)))
 
     new QTIManifest(items =
       qtiResources.map(n => {
@@ -74,7 +74,10 @@ object ManifestReader
               if (filename.contains("134580A-134580A_cubes-box_stem_01.png")) {
                 println(flattenPath(filename))
               }
-              ManifestResource(path = flattenPath(filename), resourceType = resourceType)
+              ManifestResource(
+                path = flattenPath(filename),
+                resourceType = resourceType,
+                inline = false)
             })
           }
         }.flatten.toSeq
@@ -84,8 +87,12 @@ object ManifestReader
           val path = (f \ "@href").text.toString
           ManifestResource(
             path = path,
-            resourceType = ManifestResourceType.fromPathOld(path)(xml))
-        })) ++ files :+ ManifestResource(filename, ManifestResourceType.QTI)
+            resourceType = ManifestResourceType.fromPathOld(path)(xml),
+            inline = false)
+        })) ++ files :+ ManifestResource(
+          filename,
+          ManifestResourceType.QTI,
+          inline = false)
 
         val passageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage) || resource.is(ManifestResourceType.QTI)).map(p =>
           sources.find { case (path, _) => path == p.path.flattenPath }.map {
@@ -95,7 +102,10 @@ object ManifestReader
                   case (resourceType, fn) => (resourceType, fn(xml))
                 }).flatten.map {
                   case (resourceType, paths) =>
-                    paths.map(path => ManifestResource(path = flattenPath(path), resourceType = resourceType))
+                    paths.map(path => ManifestResource(
+                      path = flattenPath(path),
+                      resourceType = resourceType,
+                      inline = false))
                 }.flatten)
               } catch {
                 case e: Exception => {

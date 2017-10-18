@@ -56,7 +56,7 @@ class QtiTransformerSpec extends Specification {
        val json = QtiTransformer.transform(qtiData, sources, manifest)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
-       (xml \\ "style")(1).text must_== """.qti.kds body { color:red; }"""
+       (xml \\ "style")(1).text.trim must_== """.qti.kds body { color:red; }"""
      }
    }
 

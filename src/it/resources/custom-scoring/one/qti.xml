@@ -1,0 +1,172 @@
+<assessmentItem adaptive="false" identifier="ITEM-LOGIC-MP-259" timeDependent="false" title="Fill in the missing values." toolName="ItemLogic" toolVersion="2.0.0" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1.xsd">
+    <responseDeclaration baseType="string" cardinality="single" identifier="RESPONSE113">
+        <correctResponse>
+            <value>5</value>
+        </correctResponse>
+        <mapping>
+            <mapEntry mapKey="5" mappedValue="0.25"/>
+        </mapping>
+    </responseDeclaration>
+    <responseDeclaration baseType="string" cardinality="single" identifier="RESPONSE114">
+        <correctResponse>
+            <value>10</value>
+        </correctResponse>
+        <mapping>
+            <mapEntry mapKey="10" mappedValue="0.25"/>
+        </mapping>
+    </responseDeclaration>
+    <responseDeclaration baseType="string" cardinality="single" identifier="RESPONSE115">
+        <correctResponse>
+            <value>10</value>
+        </correctResponse>
+        <mapping>
+            <mapEntry mapKey="10" mappedValue="0.50"/>
+        </mapping>
+    </responseDeclaration>
+    <responseDeclaration baseType="string" cardinality="single" identifier="RESPONSE116">
+        <correctResponse>
+            <value>5</value>
+        </correctResponse>
+        <mapping>
+            <mapEntry mapKey="5" mappedValue="0.50"/>
+        </mapping>
+    </responseDeclaration>
+    <responseDeclaration baseType="string" cardinality="single" identifier="RESPONSE117">
+        <correctResponse>
+            <value>40</value>
+        </correctResponse>
+        <mapping>
+            <mapEntry mapKey="40" mappedValue="0.50"/>
+        </mapping>
+    </responseDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE113">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE114">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE115">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE116">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE117">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="../styles/bundled.css" type="text/css"/>
+    <stylesheet href="../styles/inline.css" type="text/css"/>
+    <itemBody>
+        <rubricBlock use="stimulus" view="candidate author proctor scorer testConstructor tutor" xmlns:default="http://www.w3.org/1998/Math/MathML">
+            <div>
+                <p>Akio has a business taking care of dogs. She charges a registration fee of $10, plus $5 for each hour she works.</p>
+                <p>Akio wrote a function to represent the total amount of money, in dollars, she earned including the registration fee after <em>x</em>&#xA0; hours of working.</p>
+                <p xmlns:default="http://www.w3.org/1998/Math/MathML">
+                    <m:math xmlns="http://www.w3.org/1998/Math/MathML">   <m:mi>f</m:mi>   <m:mo stretchy="false">(</m:mo>   <m:mi>x</m:mi>   <m:mo stretchy="false">)</m:mo>   <m:mo>=</m:mo>   <m:mi>a</m:mi>   <m:mi>x</m:mi>   <m:mo>+</m:mo>   <m:mi>b</m:mi> </m:math>
+                </p>
+            </div>
+        </rubricBlock>
+        <div class="stem stem_inline"><div class="stem_prompt"><p>Fill in the missing values.</p></div><p>What is the value of <em>a</em>? <textEntryInteraction responseIdentifier="RESPONSE113"/></p> <p>What is the value of <em>b</em>? <textEntryInteraction responseIdentifier="RESPONSE114"/></p> <p>If a customer is charged the registration fee and Aiko works 0 hours, what will be the cost to the customer?</p> <p>$<textEntryInteraction responseIdentifier="RESPONSE115"/></p> <p>What is the value of the rate of change that relates cost to time? $<textEntryInteraction responseIdentifier="RESPONSE116"/> per hour</p> <p>How much money will Aiko earn after 6 hours working? $<textEntryInteraction responseIdentifier="RESPONSE117"/></p></div>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE113"/>
+                </isNull>
+                <setOutcomeValue identifier="SCORE113">
+                    <baseValue baseType="float">0.0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE113">
+                    <mapResponse identifier="RESPONSE113"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE114"/>
+                </isNull>
+                <setOutcomeValue identifier="SCORE114">
+                    <baseValue baseType="float">0.0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE114">
+                    <mapResponse identifier="RESPONSE114"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE115"/>
+                </isNull>
+                <setOutcomeValue identifier="SCORE115">
+                    <baseValue baseType="float">0.0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE115">
+                    <mapResponse identifier="RESPONSE115"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE116"/>
+                </isNull>
+                <setOutcomeValue identifier="SCORE116">
+                    <baseValue baseType="float">0.0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE116">
+                    <mapResponse identifier="RESPONSE116"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE117"/>
+                </isNull>
+                <setOutcomeValue identifier="SCORE117">
+                    <baseValue baseType="float">0.0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE117">
+                    <mapResponse identifier="RESPONSE117"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <setOutcomeValue identifier="SCORE">
+            <sum>
+                <variable identifier="SCORE113"/>
+                <variable identifier="SCORE114"/>
+                <variable identifier="SCORE115"/>
+                <variable identifier="SCORE116"/>
+                <variable identifier="SCORE117"/>
+            </sum>
+        </setOutcomeValue>
+    </responseProcessing>
+</assessmentItem>

@@ -1,0 +1,32 @@
+{
+  "_id": {
+    "$oid": "59d3c5b177c8453caecc1a62"
+  },
+  "settings": {
+    "maxNoOfAttempts": 2,
+    "showFeedback": true,
+    "highlightCorrectResponse": true,
+    "highlightUserResponse": true,
+    "isFinished": false
+  },
+  "itemId": "57f1bf4848e7c3d20168c386",
+  "attempts": 1,
+  "components": {
+    "RESPONSE113": {
+      "answers": "5"
+    },
+    "RESPONSE114": {
+      "answers": "10"
+    },
+    "RESPONSE115": {
+      "answers": "10"
+    },
+    "RESPONSE116": {
+      "answers": "5"
+    },
+    "RESPONSE117": {
+      "answers": "40"
+    }
+  },
+  "isComplete": true
+}

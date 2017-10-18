@@ -13,6 +13,7 @@ import org.corespring.macros.DescribeMacro._
 import scala.xml._
 import scala.xml.transform._
 
+//TODO: should be private[keydatasys]
 class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -72,4 +73,5 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
 
 }
 
+//TODO: should be private[keydatasys]
 object ItemTransformer extends ItemTransformer(QtiTransformer)

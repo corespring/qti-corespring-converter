@@ -7,6 +7,7 @@ import com.keydatasys.conversion.qti.util.PassageScrubber
 import org.apache.commons.io.IOUtils
 import org.corespring.common.util.EntityEscaper
 import org.slf4j.LoggerFactory
+import org.corespring.macros.DescribeMacro.describe
 
 import scala.xml.{Node, XML}
 
@@ -74,8 +75,30 @@ object ZipReader extends PassageScrubber with EntityEscaper {
       }
     }
 }
-case class ManifestItem(id: String, filename: String, resources: Seq[ManifestResource] = Seq.empty, manifest: Node)
+case class ManifestItem(
+                         id: String,
+                         filename: String,
+                         resources: Seq[ManifestResource] = Seq.empty, manifest: Node)
 
+/**
+  * TODO: We are locating stylesheets in 2 possible places:
+  *
+  * 1. in the qti (this was added by ed to make sure measured progress picked up the stylesheet)
+  *   aka: <stylesheet href="blah"></stylesheet>
+  * 2. in the resource node:
+  *   aka: <resource><file href=""></file></resource>
+  *
+  * Some issues with this:
+  * - The path to the css can use relative paths from the qti eg: '../css/style.css' from item/qti.xml.
+  *   - To get around this we use basename matching but it's pretty crude
+  * - We don't support the measuredprogress <dependency> node type (is this part of Qti?)
+  *
+  * So we should try and load either way and even with different paths -
+  * it should resolve to the same resource.
+  *
+  * We'll probably need to flesh out the model so we know the file's path in the archive when transforming.
+  * We'll want access to the global manifest when building the data to support the <dependency> node.
+  */
 
 object ManifestItem extends PassageScrubber with EntityEscaper{
 
@@ -85,7 +108,10 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
     Map(
       ManifestResourceType.Image -> (n => (n \\ "img").map(_ \ "@src").map(_.toString)),
       ManifestResourceType.Video -> (n => (n \\ "video").map(_ \ "source").map(_ \ "@src").map(_.toString)),
-      ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)))
+      ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)),
+      ManifestResourceType.StyleSheet -> (n => (n \\ "stylesheet").map(_ \ "@href").map(_.toString))
+
+    )
 
   private def flattenPath(path: String) = {
     var regexes = Seq(
@@ -97,8 +123,10 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
 
 
   def apply(node: Node, zip : ZipFile) : ManifestItem = {
+    ManifestItem(node, zip, _ => None)
+  }
 
-
+  def apply(node: Node, zip : ZipFile, getId: Node => Option[String] ) : ManifestItem = {
 
     val qtiFile = (node \ "@href").text.toString
     val files = ZipReader.fileXML(zip, qtiFile).map(qti => {
@@ -111,20 +139,34 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
           if (filename.contains("134580A-134580A_cubes-box_stem_01.png")) {
             logger.error(s"?? ${flattenPath(filename)}")
           }
-          ManifestResource(path = flattenPath(filename), resourceType = resourceType)
+          val out = ManifestResource(
+            path = flattenPath(filename),
+            resourceType = resourceType,
+            //We inline css
+            inline = resourceType == ManifestResourceType.StyleSheet
+          )
+
+          logger.debug(describe(out))
+          out
         })
       }
     }.toSeq
 
-    logger.debug(s"files: ${files.map(_.path)}")
+    logger.debug(s"files: ${files}")
 
     val resources = ((node \\ "file")
       .filterNot(f => (f \ "@href").text.toString == qtiFile).map(f => {
       val path = (f \ "@href").text.toString
+      val resourceType = ManifestResourceType.fromPath(path, f)
       ManifestResource(
-        path = path,
-        resourceType = ManifestResourceType.fromPath(path, f))
-    })) ++ files :+ ManifestResource(qtiFile, ManifestResourceType.QTI)
+        path,
+        resourceType,
+        inline = resourceType == ManifestResourceType.StyleSheet)
+
+    })) ++ files :+ ManifestResource(
+      qtiFile,
+      ManifestResourceType.QTI,
+      inline = false)
 
     logger.debug(s"resources: $resources")
 
@@ -140,19 +182,25 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
       .flatMap{
         case (resourceType, paths) =>
           paths.map{ path =>
-            ManifestResource(path = flattenPath(path), resourceType = resourceType)
+            ManifestResource(
+              path = flattenPath(path),
+              resourceType = resourceType,
+              inline = resourceType == ManifestResourceType.StyleSheet)
           }
       }
 
 
+    logger.debug(describe(passageResources))
+
     val missingPassageResources = passageResources.map(_.path).filter(path => zip.getEntry(path) == null)
+
     if (missingPassageResources.nonEmpty) {
       missingPassageResources.foreach(f => logger.warn(s"Missing file $f in uploaded import"))
     }
 
     val out = (resources ++ passageResources).distinct
     logger.debug(s"out: $out")
-    val id = (node \ "@identifier").text.toString
+    val id = getId(node).getOrElse((node \ "@identifier").text.toString)
 
     ManifestItem( id, filename = qtiFile, resources = out, node)
   }

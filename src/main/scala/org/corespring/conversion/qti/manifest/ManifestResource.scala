@@ -1,9 +1,9 @@
 package org.corespring.conversion.qti.manifest
 
-import java.util.zip.ZipFile
-
-import org.corespring.common.file.SourceWrapper
-
-case class ManifestResource(path: String, resourceType: ManifestResourceType.Value) {
+case class ManifestResource(
+                             path: String,
+                             resourceType: ManifestResourceType.Value,
+                             inline: Boolean
+                           ) {
   def is(resourceType: ManifestResourceType.Value) = this.resourceType == resourceType
 }
