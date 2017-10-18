@@ -40,15 +40,18 @@ trait V2JavascriptWrapper {
        |
        |  ${js.lines.mkString("\n|  ")}
        |
-       |  var normalizedScore = SCORE / ${js.responseVars.length};
+       |  var divider = ${ if (js.responseVars.isEmpty) 1 else js.responseVars.length}
+       |  var normalizedScore = SCORE / divider;
        |  var maxPoints = ${js.responseVars.length};
        |
        |  var summary = {
        |    ${js.vars.keySet.map(name => s"'${name.toLowerCase}': ${name.toVar}").mkString(",\n|      ")}
        |  };
+       |
        |  summary.maxPoints = maxPoints;
        |  summary.points = SCORE;
-       |  summary.score = normalizedScore;
+       |  summary.score = SCORE;
+       |  summary.normalizedScore = normalizedScore;
        |  summary.percentage = (normalizedScore * 100).toFixed();
        |
        |  return {
