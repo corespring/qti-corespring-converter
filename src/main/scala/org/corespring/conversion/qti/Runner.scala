@@ -68,6 +68,7 @@ object Runner extends App {
         .map(_.trim)
         .filterNot(_.isEmpty)
         .toSeq
+        .distinct
       c.copy(sourceIds = c.sourceIds ++ ids)
     })
 
