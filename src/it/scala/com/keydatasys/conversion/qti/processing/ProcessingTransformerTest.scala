@@ -12,20 +12,20 @@ import play.api.libs.json.Json._
 
 import scala.xml.{Node, XML}
 
-case class TestData(qti:Node, item: JsObject, session: JsObject)
+case class TestData(qti: Node, item: JsObject, session: JsObject)
 
 class ProcessingTransformerTest extends Specification {
 
-  case class score(val outcomes:JsObject) extends Scope{
+  case class score(val outcomes: JsObject) extends Scope {
 
-    def process(js:String, item:JsObject, session: JsObject, outcomes: JsObject) : JsObject = {
-      val i  = item ++ obj("customScoring" -> js)
+    def process(js: String, item: JsObject, session: JsObject, outcomes: JsObject): JsObject = {
+      val i = item ++ obj("customScoring" -> js)
       CustomScoreProcessor.score(i.as[JsValue], session.as[JsValue], outcomes.as[JsValue]).as[JsObject]
     }
 
     val TestData(qti, item, session) = loadTestData("one")
     val responseProcessing = transformer.toJs(qti)
-    val js = responseProcessing.map( rp => transformer.wrap(rp) ).get
+    val js = responseProcessing.map(rp => transformer.wrap(rp)).get
     logger.info(s"js: \n$js\n")
     val result = process(js, item, session, outcomes)
   }
@@ -36,7 +36,7 @@ class ProcessingTransformerTest extends Specification {
 
   }
 
-  def mkOutcomes(key:String = "score", value: Double = 1) = {
+  def mkOutcomes(key: String = "score", value: Double = 1) = {
     obj(
       "RESPONSE116" -> obj(key -> value),
       "RESPONSE114" -> obj(key -> value),
@@ -46,11 +46,11 @@ class ProcessingTransformerTest extends Specification {
     )
   }
 
-  def loadTestData(name:String) : TestData = {
+  def loadTestData(name: String): TestData = {
 
-    def stream(file:String) = this.getClass.getResourceAsStream(s"/custom-scoring/$name/$file")
+    def stream(file: String) = this.getClass.getResourceAsStream(s"/custom-scoring/$name/$file")
 
-    def json(is:InputStream): JsObject = parse(IOUtils.toString(is)).as[JsObject]
+    def json(is: InputStream): JsObject = parse(IOUtils.toString(is)).as[JsObject]
 
     val is = this.getClass().getResourceAsStream(s"/custom-scoring/$name/qti.xml")
     TestData(
@@ -60,41 +60,50 @@ class ProcessingTransformerTest extends Specification {
     )
   }
 
+  val topScore = obj(
+    "score" -> 1.0,
+    "points" -> 5,
+    "maxPoints" -> 5,
+    "percentage" -> "100",
+    "score113" -> 1,
+    "score114" -> 1,
+    "score115" -> 1,
+    "score116" -> 1,
+    "score117" -> 1
+  )
+
+  val halfScore = obj(
+    "score" -> 0.5,
+    "points" -> 2.5,
+    "maxPoints" -> 5,
+    "percentage" -> "50",
+    "score113" -> 0.5,
+    "score114" -> 0.5,
+    "score115" -> 0.5,
+    "score116" -> 0.5,
+    "score117" -> 0.5
+  )
+
   "V2JavascriptWrapperTest" should {
-    "return 5.0 for score key" in new score(mkOutcomes()) {
-      (result \ "summary" \ "score").as[Float] must_== 5
+    "return summary object" in new score(mkOutcomes()) {
+      (result \ "summary").as[JsObject] must_== topScore
     }
 
-    "return 1.0 for normalizedScore key" in new score(mkOutcomes()) {
-      (result \ "summary" \ "normalizedScore").as[Float] must_== 1
+    "return summary when outcomes are 0.5" in new score(mkOutcomes(value = 0.5)) {
+      (result \ "summary").as[JsObject] must_== halfScore
     }
 
-    "return 2.5 for score key when each outcome is 0.5" in new score(mkOutcomes(value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 2.5
+    "return summary when legacyScore is 1.0" in new score(mkOutcomes(key = "legacyScore")) {
+      (result \ "summary").as[JsObject] must_== topScore
     }
 
-    "return 0.5 for normalizedScore key when each outcome is 0.5" in new score(mkOutcomes(value = 0.5)) {
-      (result \ "summary" \ "normalizedScore").as[Float] must_== 0.5
+
+    "return summary when correctNum is 1.0" in new score(mkOutcomes(key = "correctNum")) {
+      (result \ "summary").as[JsObject] must_== topScore
     }
 
-    "return 5.0 for score when key is legacyScore is 1.0" in new score(mkOutcomes(key="legacyScore")) {
-      (result \ "summary" \ "score").as[Float] must_== 5.0
-    }
-
-    "return 1.0 for normalizedScore when key is legacyScore is 1.0" in new score(mkOutcomes(key="legacyScore")) {
-      (result \ "summary" \ "normalizedScore").as[Float] must_== 1.0
-    }
-
-    "return 2.5 for score when key is legacyScore and score is 0.5" in new score(mkOutcomes(key="legacyScore", value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 2.5
-    }
-
-    "return 5.0 for score when key is correctNum is 1.0" in new score(mkOutcomes(key="correctNum")) {
-      (result \ "summary" \ "score").as[Float] must_== 5.0
-    }
-
-    "return 2.5 for score when key is correctNum and score is  0.5" in new score(mkOutcomes(key="correctNum", value = 0.5)) {
-      (result \ "summary" \ "score").as[Float] must_== 2.5
+    "return summary when correctNum and score is  0.5" in new score(mkOutcomes(key = "correctNum", value = 0.5)) {
+      (result \ "summary").as[JsObject] must_== halfScore
     }
 
   }
