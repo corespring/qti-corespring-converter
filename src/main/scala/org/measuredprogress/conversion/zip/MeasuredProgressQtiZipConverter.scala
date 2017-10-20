@@ -53,7 +53,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
 
 
     def nodeToSourceId(node: Node) =
-      MeasuredProgressExtractor.getId((node \\ "@href").text.trim)
+      MeasuredProgressExtractor.getId((node \ "@href").text.trim)
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
       val out = ManifestItem(node, zip, n => Some(nodeToSourceId(n)))
@@ -74,7 +74,6 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         try {
           val preprocessed = preprocessHtml(q)
           val scrubbed = scrub(preprocessed)
-          logger.trace(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
           val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
                     //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
@@ -113,9 +112,8 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         val basePath = Paths.get(s"${collectionName}_$collectionId/${i.id}")
         val resolved = tmpDir.resolve(basePath)
         val dataPath = resolved.resolve(Paths.get("data"))
-
-        logger.debug(s"[writeCorespringItem] resolved: $resolved")
-        logger.debug(s"[writeCorespringItem] dataPath: $dataPath")
+        logger.debug(i.id)
+          logger.debug(describe(basePath, resolved, dataPath))
 
         if (Files.notExists(resolved)) {
           Files.createDirectories(resolved)
@@ -128,15 +126,22 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
         val pd = Json.prettyPrint(i.playerDefinition)
         val pr = Json.prettyPrint(i.profile)
 
+        val pdPath = resolved.resolve("player-definition.json")
+        val profilePath = resolved.resolve("profile.json")
+
+        if(pdPath.toString.contains("MP-226")) {
+            logger.debug(describe(pdPath, profilePath))
+          }
+
         Files.write(
-          resolved.resolve("player-definition.json"),
+          pdPath,
           pd.getBytes(StandardCharsets.UTF_8))
 
         Files.write(
-          resolved.resolve("profile.json"),
+          profilePath,
           pr.getBytes(StandardCharsets.UTF_8))
 
-        logger.debug(s"[writeCorespringItem] assets: length: ${i.assets.length} - ${i.assets}")
+//        logger.debug(s"[writeCorespringItem] assets: length: ${i.assets.length} - ${i.assets}")
 
         def flattenPath(p: String) = p.split("/").last
 
@@ -145,7 +150,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
             val entry = zip.getEntry(a)
             val is = zip.getInputStream(entry)
             val dest = dataPath.resolve(flattenPath(a))
-            logger.debug(s"[writeCorespringItem] write $a to $dest")
+//            logger.debug(s"[writeCorespringItem] write $a to $dest")
             Files.copy(is, dest)
             IOUtils.closeQuietly(is)
         }
