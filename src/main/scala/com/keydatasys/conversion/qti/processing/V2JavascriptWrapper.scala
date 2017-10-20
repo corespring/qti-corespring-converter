@@ -50,8 +50,7 @@ trait V2JavascriptWrapper {
        |
        |  summary.maxPoints = maxPoints;
        |  summary.points = SCORE;
-       |  summary.score = SCORE;
-       |  summary.normalizedScore = normalizedScore;
+       |  summary.score = normalizedScore;
        |  summary.percentage = (normalizedScore * 100).toFixed();
        |
        |  return {
