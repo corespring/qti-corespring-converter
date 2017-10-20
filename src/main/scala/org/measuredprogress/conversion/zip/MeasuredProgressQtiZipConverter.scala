@@ -48,7 +48,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
     val is = zip.getInputStream(manifestEntry)
     val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
 
-    val (qtiResources, resources) = (xml \ "resources" \\ "resource")
+    val (qtiResources, _) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
 
