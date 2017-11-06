@@ -60,16 +60,16 @@ object ZipReader extends PassageScrubber with EntityEscaper {
 
   def fileXML(zip: ZipFile, name:String) : Option[Node] = fileContents(zip, name)
     .flatMap{ s =>
+      val cleaned = scrub(escapeEntities(stripCDataTags(s)))
       try {
-        val xmlOut = XML.loadString(scrub(escapeEntities(stripCDataTags(s))))
+        val xmlOut = XML.loadString(cleaned)
         Some(xmlOut)
       }
       catch {
         case e :Exception => {
-          logger.error(s"Error reading $name")
-          if(logger.isDebugEnabled()){
-            //e.printStackTrace()
-          }
+          logger.error(s"Error reading $name, message: ${e.getMessage}")
+          logger.debug(describe(cleaned))
+          e.printStackTrace()
           None
         }
       }
