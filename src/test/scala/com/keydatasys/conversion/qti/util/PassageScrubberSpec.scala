@@ -43,6 +43,24 @@ class PassageScrubberSpec extends Specification with PassageScrubber {
       (xml \ "@height").text must_== "500"
     }
 
+    "matches multiple tags" in {
+
+      val raw =
+        """<div tag="foo">
+          |<video width="100"><source src="bar.mp4"></video>
+          |<video width="100"><source src="baz.mp4"></video>
+          |<audio><source src="audio-foo.mp3"></audio>
+          |</div>
+        """.stripMargin
+
+      logger.debug(s"raw: $raw")
+      val scrubbed = scrub(raw)
+      logger.debug(s"scrubbed: $scrubbed")
+      val xml = XML.loadString(scrubbed)
+      (xml \\ "video").length must_== 2
+      (xml \ "@tag").text must_== "foo"
+      (xml \\ "source").map( n => (n \ "@src").text) must_== Seq("bar.mp4", "baz.mp4", "audio-foo.mp3")
+    }
   }
 
 }

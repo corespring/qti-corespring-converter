@@ -68,7 +68,7 @@ object ZipReader extends PassageScrubber with EntityEscaper {
       catch {
         case e :Exception => {
           logger.error(s"Error reading $name, message: ${e.getMessage}")
-          logger.debug(describe(cleaned))
+          logger.warn(describe(s, cleaned))
           e.printStackTrace()
           None
         }

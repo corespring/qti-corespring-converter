@@ -24,6 +24,15 @@ trait PassageScrubber {
    * plain old XML parser won't complain about it. When it hits the user's browser, their browser can probably render
    * it, but Scala's XML parser is a lot more strict, so we have to deal with it. Good stuff.
    */
-  def scrub(xml: String) = Jsoup.clean(xml, "", whitelist, outputSettings)
+
+  val regex = (tag:String) => s"(?s)<$tag.*?>.*?</$tag>".r
+  val vid = regex("video")
+  val audio = regex("audio")
+
+  def scrub(xml: String) = {
+    val vidCleaned = vid.replaceAllIn(xml, m =>  Jsoup.clean(m.matched, "", whitelist, outputSettings) )
+    val vidAudCleaned = audio.replaceAllIn(vidCleaned, m => Jsoup.clean(m.matched, "", whitelist, outputSettings))
+    vidAudCleaned
+  }
 
 }
