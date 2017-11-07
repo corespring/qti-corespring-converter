@@ -2,11 +2,11 @@ package org.corespring.conversion.qti
 
 import java.io.File
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path }
 import java.util.zip.{ZipEntry, ZipFile}
 
 import org.apache.commons.io.IOUtils
-import org.corespring.conversion.qti.manifest.ErrorDir
+import org.corespring.utils.ErrorDir
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
@@ -76,10 +76,9 @@ trait BaseRunner extends Specification {
 
   val pathToSbac = zippedPath.toAbsolutePath.toString
 
+  val errorPath = ErrorDir.errorPath
   logger.info(s"sbacOutput: $sbacOutput")
-  logger.info(s" error dir: ${ErrorDir.path.toAbsolutePath}")
-
-  ErrorDir.remove
+  logger.info(s" error dir: ${errorPath.toAbsolutePath}")
 
   RunHelper.run(
     pathToSbac,
@@ -88,7 +87,6 @@ trait BaseRunner extends Specification {
     sourceId,
     """{"scoringType": "SBAC"}"""
   )
-
 
   val zip = new ZipFile(new File(sbacOutput.toString))
 
