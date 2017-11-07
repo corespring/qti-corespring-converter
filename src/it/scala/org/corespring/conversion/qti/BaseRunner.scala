@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.zip.{ZipEntry, ZipFile}
 
 import org.apache.commons.io.IOUtils
+import org.corespring.conversion.qti.manifest.ErrorDir
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
@@ -76,6 +77,9 @@ trait BaseRunner extends Specification {
   val pathToSbac = zippedPath.toAbsolutePath.toString
 
   logger.info(s"sbacOutput: $sbacOutput")
+  logger.info(s" error dir: ${ErrorDir.path.toAbsolutePath}")
+
+  ErrorDir.remove
 
   RunHelper.run(
     pathToSbac,

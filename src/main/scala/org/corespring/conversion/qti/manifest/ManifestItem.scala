@@ -1,14 +1,17 @@
 package org.corespring.conversion.qti.manifest
 
-import java.io.{File, FileInputStream, FileOutputStream}
+import java.io._
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, Paths}
 import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
 
 import com.keydatasys.conversion.qti.util.PassageScrubber
-import org.apache.commons.io.IOUtils
+import org.apache.commons.io.{FileUtils, IOUtils}
 import org.corespring.common.util.EntityEscaper
 import org.slf4j.LoggerFactory
 import org.corespring.macros.DescribeMacro.describe
 
+import scala.io.Source
 import scala.xml.{Node, XML}
 
 object ZipWriter {
@@ -34,6 +37,28 @@ object ZipWriter {
         IOUtils.closeQuietly(in)
       }
     }
+  }
+}
+
+import scala.sys.process._
+
+object ErrorDir{
+  val home = {
+    val uh = System.getProperty("user.home")
+    if(uh != null) uh else {
+      "echo ~".!!.trim
+    }
+  }
+  val homeDir = Paths.get(new File(home).toURI)
+
+  val path = {
+    val out = homeDir.resolve(".qti-corespring-converter/errors")
+    Files.createDirectories(out)
+    out
+  }
+
+  def remove = {
+    s"rm -fr ${path.toAbsolutePath}".!!
   }
 }
 
@@ -68,8 +93,18 @@ object ZipReader extends PassageScrubber with EntityEscaper {
       catch {
         case e :Exception => {
           logger.error(s"Error reading $name, message: ${e.getMessage}")
+          if(!Files.exists(ErrorDir.path)){
+            Files.createDirectory(ErrorDir.path)
+          }
+          val targetPath = ErrorDir.path.resolve(name)
+          logger.error(s"||  ---> writing files to: ${targetPath.toAbsolutePath}")
+          Files.createDirectory(targetPath)
+          Files.write(targetPath.resolve("cleaned.xml"), cleaned.getBytes(StandardCharsets.UTF_8))
+          Files.write(targetPath.resolve("raw.xml"), s.getBytes(StandardCharsets.UTF_8))
+          Files.write(targetPath.resolve("raw.xml"), s.getBytes(StandardCharsets.UTF_8))
+          val ps = new PrintStream(targetPath.resolve("error.log").toFile)
+          e.printStackTrace(ps)
           logger.warn(describe(s, cleaned))
-          e.printStackTrace()
           None
         }
       }
