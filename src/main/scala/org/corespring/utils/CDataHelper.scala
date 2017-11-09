@@ -6,13 +6,15 @@ import org.slf4j.LoggerFactory
 import scala.xml.XML
 import org.corespring.macros.DescribeMacro._
 
+import scala.util.{Random, Try}
+
 object CDataHelper {
 
   val logger = LoggerFactory.getLogger(CDataHelper.this.getClass)
 
   def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
-  private def escapeTags(s:String) : String = {
+  private def escapeTags(s: String): String = {
     s
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
@@ -36,22 +38,42 @@ object CDataHelper {
     * @param xmlString
     * @return
     */
-  def stripCDataAndEscapeIfNeeded(xmlString: String) = {
+  def stripCDataAndEscapeIfNeeded(xmlString: String) : String = {
 
-    def escapeTagsIfNotXml (s:String) : String = {
+    def escapeTagsIfNotXml(s: String): String = {
       val fixed = PassageScrubber.fixXml(s)
-      logger.trace(describe(s, fixed))
+//      logger.trace(describe(s))
+//      logger.trace(describe(fixed))
+
       try {
         val loaded = XML.loadString(fixed)
-        logger.trace(describe(loaded))
+//        logger.trace(describe(loaded))
         //If the xml string is parseable - it's ok to return unescaped.
         fixed
       } catch {
         //If the xml string is not parseable - it's not pure xml, so return jsouped content
-        case _ : Throwable => fixed
+        case _: Throwable => fixed
       }
     }
 
-    """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, m => escapeTagsIfNotXml(m.group(1)))
+    try {
+
+      logger.trace(describe(xmlString))
+
+      """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, m => {
+//        logger.debug(s"0: ${m.group(0)}")
+//        logger.debug(s"1: ${m.group(1)}")
+        val contents = m.group(1)
+        escapeTagsIfNotXml(contents)
+      })
+    } catch {
+      case e: Exception => {
+        val random = Random.nextInt()
+        ErrorDir.dump(s"CDataHelper_${random}", Some(e), "content.xml" -> xmlString)
+//        xmlString
+        throw e
+      }
+    }
   }
+
 }

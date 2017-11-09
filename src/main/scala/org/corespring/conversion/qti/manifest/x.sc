@@ -7,6 +7,7 @@ import org.jsoup.safety.Whitelist
 
 import scala.xml.XML
 
+/*
 //  <node>&radic;</node>
 val xml = """<?xml version="1.0" encoding="utf-8"?>
              <root>
@@ -30,7 +31,11 @@ val outputSettings = new OutputSettings()
   .prettyPrint(false)
 Jsoup.clean("hi there, <img>", "", Whitelist.relaxed(), outputSettings)
 XML.loadString("<node>hi there</node>")
-/*
 val parsedTwo = XML.loadString(stripCDataTags(xml))
 (parsedTwo \\ "node").map(_.text)
  */
+
+val dollar = """<a>$2</a>"""
+"""(?s)<a>(.*?)</a>""".r.replaceAllIn(dollar, m => {
+  m.group(1)
+})

@@ -7,7 +7,7 @@ class CDataHelperTest extends Specification {
 
   "stripCDataAndEscapeIfNeeded" should {
 
-
+    /*
     "escape brackets in regular text" in {
       val xml = """<node><![CDATA[a < b]]></node>"""
       val out = CDataHelper.stripCDataAndEscapeIfNeeded(xml)
@@ -24,6 +24,13 @@ class CDataHelperTest extends Specification {
       val xml = """<node><![CDATA[a <b/>]]></node>"""
       val out = CDataHelper.stripCDataAndEscapeIfNeeded(xml)
       out must_== "<node>a <b></b></node>"
+    }
+*/
+    "escape brackets in regular text" in {
+      val xml = """<root><![CDATA[<p>$260></p>]]></root>""".stripMargin
+      val out = CDataHelper.stripCDataAndEscapeIfNeeded(xml)
+     println(s"out: $out")
+      out must_== "<node>a &lt; b</node>"
     }
   }
 }
