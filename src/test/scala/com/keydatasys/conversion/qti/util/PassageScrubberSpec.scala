@@ -16,11 +16,19 @@ class PassageScrubberSpec extends Specification with PassageScrubber {
       </video>
     """
 
+  "fixXml" in {
+    val xml = """<audio><source src="hi"></audio>"""
+    val out = PassageScrubber.fixXml(xml)
+    out must_== """<audio><source src="hi" /></audio>"""
+  }
+
   "scrub" should {
 
     val result = scrub(badMarkup)
 
     logger.debug(s"result: $result")
+
+
 
     "produce valid markup" in {
         val xml = XML.loadString(result)

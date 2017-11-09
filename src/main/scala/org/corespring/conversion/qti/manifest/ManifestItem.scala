@@ -1,98 +1,14 @@
 package org.corespring.conversion.qti.manifest
 
-import java.io._
-import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
+import java.util.zip.{ ZipFile }
 
 import com.keydatasys.conversion.qti.util.PassageScrubber
-import org.apache.commons.io.IOUtils
 import org.corespring.common.util.EntityEscaper
 import org.corespring.macros.DescribeMacro.describe
-import org.corespring.utils.ErrorDir
 import org.slf4j.LoggerFactory
 
-import scala.xml.{Node, XML}
+import scala.xml.{Node }
 
-object ZipWriter {
-  def compressDir(src: File, outputFile: String) = {
-    val zipFile = new ZipOutputStream(new FileOutputStream(outputFile))
-    compressDirectoryToZipfile(src, src, zipFile)
-    IOUtils.closeQuietly(zipFile)
-  }
-
-  private def compressDirectoryToZipfile(
-                                          rootDir: File,
-                                          sourceDir: File,
-                                          out: ZipOutputStream): Unit = {
-    sourceDir.listFiles().map { file =>
-      if (file.isDirectory()) {
-        compressDirectoryToZipfile(rootDir, new File(file.getAbsolutePath()), out)
-      } else {
-        val name = file.getCanonicalPath().replace(s"${rootDir.getCanonicalPath()}/", "")
-        val entry = new ZipEntry(name)
-        out.putNextEntry(entry)
-        val in = new FileInputStream(file)
-        IOUtils.copy(in, out)
-        IOUtils.closeQuietly(in)
-      }
-    }
-  }
-}
-
-
-object ZipReader extends PassageScrubber with EntityEscaper {
-
-  lazy val logger = LoggerFactory.getLogger(ZipReader.this.getClass)
-
-  /**
-    * TODO:
-    * We have an issues where by stripping the cdata tags we run the risk of having invalid xml eg:
-    * <node><![CDATA[a<b]]></node> -> <node>a<b</node> <--- this is invalid xml
-    * However this step is needed because there qti sometimes contains xml within the cdata that we need to parse and transform:
-    * <node><![CDATA[<audio>..</audio>]]></node>
-    *
-    * We can't just escape < and > because doing so will turn <audio> to &lt;audio&gt; which won't get parsed.
-    *
-    * The best option for now is try and 1. jsoup it, 2. then parse it - it it parses then don't escape <,> - if it doesnt parse, then escape them???
-    *
-    * OR:
-    * look for <audio ... or <video .. in the string and if present then dont escape ?
-    *
-    * @param xmlString
-    * @return
-    */
-  private def stripCDataTags(xmlString: String) =
-    """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
-
-
-  def fileContents(zip: ZipFile, name: String): Option[String] = {
-    val entry = zip.getEntry(name)
-    if (entry == null) {
-      None
-    } else {
-      val is = zip.getInputStream(entry)
-      val s = IOUtils.toString(is, "UTF-8")
-      IOUtils.closeQuietly(is)
-      Some(s)
-    }
-  }
-
-  def fileXML(zip: ZipFile, name: String): Option[Node] = fileContents(zip, name)
-    .flatMap { s =>
-      val cleaned = scrub(escapeEntities(stripCDataTags(s)))
-      try {
-        val xmlOut = XML.loadString(cleaned)
-        Some(xmlOut)
-      }
-      catch {
-        case e: Exception => {
-          logger.error(s"Error reading $name, message: ${e.getMessage}")
-          ErrorDir.dump(name, Some(e), "cleaned.xml" -> cleaned, "raw.xml" -> s)
-          logger.trace(describe(s, cleaned))
-          None
-        }
-      }
-    }
-}
 
 case class ManifestItem(
                          id: String,

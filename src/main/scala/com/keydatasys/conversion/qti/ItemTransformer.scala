@@ -8,7 +8,7 @@ import org.corespring.conversion.qti.manifest._
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 import org.corespring.macros.DescribeMacro._
-
+import org.corespring.utils.CDataHelper
 
 import scala.xml._
 import scala.xml.transform._
@@ -45,8 +45,7 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
     private val labelMap = Map("partBlock" -> "div", "partBody" -> "div", "selectedResponseParts" -> "div")
 
     def toXML(passageXml: String): Elem = {
-      def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
-      val xml = XML.loadString(stripCDataTags(string))
+      val xml = XML.loadString(CDataHelper.stripCDataTags(string))
       val stylesheets = (xml \ "stylesheet")
       clearNamespace(new RuleTransformer(new RewriteRule {
         override def transform(n: Node): NodeSeq = n match {

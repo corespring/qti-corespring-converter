@@ -29,10 +29,15 @@ trait PassageScrubber {
   val vid = regex("video")
   val audio = regex("audio")
 
+  @deprecated("Is this necessary? Only really needed where there are audio/video tags present - aka in an item", "")
   def scrub(xml: String) = {
     val vidCleaned = vid.replaceAllIn(xml, m =>  Jsoup.clean(m.matched, "", whitelist, outputSettings) )
     val vidAudCleaned = audio.replaceAllIn(vidCleaned, m => Jsoup.clean(m.matched, "", whitelist, outputSettings))
     vidAudCleaned
   }
 
+  def fixXml(xml:String) = Jsoup.clean(xml, "", whitelist, outputSettings)
+
 }
+
+object PassageScrubber extends PassageScrubber
