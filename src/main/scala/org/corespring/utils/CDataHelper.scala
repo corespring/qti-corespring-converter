@@ -42,25 +42,17 @@ object CDataHelper {
 
     def escapeTagsIfNotXml(s: String): String = {
       val fixed = PassageScrubber.fixXml(s)
-//      logger.trace(describe(s))
-//      logger.trace(describe(fixed))
-
-      try {
-        val loaded = XML.loadString(fixed)
-//        logger.trace(describe(loaded))
-        //If the xml string is parseable - it's ok to return unescaped.
-        fixed
-      } catch {
-        //If the xml string is not parseable - it's not pure xml, so return jsouped content
-        case _: Throwable => fixed
-      }
+      logger.trace(describe(s))
+      logger.trace(describe(fixed))
+      fixed
     }
 
     try {
 
       logger.trace(describe(xmlString))
 
-      """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, m => {
+      val dollarsEscaped = xmlString.replaceAll("\\$", """\\\$""")
+      """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(dollarsEscaped, m => {
 //        logger.debug(s"0: ${m.group(0)}")
 //        logger.debug(s"1: ${m.group(1)}")
         val contents = m.group(1)

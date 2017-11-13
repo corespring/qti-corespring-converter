@@ -36,6 +36,8 @@ val parsedTwo = XML.loadString(stripCDataTags(xml))
  */
 
 val dollar = """<a>$2</a>"""
-"""(?s)<a>(.*?)</a>""".r.replaceAllIn(dollar, m => {
-  m.group(1)
-})
+//"""(?s)<a>(.*?)</a>""".r.replaceAllIn(dollar, m => {
+//  m.group(1)
+//})
+
+dollar.replaceAll("\\$", """\\\$""")
