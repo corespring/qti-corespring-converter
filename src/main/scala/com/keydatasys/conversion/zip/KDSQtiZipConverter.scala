@@ -19,16 +19,15 @@ import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.json.Json._
 
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Node
 import org.corespring.macros.DescribeMacro._
+import org.corespring.utils.ErrorDir
 
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
     with PathFlattener
-    with HtmlProcessor
     with JsonUtil
     with PassageScrubber
     with ManifestFilter {
@@ -63,22 +62,23 @@ object KDSQtiZipConverter
     }
 
     def toCorespringItem(m: ManifestItem): Future[Option[CorespringItem]] = Future {
-      val qti = ZipReader.fileContents(zip, m.filename)
+      val qti = ZipReader.fileXML(zip, m.filename)
 
       qti.map { q =>
         try {
-          logger.debug(describe(q))
-          val preprocessed = preprocessHtml(q)
-          logger.debug(describe(preprocessed))
-          val scrubbed = scrub(preprocessed)
-          logger.debug(describe(scrubbed))
+//          logger.debug(describe(q))
+//          val preprocessed = preprocessHtml(q)
+//          logger.debug(describe(preprocessed))
+//          val scrubbed = preprocessed
+//          logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = ItemTransformer.transform(q.toString(), m, sources)
+
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
 
-          //          logger.trace(describe(playerDefinition))
+          logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
@@ -101,6 +101,7 @@ object KDSQtiZipConverter
           Some(out)
         } catch {
           case e: Exception => {
+            ErrorDir.dump(m.id, Some(e), "qti.xml" -> q.toString())
             None
           }
         }
@@ -192,9 +193,9 @@ object KDSQtiZipConverter
   override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
       json ++ obj(
-        "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
-        "components" -> postprocessHtml((json \ "components")),
-        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
+        "xhtml" -> unescapeCss(HtmlProcessor.postprocessHtml((json \ "xhtml").as[String])),
+        "components" -> HtmlProcessor.postprocessHtml((json \ "components")),
+        "summaryFeedback" -> HtmlProcessor.postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       )
     }
     case _ => item

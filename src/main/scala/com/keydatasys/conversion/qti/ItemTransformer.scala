@@ -17,6 +17,7 @@ import scala.xml.transform._
 class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
+
   def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
     val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
       .map(transformPassage(_)(sources).getOrElse(""))

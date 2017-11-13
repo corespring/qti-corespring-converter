@@ -16,7 +16,7 @@ case class ConversionOpts(limit: Int = 0, sourceIds: Seq[String] = Seq.empty)
 /**
  * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
  */
-trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
+trait QtiToCorespringConverter extends UnicodeCleaner {
 
   implicit class ManifestResourcesToSourceMap(manifestResources: Seq[ManifestResource]) {
 
@@ -45,11 +45,11 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
 
   def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
+      val xhtml = unescapeCss(HtmlProcessor.postprocessHtml((json \ "xhtml").as[String]))
       cleanUnicode(json ++ Json.obj(
         "xhtml" -> xhtml,
-        "components" -> postprocessHtml((json \ "components")),
-        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
+        "components" -> HtmlProcessor.postprocessHtml((json \ "components")),
+        "summaryFeedback" -> HtmlProcessor.postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       ))
     }
     case _ => item

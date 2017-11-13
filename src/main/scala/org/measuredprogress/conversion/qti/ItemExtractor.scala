@@ -105,9 +105,11 @@ private[measuredprogress] object MeasuredProgressExtractor extends JsonUtil {
   }
 }
 
+import HtmlProcessor._
+
 @deprecated("This was used in the old converter, remove asap", "0.28")
 private[measuredprogress] class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: KDSItemTransformer)
-  extends AbstractItemExtractor with HtmlProcessor with JsonUtil {
+  extends AbstractItemExtractor  with JsonUtil {
 
   private lazy val logger = LoggerFactory.getLogger(this.getClass)
 

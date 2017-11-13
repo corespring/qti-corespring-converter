@@ -9,9 +9,11 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import scala.xml.XML
 import scalaz.{Failure, Success, Validation}
 
+import HtmlProcessor._
+
 @deprecated("Old item extractor - very slow", "0.31")
 class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with HtmlProcessor {
+  extends AbstractItemExtractor  {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => {

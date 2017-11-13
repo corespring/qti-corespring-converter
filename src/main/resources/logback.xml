@@ -13,7 +13,7 @@
     <logger name="org.corespring.conversion.qti.manifest.ZipReader$" level="INFO"></logger>
     <logger name="org.corespring.conversion.qti.manifest.ZipReader" level="INFO"></logger>
     <logger name="org.corespring.utils" level="DEBUG"></logger>
-    <root level="warn">
+    <root level="trace">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

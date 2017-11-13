@@ -1,12 +1,12 @@
 package com.keydatasys.conversion.qti.util
 
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.HtmlProcessor
-import org.corespring.conversion.qti.manifest.{ManifestResourceType, ManifestResource}
+import org.corespring.common.util.{EntityEscaper, HtmlProcessor}
+import org.corespring.conversion.qti.manifest.{ManifestResource, ManifestResourceType}
 
 import scala.xml.XML
 
-trait PassageTransformer extends PassageScrubber with HtmlProcessor with PathFlattener {
+trait PassageTransformer extends PassageScrubber with EntityEscaper with PathFlattener {
 
   def transformPassage(resource: ManifestResource)(implicit sources: Map[String, SourceWrapper]): Option[String] = {
     resource.resourceType == ManifestResourceType.Passage match {

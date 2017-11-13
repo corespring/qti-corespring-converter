@@ -22,8 +22,10 @@ object MetadataExtractor {
 
 }
 
+import HtmlProcessor._
+
 class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
+  extends AbstractItemExtractor with PassageTransformer  with PathFlattener with PassageScrubber with JsonUtil {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }
     .map { case(_, manifest) => {
