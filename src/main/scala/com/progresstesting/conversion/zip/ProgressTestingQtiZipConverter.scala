@@ -58,11 +58,11 @@ object ProgressTestingQtiZipConverter
     }
 
     def toCorespringItem(m:ManifestItem) : Future[Option[CorespringItem]] = Future{
-      val qti = ZipReader.fileContents(zip, m.filename)
+      val qti = ZipReader.fileXML(zip, m.filename)
 
       qti.map{ q =>
         val sources : Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-        val playerDefinition = itemTransformer.transform(q, m, sources)
+        val playerDefinition = itemTransformer.transform(q.toString(), m, sources)
         sources.mapValues{ v =>
           IOUtils.closeQuietly(v.inputStream )
         }

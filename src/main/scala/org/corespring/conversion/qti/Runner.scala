@@ -6,6 +6,7 @@ import java.util.zip.ZipFile
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
+import org.corespring.utils.ErrorDir
 import org.measuredprogress.conversion.zip.{MeasuredProgressQtiZipConverter, OldMeasuredProgressQtiZipConverter}
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
@@ -101,6 +102,8 @@ object Runner extends App {
 
       logger.info(s"convertion opts: $opts")
 
+      ErrorDir.remove
+      ErrorDir.init
       val outFile = new File(runOpts.output)
 
       if (outFile.exists()) {
@@ -116,7 +119,9 @@ object Runner extends App {
             Runtime.getRuntime().halt(0)
           }
         }), 25.minutes)
+
     }
+
     case None => {
       println(parser.usage)
       sys.exit(1)

@@ -66,17 +66,15 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
       logger.trace(zip.entries().map(_.getName).mkString("\n"))
       logger.debug(s"load xml from: ${m.filename}")
 
-      val qti = ZipReader.fileContents(zip, m.filename)
+      val qti = ZipReader.fileXML(zip, m.filename)
 
       logger.trace(describe(qti))
 
       qti.flatMap { q =>
         try {
-          val preprocessed = preprocessHtml(q)
-          val scrubbed = scrub(preprocessed)
+
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
-                    //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(q.toString(), m, sources)
 
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)

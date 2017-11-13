@@ -5,11 +5,12 @@ import java.util.zip.ZipFile
 import com.keydatasys.conversion.qti.util._
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.EntityEscaper
-import org.corespring.conversion.qti.manifest._
+import org.corespring.utils.CDataHelper
 import org.slf4j.LoggerFactory
 
 import scala.xml._
 
+@deprecated("old manifest reader", "0.31")
 object ManifestReader
   extends PassageScrubber
     with EntityEscaper
@@ -19,8 +20,6 @@ object ManifestReader
 
   val filename = "imsmanifest.xml"
 
-  private def stripCDataTags(xmlString: String) =
-    """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
   private def flattenPath(path: String) = {
     var regexes = Seq(
@@ -56,7 +55,11 @@ object ManifestReader
         logger.debug(s">>> filename: $filename")
         val files = sources.get(filename).map { file =>
           try {
-            Some(XML.loadString(scrub(escapeEntities(stripCDataTags(file.mkString)))))
+            Some(
+              XML.loadString(
+                scrub(
+                  escapeEntities(
+                    CDataHelper.stripCDataTags(file.mkString)))))
           } catch {
             case e: Exception => {
               e.printStackTrace()
@@ -98,7 +101,12 @@ object ManifestReader
           sources.find { case (path, _) => path == p.path.flattenPath }.map {
             case (filename, s) => {
               try {
-                Some((XML.loadString(scrub(escapeEntities(stripCDataTags(s.getLines.mkString))))).map(xml => resourceLocators.map {
+                Some((
+                  XML.loadString(
+                  scrub(
+                    escapeEntities(
+                      CDataHelper.stripCDataTags(
+                        s.getLines.mkString))))).map(xml => resourceLocators.map {
                   case (resourceType, fn) => (resourceType, fn(xml))
                 }).flatten.map {
                   case (resourceType, paths) =>

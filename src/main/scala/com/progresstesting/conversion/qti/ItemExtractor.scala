@@ -68,8 +68,10 @@ object MetadataExtractor extends JsonUtil{
   }
 }
 
+import HtmlProcessor._
+
 class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
-  extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
+  extends AbstractItemExtractor with PassageTransformer  with PathFlattener with PassageScrubber with JsonUtil {
 
   val elaId = "4ffb535f6bb41e469c0bf2ac"
   val scienceId = "4ffb535f6bb41e469c0bf2d1"
