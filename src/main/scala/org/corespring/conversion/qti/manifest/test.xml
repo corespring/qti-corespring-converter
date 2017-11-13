@@ -1,0 +1,68 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="674103" title="674103"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1">
+    <responseDeclaration baseType="directedPair" cardinality="multiple" identifier="RESPONSE1">
+        <correctResponse>
+            <value>Row1 Col3</value>
+            <value>Row2 Col1</value>
+            <value>Row3 Col1</value>
+            <value>Row4 Col2</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet type="text/css" href="style/LiveInspect.css"/>
+    <itemBody>
+        <teacherInstructions>
+            <strong>TEACHER READS:</strong>
+            <br/>
+            <br/>Read and complete the task that follows.
+        </teacherInstructions>
+        <matchInteraction maxAssociations="4" shuffle="false" responseIdentifier="RESPONSE1">
+            <prompt visible="true">
+                <strong>A right rectangular pyramid is shown below.</strong>
+                <br/>
+                <br/>
+                <img height="116" width="95" alt=""/>
+                <br/>
+                <br/>
+                <strong>Determine the two!!!csentity!!!8211!!!csendentity!!!dimensional cross section that results when
+                    each plane described below intersects the right rectangular pyramid.
+                    !!!csentity!!!160!!!csendentity!!!Select a two!!!csentity!!!8211!!!csendentity!!!dimensional cross
+                    section for each plane.
+                </strong>
+            </prompt>
+            <cornerText>
+                <strong>Plane</strong>
+            </cornerText>
+            <simpleMatchSet>
+                <simpleAssociableChoice matchMax="1" identifier="Row1">a horizontal plane parallel to the base
+                </simpleAssociableChoice>
+                <simpleAssociableChoice matchMax="1" identifier="Row2">a vertical plane passing through the vertex
+                </simpleAssociableChoice>
+                <simpleAssociableChoice matchMax="1" identifier="Row3">a vertical plane passing through two adjacent
+                    sides of the base
+                </simpleAssociableChoice>
+                <simpleAssociableChoice matchMax="1" identifier="Row4">a vertical plane passing perpendicularly through
+                    two opposite sides of the base but not through the vertex
+                </simpleAssociableChoice>
+            </simpleMatchSet>
+            <simpleMatchSet>
+                <simpleAssociableChoice matchMax="0" identifier="Col1">
+                    <strong>Triangle</strong>
+                </simpleAssociableChoice>
+                <simpleAssociableChoice matchMax="0" identifier="Col2">
+                    <strong>Trapezoid</strong>
+                </simpleAssociableChoice>
+                <simpleAssociableChoice matchMax="0" identifier="Col3">
+                    <strong>Rectangle</strong>
+                </simpleAssociableChoice>
+            </simpleMatchSet>
+        </matchInteraction>
+    </itemBody>
+    <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
+</assessmentItem>

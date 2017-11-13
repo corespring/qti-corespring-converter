@@ -7,6 +7,7 @@ trait PassageScrubber {
    * plain old XML parser won't complain about it. When it hits the user's browser, their browser can probably render
    * it, but Scala's XML parser is a lot more strict, so we have to deal with it. Good stuff.
    */
+  @deprecated("See CDATAHelper instead", "0.30.1")
   def scrub(xml: String) = xml.cleanVideoTags.cleanAudioTags.cleanSourceTags
 
   private implicit class Scrubber(xml: String) {

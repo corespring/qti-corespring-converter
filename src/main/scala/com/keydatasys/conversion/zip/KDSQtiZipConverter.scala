@@ -19,11 +19,11 @@ import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.json.Json._
 
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Node
 import org.corespring.macros.DescribeMacro._
+import org.corespring.utils.{CDataHelper, ErrorDir}
 
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
@@ -66,19 +66,20 @@ object KDSQtiZipConverter
       val qti = ZipReader.fileContents(zip, m.filename)
 
       qti.map { q =>
+        val stripped = CDataHelper.stripCDataAndEscapeIfNeeded(q)
         try {
+
           logger.debug(describe(q))
-          val preprocessed = preprocessHtml(q)
+          val preprocessed = preprocessHtml(stripped)
           logger.debug(describe(preprocessed))
-          val scrubbed = scrub(preprocessed)
-          logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = ItemTransformer.transform(preprocessed, m, sources)
+
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
 
-          //          logger.trace(describe(playerDefinition))
+          logger.trace(describe(playerDefinition))
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
@@ -101,6 +102,11 @@ object KDSQtiZipConverter
           Some(out)
         } catch {
           case e: Exception => {
+            ErrorDir.dump(
+              m.id,
+              Some(e),
+              "qti.xml" -> q,
+              "stripped.xml" -> stripped)
             None
           }
         }

@@ -2,7 +2,8 @@ package com.keydatasys.conversion.qti.util
 
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.HtmlProcessor
-import org.corespring.conversion.qti.manifest.{ManifestResourceType, ManifestResource}
+import org.corespring.conversion.qti.manifest.{ManifestResource, ManifestResourceType}
+import org.corespring.utils.{CDataHelper, ErrorDir}
 
 import scala.xml.XML
 
@@ -12,7 +13,7 @@ trait PassageTransformer extends PassageScrubber with HtmlProcessor with PathFla
     resource.resourceType == ManifestResourceType.Passage match {
       case true => {
         sources.find{ case (path, source) => resource.path.flattenPath == path.flattenPath }.map(_._2) match {
-          case Some(source) => Some(transformPassage(source.getLines.mkString))
+          case Some(source) => Some(transformPassage(resource.path,source.getLines.mkString))
           case _ => {
             println(s"Missing passage ${resource.path}")
             None
@@ -23,10 +24,21 @@ trait PassageTransformer extends PassageScrubber with HtmlProcessor with PathFla
     }
   }
 
-  private def transformPassage(xmlString: String): String =
-    <div class="passage">{
-      (XML.loadString(scrub(escapeEntities(xmlString))) \ "passageBody" \\ "passageParts" \\ "partBlock").map(pb => <div/>.copy(child = pb))
-      }</div>.toString
+  private def transformPassage(path:String, xmlString: String): String = {
+    val cleaned = CDataHelper.stripCDataAndEscapeIfNeeded(xmlString)
+    val escaped = escapeEntities(cleaned)
+    try {
+      val xml = XML.loadString(escaped)
+      val blocks = (xml \ "passageBody" \\ "passageParts" \\ "partBlock")
+      <div class="passage">{ blocks.map(pb => <div/>.copy(child = pb)) }</div>.toString
+    } catch {
+      case e : Throwable => {
+        ErrorDir.dump(path, Some(e), "passage.xml" -> xmlString)
+        throw e
+      }
+    }
+
+  }
 
 }
 
