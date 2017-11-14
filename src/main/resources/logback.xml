@@ -10,6 +10,8 @@
     </appender>
 
     <logger name="org.measuredprogress.conversion.zip" level="INFO"></logger>
+    <logger name="org.corespring.conversion.qti.manifest" level="WARN"></logger>
+
     <root level="warn">
         <appender-ref ref="STDOUT" />
     </root>

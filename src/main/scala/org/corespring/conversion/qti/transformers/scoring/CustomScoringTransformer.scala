@@ -7,6 +7,7 @@ import scalaz._
 
 case class CustomTransformException(msg: String, t: Throwable = null) extends RuntimeException(msg, t)
 
+@deprecated("in use any more?", "0.31")
 object CustomScoringTransformer {
 
   def generate(qtiJs: String, session: Map[String, JsObject], typeMap: Map[String, String]): Validation[CustomTransformException, String] = synchronized {

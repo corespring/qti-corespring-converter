@@ -17,6 +17,8 @@ trait EntityEscaper {
 
 
   /**
+    *
+    * 9<2 ---> 9 &lt;2
     * Replace all entity characters (e.g., "&radic;", "&#945;" or "&x221A;") with nodes matching their unicode values,
     * (e.g., <entity value='8730'/> or <entity value='945'/>).
     */
@@ -27,7 +29,14 @@ trait EntityEscaper {
           case true => string
           case _ => string.replaceAllLiterally(entity.char.toString, entity.toXmlString)
         }).apply(((string: String) => entity.name match {
-          case Some(name) => string.replaceAllLiterally(s"&${name};", entity.toXmlString)
+          case Some(name) => {
+            //if we see a lt or gt - dont create an entity just leave as is.
+            if(name == "lt" || name == "gt"){
+              string
+            } else {
+              string.replaceAllLiterally(s"&${name};", entity.toXmlString)
+            }
+          }
           case _ => string
         }).apply(acc
           .replaceAllLiterally(s"&#${entity.unicode.toString};", entity.toXmlString)
@@ -66,7 +75,15 @@ object EntityEscaper {
   private val entityRegex = "&#([0-9]*);".r
 
   def escapeAll(string: String) = entityRegex.replaceAllIn(string, s"$internalStartTag$$1$internalEndTag")
-  def unescapeAll(string: String) = internalEntityRegex.replaceAllIn(string, "&#$1;")
+  def unescapeAll(string: String) = {
+    val internalConversion = internalEntityRegex.replaceAllIn(string, "&#$1;")
+    //unescape < or > - from jsoup
+    internalConversion
+      .replaceAll("&#60;", "<")
+      .replaceAll("&lt;", "<")
+      .replaceAll("&#62;", ">")
+      .replaceAll("&gt;", ">")
+  }
 
   val dontEncode = Seq('"', '&', '\'', '<', '>', '-') ++ 65.to(90).map(_.toChar)
 

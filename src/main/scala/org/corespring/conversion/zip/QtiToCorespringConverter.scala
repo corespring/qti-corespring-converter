@@ -22,8 +22,18 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
 
     def toSourceMap(zip: ZipFile) : Map[String, SourceWrapper] = {
       manifestResources.map{ r =>
+
+        if(r.path.isEmpty){
+          throw new RuntimeException(s"${r} path is empty")
+        }
+
         val entry = zip.getEntry(r.path)
-        r.path -> SourceWrapper(r.path, zip.getInputStream(entry))
+
+        if(entry == null){
+          throw new RuntimeException(s"${r.path} can't find entry in zip")
+        } else {
+          r.path -> SourceWrapper(r.path, zip.getInputStream(entry))
+        }
       }.toMap
     }
 

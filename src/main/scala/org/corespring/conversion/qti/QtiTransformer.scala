@@ -18,7 +18,7 @@ import org.measuredprogress.conversion.qti.QtiTransformer
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
-  private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
+  override val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
   private val KDSTableReset =
     <style type="text/css">

@@ -30,7 +30,7 @@ object ProgressTestingQtiZipConverter
 
   val itemTransformer = new ItemTransformer(DefaultQtiTransformer)
 
-  val logger = LoggerFactory.getLogger(ProgressTestingQtiZipConverter.this.getClass)
+  private val logger = LoggerFactory.getLogger(ProgressTestingQtiZipConverter.this.getClass)
 
   def convert(
                zip: ZipFile,

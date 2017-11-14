@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
-import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest, scrub}
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.filterManifest
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper
@@ -21,6 +21,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.corespring.macros.DescribeMacro._
+import org.corespring.utils.CDataHelper
 import org.slf4j.LoggerFactory
 
 import scala.xml.Node
@@ -71,12 +72,11 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
       logger.trace(describe(qti))
 
       qti.flatMap { q =>
+        val stripped = CDataHelper.stripCDataAndEscapeIfNeeded(q)
         try {
-          val preprocessed = preprocessHtml(q)
-          val scrubbed = scrub(preprocessed)
+          val preprocessed = preprocessHtml(stripped)
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
-                    //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(preprocessed, m, sources)
 
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
