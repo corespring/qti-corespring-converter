@@ -1,10 +1,15 @@
 import sbt._
 import sbt.Keys._
 import org.corespring.sbt.repo.RepoAuthPlugin.Keys._
+//import com.typesafe
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(BuildInfoPlugin)
 
 resolvers in ThisBuild ++= Seq(
   "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
   "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
+  "plugins" at "https://bintray.com/sbt/sbt-plugin-releases/",
   "Corespring releases" at "http://repository.corespring.org/artifactory/ivy-releases/"
 )
 
@@ -48,7 +53,9 @@ lazy val root = Project("qti-corespring-converter", file("."))
 )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings : _*)
+  .settings( fork in IntegrationTest := false )
   .settings(
-    fork in IntegrationTest := false
-    )
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "qtiConverter"
+  )
   .dependsOn(qti).aggregate(qti)
