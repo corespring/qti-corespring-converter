@@ -29,6 +29,12 @@ case class RunOpts(
 object Runner extends App {
 
 
+  val version = {
+
+  }
+
+  println(qtiConverter.BuildInfo.toString)
+
   val logger = LoggerFactory.getLogger(Runner.this.getClass)
 
   val parser = new scopt.OptionParser[RunOpts]("run") {
