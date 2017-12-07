@@ -14,16 +14,26 @@ import scala.io.Source
 case class ConversionOpts(limit: Int = 0, sourceIds: Seq[String] = Seq.empty)
 
 /**
- * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
- */
+  * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
+  */
 trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
 
   implicit class ManifestResourcesToSourceMap(manifestResources: Seq[ManifestResource]) {
 
-    def toSourceMap(zip: ZipFile) : Map[String, SourceWrapper] = {
-      manifestResources.map{ r =>
+    def toSourceMap(zip: ZipFile): Map[String, SourceWrapper] = {
+      manifestResources.map { r =>
+
+        if (r.path.isEmpty) {
+          throw new RuntimeException(s"${r} path is empty")
+        }
+
         val entry = zip.getEntry(r.path)
-        r.path -> SourceWrapper(r.path, zip.getInputStream(entry))
+
+        if (entry == null) {
+          throw new RuntimeException(s"${r.path} can't find entry in zip")
+        } else {
+          r.path -> SourceWrapper(r.path, zip.getInputStream(entry))
+        }
       }.toMap
     }
 
@@ -33,7 +43,7 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
                zip: ZipFile,
                path: String,
                metadata: Option[JsObject],
-               opts : ConversionOpts = ConversionOpts()
+               opts: ConversionOpts = ConversionOpts()
              ): Future[ZipFile]
 
   /**
@@ -58,10 +68,11 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
   def toZipByteArray(files: Map[String, Source]) = {
     val bos = new ByteArrayOutputStream()
     val zipFile = new ZipOutputStream(bos)
-    files.foreach{ case (filename, contents) => {
+    files.foreach { case (filename, contents) => {
       zipFile.putNextEntry(new ZipEntry(filename))
       zipFile.write(asBytes(contents, filename))
-    }}
+    }
+    }
     zipFile.close
     bos.toByteArray
   }
@@ -69,10 +80,9 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
   private def asBytes(contents: Source, filename: String) = {
     filename.endsWith(".xml") match {
       case true => contents.mkString.getBytes
-      case _  => contents.map(_.toByte).toArray
+      case _ => contents.map(_.toByte).toArray
     }
   }
-
 
 
   def writeZip(byteArray: Array[Byte], path: String) = {
@@ -85,7 +95,6 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
     }
     new ZipFile(file)
   }
-
 
 
 }

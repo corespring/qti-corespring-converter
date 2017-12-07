@@ -77,6 +77,7 @@ trait BaseRunner extends Specification {
 
   logger.info(s"sbacOutput: $sbacOutput")
 
+
   RunHelper.run(
     pathToSbac,
     sbacOutput.toString,
@@ -88,10 +89,17 @@ trait BaseRunner extends Specification {
 
   val zip = new ZipFile(new File(sbacOutput.toString))
 
+  println(s">>>> ${zip.entries().map(_.getName)}")
+
   val playerDef = zip.entries.find {
     e =>
       logger.info(s"e.getName: ${e.getName}")
       e.getName.contains("player-definition.json")
+  }
+
+
+  val playerDefJson = playerDef.map(json(zip, _)).getOrElse {
+    throw new RuntimeException("Not defined")
   }
 
   val profile = zip.entries.find {

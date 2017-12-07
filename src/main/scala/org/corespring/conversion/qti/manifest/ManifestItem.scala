@@ -8,7 +8,10 @@ import org.apache.commons.io.IOUtils
 import org.corespring.common.util.EntityEscaper
 import org.slf4j.LoggerFactory
 import org.corespring.macros.DescribeMacro.describe
+import org.corespring.utils.ErrorDir
 
+import scala.io.Source
+import scala.xml.parsing.ConstructingParser
 import scala.xml.{Node, XML}
 
 object ZipWriter {
@@ -45,7 +48,6 @@ object ZipReader extends PassageScrubber with EntityEscaper {
     """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
 
-
   def fileContents(zip: ZipFile, name:String) : Option[String] = {
     val entry = zip.getEntry(name)
     if(entry == null){
@@ -60,16 +62,28 @@ object ZipReader extends PassageScrubber with EntityEscaper {
 
   def fileXML(zip: ZipFile, name:String) : Option[Node] = fileContents(zip, name)
     .flatMap{ s =>
+      val cleaned = stripCDataTags(s)
+      val escaped = escapeEntities(cleaned)
+      val scrubbed = scrub(escaped)
       try {
-        val xmlOut = XML.loadString(scrub(escapeEntities(stripCDataTags(s))))
+        val xmlOut = XML.loadString(scrubbed)
         Some(xmlOut)
-      }
-      catch {
+      } catch {
         case e :Exception => {
-          logger.error(s"Error reading $name")
+          logger.error(s"Error reading $name, message: ${e.getMessage}")
+          e.printStackTrace()
           if(logger.isDebugEnabled()){
             //e.printStackTrace()
           }
+          ErrorDir.dump(
+            name,
+            Some(e),
+            "content.xml" -> s,
+            "cleaned.xml" -> cleaned,
+            "escaped.xml" -> escaped,
+            "scrubbed.xml" -> scrubbed
+          )
+
           None
         }
       }

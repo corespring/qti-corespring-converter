@@ -1,11 +1,15 @@
 package com.keydatasys.conversion.qti.processing
 
 import com.keydatasys.conversion.qti.processing.transformers.ResponseProcessingTransformer
+import org.slf4j.LoggerFactory
 import play.api.libs.json.Json
 
 import scala.xml._
+import org.corespring.macros.DescribeMacro._
 
 trait ProcessingTransformer extends V2JavascriptWrapper {
+
+  private lazy val logger = LoggerFactory.getLogger(ProcessingTransformer.this.getClass)
 
   private val AssumedResponseTemplateVariable = "RESPONSE"
 
@@ -16,7 +20,11 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
   /**
    * Takes a QTI document, and returns a Javascript representation of its <responseProcessing/> node.
    */
-  def toJs(qti: Node): Option[JsResponseProcessing] =
+  def toJs(qti: Node): Option[JsResponseProcessing] = {
+
+
+    logger.trace(describe(qti))
+
     getResponseNode(qti) match {
       case Some(node) => try {
         Some(JsResponseProcessing(
@@ -31,6 +39,7 @@ trait ProcessingTransformer extends V2JavascriptWrapper {
       }
       case _ => None
     }
+  }
 
   private def getResponseNode(qti: Node): Option[Node] = {
     (qti \ "responseProcessing").headOption.map(ResponseProcessingTransformer.transformAll(_)) match {

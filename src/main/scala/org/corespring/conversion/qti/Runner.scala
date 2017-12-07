@@ -6,6 +6,7 @@ import java.util.zip.ZipFile
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
+import org.corespring.utils.ErrorDir
 import org.measuredprogress.conversion.zip.{MeasuredProgressQtiZipConverter, OldMeasuredProgressQtiZipConverter}
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
@@ -28,6 +29,12 @@ case class RunOpts(
 
 object Runner extends App {
 
+
+  val version = {
+
+  }
+
+  println(qtiConverter.BuildInfo.toString)
 
   val logger = LoggerFactory.getLogger(Runner.this.getClass)
 
@@ -100,6 +107,10 @@ object Runner extends App {
 
 
       logger.info(s"convertion opts: $opts")
+
+
+      ErrorDir.remove
+      ErrorDir.init
 
       val outFile = new File(runOpts.output)
 

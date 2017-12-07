@@ -67,13 +67,13 @@ object KDSQtiZipConverter
 
       qti.map { q =>
         try {
-          logger.debug(describe(q))
-          val preprocessed = preprocessHtml(q)
-          logger.debug(describe(preprocessed))
-          val scrubbed = scrub(preprocessed)
-          logger.debug(describe(scrubbed))
+//          logger.debug(describe(q))
+//          val preprocessed = preprocessHtml(q)
+//          logger.debug(describe(preprocessed))
+//          val scrubbed = scrub(preprocessed)
+//          logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = ItemTransformer.transform(q, m, sources)
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
@@ -101,6 +101,8 @@ object KDSQtiZipConverter
           Some(out)
         } catch {
           case e: Exception => {
+            logger.error(s"Error reading ${m.filename}: ${e.getMessage}")
+            e.printStackTrace()
             None
           }
         }
