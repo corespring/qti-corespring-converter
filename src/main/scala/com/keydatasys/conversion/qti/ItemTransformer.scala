@@ -42,7 +42,6 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
    */
   implicit class XMLCleaner(string: String) extends XMLNamespaceClearer {
 
-    private val labelMap = Map("partBlock" -> "div", "partBody" -> "div", "selectedResponseParts" -> "div")
 
     def toXML(passageXml: String): Elem = {
       def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
@@ -57,15 +56,6 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
           case _ => n
         }
       }).transform(xml).headOption.getOrElse(throw new Exception("There was no head element!"))).head.asInstanceOf[Elem]
-    }
-
-    def removeResponseProcessing(node: Node): Node = {
-      new RuleTransformer(new RewriteRule {
-        override def transform(n: Node) = n match {
-          case n: Node if (n.label == "responseProcessing") => Seq.empty
-          case _ => n
-        }
-      }).transform(node).head
     }
 
   }
