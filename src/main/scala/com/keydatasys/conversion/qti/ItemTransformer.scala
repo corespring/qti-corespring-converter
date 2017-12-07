@@ -31,8 +31,9 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
       logger.trace(describe(out))
       out
     } catch {
-      case e: Exception => {
-        throw e
+      case t: Throwable => {
+        logger.error(s"Error with transform: ${t.getMessage}")
+        throw new RuntimeException(s"Error running transform", t)
       }
     }
   }

@@ -9,7 +9,7 @@ import org.corespring.macros.DescribeMacro._
 
 trait ProcessingTransformer extends V2JavascriptWrapper {
 
-  private lazy val logger = LoggerFactory.getLogger(ProcessingTransformer.this.getClass)
+  protected val logger = LoggerFactory.getLogger(ProcessingTransformer.this.getClass)
 
   private val AssumedResponseTemplateVariable = "RESPONSE"
 
