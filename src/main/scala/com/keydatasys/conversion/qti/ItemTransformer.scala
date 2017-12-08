@@ -33,7 +33,7 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
     } catch {
       case t: Throwable => {
         logger.error(s"Error with transform: ${t.getMessage}")
-        throw new RuntimeException(s"Error running transform", t)
+        throw new RuntimeException(s"Error running transform ${manifestItem.id}: ${t.getMessage}", t)
       }
     }
   }

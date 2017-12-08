@@ -102,7 +102,9 @@ object KDSQtiZipConverter
         } catch {
           case e: Exception => {
             logger.error(s"Error reading ${m.filename}: ${e.getMessage}")
-            e.printStackTrace()
+            if(logger.isDebugEnabled){
+              e.printStackTrace()
+            }
             None
           }
         }
