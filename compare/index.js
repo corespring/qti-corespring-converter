@@ -3,109 +3,88 @@ var argv = require('minimist')(process.argv.slice(2));
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
-const utils = require('./utils');
+const { toArgArray, toArgString, converterArgs, run, escapeValues } = require('./utils');
 var rimraf = require('rimraf');
 const jsesc = require('jsesc');
 const chalk = require('chalk');
 const log = console.log;
 
-var legacyLib = process.env.LEGACY_LIB ||  "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30";
-
+var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30";
 
 log(chalk.yellow(`LEGACY_LIB: ${legacyLib}`));
 
-delete argv._
-var name = argv.compareName.toString();
-delete argv.compareName;
-
-var kdsType = argv['kds-type'];
-delete argv['kds-type'];
-
-argv.metadata = JSON.stringify({ scoringType: kdsType });
-
-var results = '.results';
-
+const name = argv.compareName.toString();
+const results = '.results';
 const rootPath = path.resolve(path.join(results, name));
+const resetLegacy = argv['reset-legacy'];
 
-var resetLegacy = argv['reset-legacy'];
 
-delete argv['reset-legacy'];
-
-if(argv.sourceIdList){
-  argv.sourceIdList = path.resolve(argv.sourceIdList);
-}
-
-if(resetLegacy){
+if (resetLegacy) {
   log(chalk.blue('removing legacy results...'));
   rimraf.sync(rootPath)
 }
 
-if(!fs.existsSync(results)){
+if (!fs.existsSync(results)) {
   fs.mkdirSync(results);
 }
 
-if(!fs.existsSync(rootPath)){
+if (!fs.existsSync(rootPath)) {
   fs.mkdirSync(rootPath);
 }
 
 var legacyPathOut = path.join(rootPath, 'legacy.zip');
 var legacyUnzippedDir = path.join(rootPath, 'legacy');
 
-if(!fs.existsSync(legacyPathOut)){
+if (!fs.existsSync(legacyPathOut)) {
   log(chalk.green('building legacy zip to: ', legacyPathOut));
-  legacyArgs = _.toPairs(argv).concat([['output',legacyPathOut]]);
-  var finalArgs = utils.toOpts(legacyArgs);
-  var {status} = utils.run('bin/qti-corespring-converter', finalArgs, legacyLib);
-  if(status !== 0){
-    log(chalk.red('err!!'));
-  }
+  const legacyArgsObject = converterArgs(argv, { output: legacyPathOut })
+  run(
+    'bin/qti-corespring-converter',
+    toArgString(legacyArgsObject),
+    legacyLib);
 }
 
-if(!fs.existsSync(legacyUnzippedDir)){
+if (!fs.existsSync(legacyUnzippedDir)) {
   log(chalk.green('unzipping legacy zip to: ', legacyUnzippedDir));
-  var {status} = utils.run('unzip', [legacyPathOut, '-d', 'legacy'], path.join(results, name));
-  log('unzip status: ', status)
+  run('unzip', `${legacyPathOut} -d legacy`, rootPath);
 }
-
 
 /** now run the current projects code. */
 
 log(chalk.red('removing sbt build assets'));
-rimraf.sync(path.join(rootPath, 'latest.zip'));
-rimraf.sync(path.join(rootPath, 'latest'));
-
-var preprocess = _.cloneDeep(argv);
-preprocess.metadata = `"${jsesc(preprocess.metadata, {quotes: 'double'})}"`
-
 var latestPathOut = path.join(rootPath, 'latest.zip');
 var latestDir = path.join(rootPath, 'latest');
+rimraf.sync(latestPathOut);
+rimraf.sync(latestDir);
 
-var latestArgs = _.toPairs(preprocess).concat([['output', path.resolve('.', latestPathOut)]]);
-var argString = `run ${utils.toOpts(latestArgs).join(' ')}`;
-var escaped = jsesc(argString, {quotes: 'double'});
-log(chalk.magenta('cmd: ', escaped));
+const sbtArgs = converterArgs(argv, { output: path.resolve('.', latestPathOut) });
 
-var dir = path.resolve('..');
+const escaped = escapeValues(sbtArgs);
+const rawCmdString = `run ${toArgString(escaped)}`
+const cmd = `"${jsesc(rawCmdString, { quotes: 'double' })}"`;
+
+log(chalk.green('cmd: ', cmd));
+
+const dir = path.resolve('..');
 
 log(chalk.red('running sbt'));
-child_process.execSync(`/usr/local/bin/sbt "${escaped}"`, {cwd:dir});
 
+rimraf.sync(path.join(rootPath, 'sbt.log'));
 
-if(!fs.existsSync(latestDir)){
-  var {status} = utils.run('unzip', ['latest.zip', '-d', 'latest'], path.join(results, name));
-  log('unzip status: ', status)
-}
+var sbtLogStream = fs.createWriteStream(path.join(rootPath, 'sbt.log'));
 
-try {
+sbtLogStream.on('open', () => {
 
-  log(chalk.yellow('running diff...'));
-  var result = child_process.execSync(
-  '/usr/bin/diff -r legacy/ latest/',
-  {
-    cwd: path.resolve(path.join(results, name))
-  });
+  run(`/usr/local/bin/sbt`, cmd, dir, sbtLogStream);
 
-  log(result.toString());
-} catch (e){
-  log(e.stdout.toString())
-}
+  if (!fs.existsSync(latestDir)) {
+    run('unzip', 'latest.zip -d latest', rootPath);
+  }
+
+  try {
+    log(chalk.yellow('running diff...'));
+    run('/usr/bin/diff', '-r legacy/ latest/', rootPath);
+  } catch (e) {
+    log(e.stdout.toString())
+  }
+});
