@@ -25,10 +25,12 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
       case _ => s"<div>${passages.mkString}</div>"
     }
     try {
-      //1. add passage xml
-      //2. add stylesheet
-      //3. transform paths
-      //3. transform tables?
+      /** TODO:
+        //1. add passage xml
+        //2. add stylesheet
+        //3. transform paths
+        //3. transform tables?
+      */
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
       logger.info(describe(sources))
       val out = qtiTransformer.transform(xml, sources, manifestItem.manifest)
