@@ -7,7 +7,7 @@ import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
 import org.corespring.utils.ErrorDir
-import org.measuredprogress.conversion.zip.{MeasuredProgressQtiZipConverter, OldMeasuredProgressQtiZipConverter}
+import org.measuredprogress.conversion.zip.{MeasuredProgressQtiZipConverter }
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
@@ -82,8 +82,7 @@ object Runner extends App {
   val converters = Map(
     "kds" -> KDSQtiZipConverter,
     "progresstesting" -> ProgressTestingQtiZipConverter,
-    "measuredprogress" -> MeasuredProgressQtiZipConverter,
-    "old-measuredprogress" -> OldMeasuredProgressQtiZipConverter
+    "measuredprogress" -> MeasuredProgressQtiZipConverter
   )
 
   parser.parse(args, RunOpts("", "", "")) match {

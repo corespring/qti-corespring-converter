@@ -1,94 +1,15 @@
 package org.corespring.conversion.qti.manifest
 
-import java.io.{File, FileInputStream, FileOutputStream}
-import java.util.zip.{ZipEntry, ZipFile, ZipOutputStream}
+import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.util.PassageScrubber
-import org.apache.commons.io.IOUtils
 import org.corespring.common.util.EntityEscaper
-import org.slf4j.LoggerFactory
 import org.corespring.macros.DescribeMacro.describe
-import org.corespring.utils.ErrorDir
+import org.slf4j.LoggerFactory
 
-import scala.io.Source
-import scala.xml.parsing.ConstructingParser
-import scala.xml.{Node, XML}
-
-object ZipWriter {
-   def compressDir(src: File,  outputFile:String) = {
-    val  zipFile = new ZipOutputStream(new FileOutputStream(outputFile))
-    compressDirectoryToZipfile(src, src, zipFile)
-    IOUtils.closeQuietly(zipFile)
-  }
-
-  private def compressDirectoryToZipfile(
-                                          rootDir:File,
-                                          sourceDir:File,
-                                          out: ZipOutputStream) : Unit = {
-    sourceDir.listFiles().map{ file =>
-      if (file.isDirectory()) {
-        compressDirectoryToZipfile(rootDir, new File(file.getAbsolutePath()), out)
-      } else {
-        val name = file.getCanonicalPath().replace(s"${rootDir.getCanonicalPath()}/", "")
-        val entry = new ZipEntry(name)
-        out.putNextEntry(entry)
-        val in = new FileInputStream(file)
-        IOUtils.copy(in, out)
-        IOUtils.closeQuietly(in)
-      }
-    }
-  }
-}
-
-object ZipReader extends PassageScrubber with EntityEscaper {
-
-  lazy val logger = LoggerFactory.getLogger(ZipReader.this.getClass)
-
-  private def stripCDataTags(xmlString: String) =
-    """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
+import scala.xml.Node
 
 
-  def fileContents(zip: ZipFile, name:String) : Option[String] = {
-    val entry = zip.getEntry(name)
-    if(entry == null){
-      None
-    } else {
-      val is = zip.getInputStream(entry)
-      val s = IOUtils.toString(is, "UTF-8")
-      IOUtils.closeQuietly(is)
-      Some(s)
-    }
-  }
-
-  def fileXML(zip: ZipFile, name:String) : Option[Node] = fileContents(zip, name)
-    .flatMap{ s =>
-      val cleaned = stripCDataTags(s)
-      val escaped = escapeEntities(cleaned)
-      val scrubbed = scrub(escaped)
-      try {
-        val xmlOut = XML.loadString(scrubbed)
-        Some(xmlOut)
-      } catch {
-        case e :Exception => {
-          logger.error(s"Error reading $name, message: ${e.getMessage}")
-          e.printStackTrace()
-          if(logger.isDebugEnabled()){
-            //e.printStackTrace()
-          }
-          ErrorDir.dump(
-            name,
-            Some(e),
-            "content.xml" -> s,
-            "cleaned.xml" -> cleaned,
-            "escaped.xml" -> escaped,
-            "scrubbed.xml" -> scrubbed
-          )
-
-          None
-        }
-      }
-    }
-}
 case class ManifestItem(
                          id: String,
                          filename: String,
@@ -98,9 +19,9 @@ case class ManifestItem(
   * TODO: We are locating stylesheets in 2 possible places:
   *
   * 1. in the qti (this was added by ed to make sure measured progress picked up the stylesheet)
-  *   aka: <stylesheet href="blah"></stylesheet>
+  * aka: <stylesheet href="blah"></stylesheet>
   * 2. in the resource node:
-  *   aka: <resource><file href=""></file></resource>
+  * aka: <resource><file href=""></file></resource>
   *
   * Some issues with this:
   * - The path to the css can use relative paths from the qti eg: '../css/style.css' from item/qti.xml.
@@ -114,7 +35,7 @@ case class ManifestItem(
   * We'll want access to the global manifest when building the data to support the <dependency> node.
   */
 
-object ManifestItem extends PassageScrubber with EntityEscaper{
+object ManifestItem extends PassageScrubber with EntityEscaper {
 
   lazy val logger = LoggerFactory.getLogger(ManifestItem.this.getClass)
 
@@ -136,11 +57,11 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
   }
 
 
-  def apply(node: Node, zip : ZipFile) : ManifestItem = {
+  def apply(node: Node, zip: ZipFile): ManifestItem = {
     ManifestItem(node, zip, _ => None)
   }
 
-  def apply(node: Node, zip : ZipFile, getId: Node => Option[String] ) : ManifestItem = {
+  def apply(node: Node, zip: ZipFile, getId: Node => Option[String]): ManifestItem = {
 
     val qtiFile = (node \ "@href").text.toString
     val files = ZipReader.fileXML(zip, qtiFile).map(qti => {
@@ -186,16 +107,16 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
 
     val unLoadedPassageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage) || resource.is(ManifestResourceType.QTI))
 
-    def toXml(mr : ManifestResource) : Option[Node] = ZipReader.fileXML(zip, mr.path)
+    def toXml(mr: ManifestResource): Option[Node] = ZipReader.fileXML(zip, mr.path)
 
     val passageResources = unLoadedPassageResources
       .flatMap(toXml)
       .flatMap(xml => resourceLocators.map {
         case (resourceType, fn) => (resourceType, fn(xml))
       })
-      .flatMap{
+      .flatMap {
         case (resourceType, paths) =>
-          paths.map{ path =>
+          paths.map { path =>
             ManifestResource(
               path = flattenPath(path),
               resourceType = resourceType,
@@ -216,6 +137,6 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
     logger.debug(s"out: $out")
     val id = getId(node).getOrElse((node \ "@identifier").text.toString)
 
-    ManifestItem( id, filename = qtiFile, resources = out, node)
+    ManifestItem(id, filename = qtiFile, resources = out, node)
   }
 }
