@@ -44,6 +44,26 @@ class QtiTransformerSpec extends Specification {
    }
 
    "with sources" should {
+
+      // ---> TODO: get this to work.
+     "convert stylesheets if not in itemBody" in {
+
+       val qtiData = <assessmentItem>
+         <stylesheet href="style/LiveInspect.css"></stylesheet>
+       </assessmentItem>
+
+       val sources: Map[String,SourceWrapper] = Map("style/LiveInspect.css" ->
+         SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
+         ))
+
+       val manifest : Node = MockManifest.manifest
+
+       val json = QtiTransformer.transform(qtiData, sources, manifest)
+
+       val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
+       (xml \\ "style")(1).text.trim must_== """.qti.kds body { color:red; }"""
+     }
+
      "convert stylesheets" in {
 
        val qtiData = qti(<stylesheet href="style/LiveInspect.css"></stylesheet>)

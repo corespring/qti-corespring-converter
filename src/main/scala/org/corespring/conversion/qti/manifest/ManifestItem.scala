@@ -13,7 +13,10 @@ import scala.xml.Node
 case class ManifestItem(
                          id: String,
                          filename: String,
-                         resources: Seq[ManifestResource] = Seq.empty, manifest: Node)
+                         resources: Seq[ManifestResource] = Seq.empty, manifest: Node) {
+
+  def qti : Option[QtiManifestResource] = resources.find(_.is(ManifestResourceType.QTI)).map( _.asInstanceOf[QtiManifestResource])
+}
 
 /**
   * TODO: We are locating stylesheets in 2 possible places:
@@ -61,11 +64,11 @@ object ManifestItem extends PassageScrubber with EntityEscaper {
     ManifestItem(node, zip, _ => None)
   }
 
-  def apply(node: Node, zip: ZipFile, getId: Node => Option[String]): ManifestItem = {
+  def apply(resource: Node, zip: ZipFile, getId: Node => Option[String]): ManifestItem = {
 
-    val qtiFile = (node \ "@href").text.toString
-    val files = ZipReader.fileXML(zip, qtiFile).map(qti => {
-      logger.trace(s"node: ${node.toString}")
+    val qtiFile = (resource \ "@href").text.toString
+    val files = ZipReader.qti(zip, qtiFile).map(qti => {
+      logger.trace(s"node: ${resource.toString}")
       logger.trace(s"qti: ${qti.toString}")
       resourceLocators.map { case (resourceType, fn) => resourceType -> fn(qti) }
     }).getOrElse(Map.empty[ManifestResourceType.Value, Seq[String]]).flatMap {
@@ -89,7 +92,7 @@ object ManifestItem extends PassageScrubber with EntityEscaper {
 
     logger.debug(s"files: ${files}")
 
-    val resources = ((node \\ "file")
+    val resources = ((resource \\ "file")
       .filterNot(f => (f \ "@href").text.toString == qtiFile).map(f => {
       val path = (f \ "@href").text.toString
       val resourceType = ManifestResourceType.fromPath(path, f)
@@ -105,10 +108,13 @@ object ManifestItem extends PassageScrubber with EntityEscaper {
 
     logger.debug(s"resources: $resources")
 
-    val unLoadedPassageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage) || resource.is(ManifestResourceType.QTI))
+    val unLoadedPassageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage))
 
     def toXml(mr: ManifestResource): Option[Node] = ZipReader.fileXML(zip, mr.path)
 
+    /**
+      * if there's a resource in the passage markup add it to the main Manifest Item?
+      */
     val passageResources = unLoadedPassageResources
       .flatMap(toXml)
       .flatMap(xml => resourceLocators.map {
@@ -135,8 +141,8 @@ object ManifestItem extends PassageScrubber with EntityEscaper {
 
     val out = (resources ++ passageResources).distinct
     logger.debug(s"out: $out")
-    val id = getId(node).getOrElse((node \ "@identifier").text.toString)
+    val id = getId(resource).getOrElse((resource \ "@identifier").text.toString)
 
-    ManifestItem(id, filename = qtiFile, resources = out, node)
+    ManifestItem(id, filename = qtiFile, resources = out, resource)
   }
 }

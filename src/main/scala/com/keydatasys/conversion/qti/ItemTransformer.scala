@@ -17,7 +17,7 @@ import scala.xml.transform._
 class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
-  def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
+  def transform(qti: Node, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
     val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
       .map(transformPassage(_)(sources).getOrElse(""))
     val passageXml = passages.length match {
@@ -25,6 +25,10 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
       case _ => s"<div>${passages.mkString}</div>"
     }
     try {
+      //1. add passage xml
+      //2. add stylesheet
+      //3. transform paths
+      //3. transform tables?
       val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
       logger.info(describe(sources))
       val out = qtiTransformer.transform(xml, sources, manifestItem.manifest)
@@ -41,12 +45,15 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
   /**
    * Maps some KDS QTI nodes to valid HTML nodes, and cleans up namespaces.
    */
-  implicit class XMLCleaner(string: String) extends XMLNamespaceClearer {
+ class XMLCleaner(string: String) extends XMLNamespaceClearer {
 
 
     def toXML(passageXml: String): Elem = {
       def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
       val xml = XML.loadString(stripCDataTags(string))
+      /**
+        * TODO: we only do this because the QTITransformer is not pulling in stylesheets outside of itemBody. Fix it there
+        */
       val stylesheets = (xml \ "stylesheet")
       clearNamespace(new RuleTransformer(new RewriteRule {
         override def transform(n: Node): NodeSeq = n match {
