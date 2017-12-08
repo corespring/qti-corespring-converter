@@ -19,10 +19,9 @@ var name = argv.compareName.toString();
 delete argv.compareName;
 
 var kdsType = argv['kds-type'];
+delete argv['kds-type'];
 
 argv.metadata = JSON.stringify({ scoringType: kdsType });
-
-delete argv['kds-type'];
 
 var results = '.results';
 
@@ -32,7 +31,9 @@ var resetLegacy = argv['reset-legacy'];
 
 delete argv['reset-legacy'];
 
-argv.sourceIdList = path.resolve(argv.sourceIdList);
+if(argv.sourceIdList){
+  argv.sourceIdList = path.resolve(argv.sourceIdList);
+}
 
 if(resetLegacy){
   log(chalk.blue('removing legacy results...'));
@@ -42,7 +43,6 @@ if(resetLegacy){
 if(!fs.existsSync(results)){
   fs.mkdirSync(results);
 }
-
 
 if(!fs.existsSync(rootPath)){
   fs.mkdirSync(rootPath);
