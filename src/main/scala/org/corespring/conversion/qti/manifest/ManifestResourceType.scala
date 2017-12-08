@@ -36,8 +36,4 @@ object ManifestResourceType extends Enumeration {
     rawType.flatMap(typeMap.get(_)).getOrElse(fromPathString(path))
   }
 
-  def fromPathOld(path: String)(implicit xml: Node): ManifestResourceType.Value =
-    (xml \ "resources" \\ "resource").find(resource => (resource \ "@href").text.toString == path)
-      .map(resource => (resource \ "@type").text.toString).map(typeMap.get(_)).flatten.getOrElse(fromPathString(path))
-
 }
