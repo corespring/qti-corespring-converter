@@ -1,5 +1,5 @@
 var child_process = require('child_process');
-
+const _ = require('lodash');
 
 exports.run = (cmd, args, dir) => {
   return child_process.spawnSync(
@@ -13,3 +13,5 @@ exports.run = (cmd, args, dir) => {
       'pipe'
     ]});
 }
+
+exports.toOpts = (arr) => _.flatten(arr.map(([k,v]) => [`--${k}`, v]));

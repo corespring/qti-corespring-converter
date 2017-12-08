@@ -4,6 +4,8 @@
   "private": true,
   "main": "./index.js",
   "dependencies": {
+    "chalk": "^2.3.0",
+    "jsesc": "^2.5.1",
     "minimist": "^1.2.0",
     "rimraf": "^2.6.2"
   }
