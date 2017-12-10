@@ -1,17 +1,18 @@
 package org.measuredprogress.conversion.qti.interactions
 
 import org.corespring.common.html.JsoupParser
-import org.corespring.common.util.EntityEscaper
 import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer => CoreSpringHottextInteractionTransformer}
-import org.jsoup.Jsoup
 import org.jsoup.nodes.{TextNode, Node => JNode}
 import org.measuredprogress.conversion.qti.util.NamespaceStripper
 
+import scala.collection.JavaConversions._
 import scala.xml.Node
 
-import scala.collection.JavaConversions._
-
-class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer with NamespaceStripper with ImageConverter with EntityEscaper {
+class HottextInteractionTransformer
+  extends CoreSpringHottextInteractionTransformer
+    with EntityEscaper
+    with NamespaceStripper
+    with ImageConverter  {
 
   def startsWithPunctuation(node: JNode) = {
     val punctuation = Seq(",", ";", ".")

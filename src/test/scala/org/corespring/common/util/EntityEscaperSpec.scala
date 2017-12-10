@@ -1,5 +1,6 @@
 package org.corespring.common.util
 
+import org.measuredprogress.conversion.qti.interactions.EntityEscaper
 import org.specs2.mutable.Specification
 
 import scala.xml.XML

@@ -6,30 +6,27 @@ import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.manifest.ManifestFilter
+import com.keydatasys.conversion.qti.util.PathFlattener
 import com.keydatasys.conversion.qti.{ItemTransformer, MetadataExtractor}
-import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener}
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
-import org.corespring.common.util.HtmlProcessor
-import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWriter}
+import org.corespring.conversion.qti.manifest.{ManifestItem, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
+import org.corespring.macros.DescribeMacro._
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.libs.json.Json._
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Node
-import org.corespring.macros.DescribeMacro._
 
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
     with PathFlattener
-    with HtmlProcessor
     with JsonUtil
-    with PassageScrubber
     with ManifestFilter {
 
   private val collectionName = "kds"
@@ -192,8 +189,8 @@ object KDSQtiZipConverter
         new ZipFile(outFile)
       })
   }
-  //TODO: not a relevant name any more.
-  override def postProcess(item: JsValue): JsValue = item match {
+  //TODO: not a relevant name any more?
+  def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
       val additions : JsObject = obj(
         "xhtml" -> (json \ "xhtml").as[String],

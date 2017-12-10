@@ -1,38 +1,22 @@
 package org.corespring.conversion.qti.manifest
 
 import java.io.InputStream
-import java.nio.charset.StandardCharsets
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.util.PassageScrubber
 import org.apache.commons.io.IOUtils
-import org.corespring.common.util.EntityEscaper
-import org.corespring.utils.ErrorDir
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
+import scala.xml.Node
 import scala.xml.parsing.ConstructingParser
-import scala.xml.{Node, XML}
 
-object ZipReader extends PassageScrubber with EntityEscaper {
+object ZipReader  {
 
   lazy val logger = LoggerFactory.getLogger(ZipReader.this.getClass)
 
   private def stripCDataTags(xmlString: String) =
     """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
-
-//  def fileContents(zip: ZipFile, name:String) : Option[String] = {
-//    val entry = zip.getEntry(name)
-//    if(entry == null){
-//      None
-//    } else {
-//      val is = zip.getInputStream(entry)
-//      val s = IOUtils.toString(is, "UTF-8")
-//      IOUtils.closeQuietly(is)
-//      Some(s)
-//    }
-//  }
 
   def stream(zip:ZipFile, name:String) : Option[InputStream] = {
     val entry = zip.getEntry(name)

@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
-import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest, scrub}
+import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest }
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
 import org.corespring.common.file.SourceWrapper

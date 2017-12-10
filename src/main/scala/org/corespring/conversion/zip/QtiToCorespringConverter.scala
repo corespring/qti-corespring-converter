@@ -16,7 +16,7 @@ case class ConversionOpts(limit: Int = 0, sourceIds: Seq[String] = Seq.empty)
 /**
   * Represents an interface which can translate a QTI zip file into a CoreSpring JSON zip file
   */
-trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
+trait QtiToCorespringConverter extends UnicodeCleaner {
 
   implicit class ManifestResourcesToSourceMap(manifestResources: Seq[ManifestResource]) {
 
@@ -49,21 +49,21 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
   /**
     * Scala's XML parser won't even preserve these characters in CDATA tags.
     */
-  def unescapeCss(string: String): String = new Rewriter("""<style type="text/css">(.*?)</style>""") {
-    def replacement() = s"""<style type="text/css">${group(1).replaceAll("&gt;", ">")}</style>"""
-  }.rewrite(string)
+//  def unescapeCss(string: String): String = new Rewriter("""<style type="text/css">(.*?)</style>""") {
+//    def replacement() = s"""<style type="text/css">${group(1).replaceAll("&gt;", ">")}</style>"""
+//  }.rewrite(string)
 
-  def postProcess(item: JsValue): JsValue = item match {
-    case json: JsObject => {
-      val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
-      cleanUnicode(json ++ Json.obj(
-        "xhtml" -> xhtml,
-        "components" -> postprocessHtml((json \ "components")),
-        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
-      ))
-    }
-    case _ => item
-  }
+//  def postProcess(item: JsValue): JsValue = item match {
+//    case json: JsObject => {
+//      val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
+//      cleanUnicode(json ++ Json.obj(
+//        "xhtml" -> xhtml,
+//        "components" -> postprocessHtml((json \ "components")),
+//        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
+//      ))
+//    }
+//    case _ => item
+//  }
 
   def toZipByteArray(files: Map[String, Source]) = {
     val bos = new ByteArrayOutputStream()

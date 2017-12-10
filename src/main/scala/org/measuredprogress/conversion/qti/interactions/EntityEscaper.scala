@@ -1,4 +1,4 @@
-package org.corespring.common.util
+package org.measuredprogress.conversion.qti.interactions
 
 import com.keydatasys.conversion.qti.util.TagCleaner
 
@@ -9,7 +9,8 @@ import scala.xml.XML
   * them as regular nodes so they won't be converted. When our XML is ready to be written back to a string, we change
   * those nodes back to their initial entity declarations.
   */
-trait EntityEscaper {
+@deprecated("remove this", "1.0.0")
+private[interactions] trait EntityEscaper {
 
   import EntityEscaper._
 

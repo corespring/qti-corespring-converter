@@ -2,9 +2,6 @@ package org.corespring.conversion.qti.manifest
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.util.PassageScrubber
-import org.corespring.common.util.EntityEscaper
-import org.corespring.macros.DescribeMacro.describe
 import org.slf4j.LoggerFactory
 
 import scala.xml.Node
@@ -40,7 +37,7 @@ case class ManifestItem(
   * We'll want access to the global manifest when building the data to support the <dependency> node.
   */
 
-object ManifestItem extends PassageScrubber with EntityEscaper {
+object ManifestItem {
 
   lazy val logger = LoggerFactory.getLogger(ManifestItem.this.getClass)
 

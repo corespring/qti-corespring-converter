@@ -31,7 +31,7 @@ object InlinedCss {
     out
   }
 
-  def apply(node:Node, sources: Map[String, SourceWrapper]) : Seq[Node] = {
+  def apply(node:Node, sources: Map[String, SourceWrapper]) : Seq[String] = {
 
     (node \\ "stylesheet").map{ n =>
 
@@ -52,13 +52,9 @@ object InlinedCss {
 
       src
         .map (cssSource => {
-
-          val s = s"""<style type="text/css">
+          s"""<style type="text/css">
             ${CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds")}
           </style>"""
-          val x = ConstructingParser.fromSource(scala.io.Source.fromString(s), false)
-          x.document().docElem
-
         })
         //.map (cssSource => <style type="text/css">/* {href} */ {CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
         .getOrElse (throw new IllegalStateException (s"unable to locate stylesheet by name: $href") )
@@ -196,7 +192,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val converted = convertHtml(noCdata)
     /** this is a cheap move - but it means we don't have to get into writing our own jsoup TreeBuilder.
       * The correct way to do this would be getting jsoup to not escape the contents of a <style> node. */
-    val inlinedCssString = InlinedCss.apply(qti, sources).map(_.toString).mkString("")
+    val inlinedCssString = InlinedCss.apply(qti, sources).mkString("")
     val cssInserted = converted.replaceFirst("<inline_css />", inlinedCssString)
     logger.trace(describe(converted))
 

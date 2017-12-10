@@ -40,3 +40,8 @@ sbt "run --input X ... --output latest.zip"
 ./bin/compare-zip-contents -a 0.30.zip -b latest.zip --out 0.30-latest.diff
 > summary - everything is the same (or X files are different)...
 ```
+
+
+Check
+* audio transformer picks up comp and markup is correctly emitted
+* video and audio tags are corrected by jsoup
