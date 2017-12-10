@@ -34,7 +34,7 @@ object ManifestResources{
   def list(zip: ZipFile, resourceNode: Node, qtiName:String, qti: Node) : Seq[ManifestResource] = {
 
     val qtiResource = QtiManifestResource(qtiName, qti)
-    val fileResources = getFileResources(qtiName, resourceNode)
+    val fileResources = getFileResources(zip, qtiName, resourceNode)
 
     /**
       * The node contents can be inside CDATA.
@@ -57,7 +57,9 @@ object ManifestResources{
       }
     }.flatten
 
-
+    logger.debug(describe(qtiResource))
+    logger.debug(describe(fileResources))
+    logger.debug(describe(passageResources))
     (qtiResource +: (fileResources ++ qtiResources ++ passageResources)).distinct
   }
 
@@ -67,18 +69,28 @@ object ManifestResources{
     * @param node
     * @return
     */
-  private def getFileResources(qtiName:String, node: Node) = {
-    val files = (node \\ "files")
+  private def getFileResources(zip: ZipFile, qtiName:String, node: Node) = {
+    val files = (node \\ "file")
 
     val stripped = files.filter(n => (n \ "@href").text.toString != qtiName)
 
-    stripped.map{ n =>
+    stripped.flatMap{ n =>
       val path = (n \ "@href").text.toString
       val resourceType = ManifestResourceType.fromPath(path, n)
-      ManifestResource(
-        path,
-        resourceType,
-        inline = resourceType == ManifestResourceType.StyleSheet)
+      if(resourceType == ManifestResourceType.Passage){
+        val out = ZipReader.xml(zip, path).map( xml => PassageManifestResource(path, xml))
+
+        if(out.isEmpty){
+          logger.warn(s"cant load passage: $path")
+        }
+        out
+
+      } else {
+        Some(ManifestResource(
+          path,
+          resourceType,
+          inline = resourceType == ManifestResourceType.StyleSheet))
+      }
     }
   }
 
@@ -90,7 +102,7 @@ object ManifestResources{
     regexes.foldLeft(path)((acc, r) => r._1.replaceAllIn(acc, r._2))
   }
 
-  def resourcesFromNode(node:Node) : Seq[ManifestResource] = {
+  protected def resourcesFromNode(node:Node) : Seq[ManifestResource] = {
 
     val m = resourceLocators.map { case (resourceType, fn) => resourceType -> fn(node) }
 

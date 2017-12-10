@@ -8,13 +8,15 @@ import scala.xml.transform._
  */
 object PathTransformer extends PathFlattener {
 
-  def transform(node: Node): Elem = {
-    new RuleTransformer(new RewriteRule {
+  val rule = new RewriteRule {
       override def transform(node: Node) = node match {
         case elem: Elem if (Seq("img", "source").contains(node.label) && (node \ "@src").text.toString != "") => rewriteSrc(elem)
         case _ => node
       }
-    }).transform(node).head.asInstanceOf[Elem]
+    }
+
+  def transform(node: Node): Elem = {
+    new RuleTransformer(rule).transform(node).head.asInstanceOf[Elem]
   }
 
   private def rewriteSrc(elem: Elem) = {

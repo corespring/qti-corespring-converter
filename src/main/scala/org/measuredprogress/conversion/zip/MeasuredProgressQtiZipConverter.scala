@@ -63,47 +63,48 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
 
     def toCorespringItem(m: ManifestItem): Future[Option[CorespringItem]] = Future {
 
-      logger.trace(zip.entries().map(_.getName).mkString("\n"))
-      logger.debug(s"load xml from: ${m.filename}")
+      //logger.trace(zip.entries().map(_.getName).mkString("\n"))
+      //logger.debug(s"load xml from: ${m.filename}")
 
-      val qti = ZipReader.fileContents(zip, m.filename)
-
-      logger.trace(describe(qti))
-
-      qti.flatMap { q =>
-        try {
-          val preprocessed = preprocessHtml(q)
-          val scrubbed = scrub(preprocessed)
-          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
-                    //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
-
-          sources.mapValues { v =>
-            IOUtils.closeQuietly(v.inputStream)
-          }
-
-          logger.trace(describe(playerDefinition))
-
-          val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
-
-          val profile = MeasuredProgressExtractor.getProfileJson(m, maybeMetadata.getOrElse(obj()))
-          val csResources = m.resources.filterNot(_.inline).map(_.path)
-
-          logger.debug(describe(csResources))
-
-          val out = CorespringItem(m.id, postProcess(playerDefinition), profile, csResources)
-          logger.trace(describe(id, out))
-          Some(out)
-        } catch {
-          case e: Exception => {
-            logger.error(e.getMessage)
-            if (logger.isDebugEnabled) {
-              e.printStackTrace()
-            }
-            None
-          }
-        }
-      }
+//      val qti = ZipReader.fileContents(zip, m.filename)
+//
+//      logger.trace(describe(qti))
+//
+//      qti.flatMap { q =>
+//        try {
+//          val preprocessed = preprocessHtml(q)
+//          val scrubbed = scrub(preprocessed)
+//          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+//          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(scrubbed, m, sources)
+//                    //val playerDefinition = KDSItemTransformer.transform(scrubbed, m, sources)
+//
+//          sources.mapValues { v =>
+//            IOUtils.closeQuietly(v.inputStream)
+//          }
+//
+//          logger.trace(describe(playerDefinition))
+//
+//          val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
+//
+//          val profile = MeasuredProgressExtractor.getProfileJson(m, maybeMetadata.getOrElse(obj()))
+//          val csResources = m.resources.filterNot(_.inline).map(_.path)
+//
+//          logger.debug(describe(csResources))
+//
+//          val out = CorespringItem(m.id, postProcess(playerDefinition), profile, csResources)
+//          logger.trace(describe(id, out))
+//          Some(out)
+//        } catch {
+//          case e: Exception => {
+//            logger.error(e.getMessage)
+//            if (logger.isDebugEnabled) {
+//              e.printStackTrace()
+//            }
+//            None
+          //}
+        //}
+      ???
+      //}
     }
 
 

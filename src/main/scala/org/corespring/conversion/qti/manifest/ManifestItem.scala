@@ -16,6 +16,8 @@ case class ManifestItem(
                          resources: Seq[ManifestResource] = Seq.empty, manifest: Node) {
 
   def qti : Option[QtiManifestResource] = resources.find(_.is(ManifestResourceType.QTI)).map( _.asInstanceOf[QtiManifestResource])
+
+  def passages : Seq[PassageManifestResource] = resources.filter(_.is(ManifestResourceType.Passage)).map(_.asInstanceOf[PassageManifestResource])
 }
 
 /**
@@ -42,107 +44,16 @@ object ManifestItem extends PassageScrubber with EntityEscaper {
 
   lazy val logger = LoggerFactory.getLogger(ManifestItem.this.getClass)
 
-  val resourceLocators: Map[ManifestResourceType.Value, Node => Seq[String]] =
-    Map(
-      ManifestResourceType.Image -> (n => (n \\ "img").map(_ \ "@src").map(_.toString)),
-      ManifestResourceType.Video -> (n => (n \\ "video").map(_ \ "source").map(_ \ "@src").map(_.toString)),
-      ManifestResourceType.Audio -> (n => (n \\ "audio").map(_ \ "source").map(_ \ "@src").map(_.toString)),
-      ManifestResourceType.StyleSheet -> (n => (n \\ "stylesheet").map(_ \ "@href").map(_.toString))
-
-    )
-
-  private def flattenPath(path: String) = {
-    var regexes = Seq(
-      ("""(\.\.\/)+(.*)""".r, "$2"),
-      ("""\.\/(.*)""".r, "$1")
-    )
-    regexes.foldLeft(path)((acc, r) => r._1.replaceAllIn(acc, r._2))
-  }
-
-
   def apply(node: Node, zip: ZipFile): ManifestItem = {
     ManifestItem(node, zip, _ => None)
   }
 
   def apply(resource: Node, zip: ZipFile, getId: Node => Option[String]): ManifestItem = {
-
     val qtiFile = (resource \ "@href").text.toString
-    val files = ZipReader.qti(zip, qtiFile).map(qti => {
-      logger.trace(s"node: ${resource.toString}")
-      logger.trace(s"qti: ${qti.toString}")
-      resourceLocators.map { case (resourceType, fn) => resourceType -> fn(qti) }
-    }).getOrElse(Map.empty[ManifestResourceType.Value, Seq[String]]).flatMap {
-      case (resourceType, filenames) => {
-        filenames.map(filename => {
-          if (filename.contains("134580A-134580A_cubes-box_stem_01.png")) {
-            logger.error(s"?? ${flattenPath(filename)}")
-          }
-          val out = ManifestResource(
-            path = flattenPath(filename),
-            resourceType = resourceType,
-            //We inline css
-            inline = resourceType == ManifestResourceType.StyleSheet
-          )
-
-          logger.debug(describe(out))
-          out
-        })
-      }
-    }.toSeq
-
-    logger.debug(s"files: ${files}")
-
-    val resources = ((resource \\ "file")
-      .filterNot(f => (f \ "@href").text.toString == qtiFile).map(f => {
-      val path = (f \ "@href").text.toString
-      val resourceType = ManifestResourceType.fromPath(path, f)
-      ManifestResource(
-        path,
-        resourceType,
-        inline = resourceType == ManifestResourceType.StyleSheet)
-
-    })) ++ files :+ ManifestResource(
-      qtiFile,
-      ManifestResourceType.QTI,
-      inline = false)
-
-    logger.debug(s"resources: $resources")
-
-    val unLoadedPassageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage))
-
-    def toXml(mr: ManifestResource): Option[Node] = ZipReader.fileXML(zip, mr.path)
-
-    /**
-      * if there's a resource in the passage markup add it to the main Manifest Item?
-      */
-    val passageResources = unLoadedPassageResources
-      .flatMap(toXml)
-      .flatMap(xml => resourceLocators.map {
-        case (resourceType, fn) => (resourceType, fn(xml))
-      })
-      .flatMap {
-        case (resourceType, paths) =>
-          paths.map { path =>
-            ManifestResource(
-              path = flattenPath(path),
-              resourceType = resourceType,
-              inline = resourceType == ManifestResourceType.StyleSheet)
-          }
-      }
-
-
-    logger.debug(describe(passageResources))
-
-    val missingPassageResources = passageResources.map(_.path).filter(path => zip.getEntry(path) == null)
-
-    if (missingPassageResources.nonEmpty) {
-      missingPassageResources.foreach(f => logger.warn(s"Missing file $f in uploaded import"))
-    }
-
-    val out = (resources ++ passageResources).distinct
-    logger.debug(s"out: $out")
-    val id = getId(resource).getOrElse((resource \ "@identifier").text.toString)
-
-    ManifestItem(id, filename = qtiFile, resources = out, resource)
+    ZipReader.xml(zip, qtiFile).map{ qti =>
+      val resources = ManifestResources.list(zip, resource, qtiFile, qti)
+      val id = getId(resource).getOrElse((resource \ "@identifier").text.toString)
+      ManifestItem(id, filename = qtiFile, resources = resources, resource)
+    }.getOrElse(throw new RuntimeException("Can't find qti"))
   }
 }

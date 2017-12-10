@@ -14,7 +14,96 @@ import play.api.libs.json._
 import scala.xml._
 import scala.xml.transform._
 import org.corespring.macros.DescribeMacro._
-import org.measuredprogress.conversion.qti.QtiTransformer
+import org.corespring.utils.CDataHelper
+
+import scala.xml.parsing.ConstructingParser
+
+object R {
+
+}
+
+object InlinedCss {
+
+  val logger = LoggerFactory.getLogger(InlinedCss.this.getClass)
+
+  def baseName(s: String) : String = {
+    val out = s.split("/").last
+    out
+  }
+
+  def apply(node:Node, sources: Map[String, SourceWrapper]) : Seq[Node] = {
+
+    (node \\ "stylesheet").map{ n =>
+
+      val href = (n \ "@href").text
+      val baseHref = baseName(href)
+
+      logger.trace(describe(baseHref))
+
+      /**
+        * TODO: This uses base name matching, should have a function that honors the paths in the href
+        * relative the path of the qti file.
+        */
+      val src = sources.collectFirst {
+        case (key, src) if (baseName (key) == baseHref) => src
+      }
+
+      logger.debug (describe (src) )
+
+      src
+        .map (cssSource => {
+
+          val s = s"""<style type="text/css">
+            ${CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds")}
+          </style>"""
+          val x = ConstructingParser.fromSource(scala.io.Source.fromString(s), false)
+          x.document().docElem
+
+        })
+        //.map (cssSource => <style type="text/css">/* {href} */ {CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
+        .getOrElse (throw new IllegalStateException (s"unable to locate stylesheet by name: $href") )
+
+    }
+
+  }
+}
+
+class InlineCss(sources:Map[String,SourceWrapper]) extends RewriteRule{
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
+  def baseName(s: String) : String = {
+    val out = s.split("/").last
+    out
+  }
+
+  override def transform (node: Node) = node match {
+    case node: Node if node.label == "stylesheet" => {
+
+      val href = (node \ "@href").text
+      val baseHref = baseName (href)
+
+      logger.trace(describe (baseHref))
+
+      /**
+        * TODO: This uses base name matching, should have a function that honors the paths in the href
+        * relative the path of the qti file.
+        */
+      val src = sources.collectFirst {
+        case (key, src) if (baseName (key) == baseHref) => src
+      }
+
+      logger.debug (describe (src) )
+
+      src
+        .map (cssSource => <style type="text/css">{CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
+        //.map (cssSource => <style type="text/css">/* {href} */ {CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
+        .getOrElse (throw new IllegalStateException (s"unable to locate stylesheet by name: $name") )
+
+    }
+    case _ => node
+  }
+}
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
@@ -84,52 +173,35 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
-    logger.trace(describe(html))
+    val inlinedCss = new RuleTransformer(new InlineCss(sources)).transform((qti \\ "stylesheet"))
 
+    logger.debug(s"inlined css: $inlinedCss")
 
-    def baseName(s: String) : String = {
-      val out = s.split("/").last
-      logger.trace(describe(out, s))
-      out
+    val addInlinedCssToBody = new RewriteRule{
+      override def transform(n:Node) = {
+        n match {
+          case n: Elem if (n.label == "itemBody") => n.copy(child = (<inline_css/> ++ n.child))
+          case _ => n
+        }
+      }
     }
 
-    val finalHtml = new RuleTransformer(new RewriteRule {
-      override def transform(node: Node) = node match {
-        case node: Node if node.label == "stylesheet" => {
-
-          logger.trace(s"sources - names: ${sources.map(_._1)}")
-          val href = (node \ "@href").text
-          val baseHref = baseName(href)
-
-          logger.trace(describe(baseHref))
-
-          /**
-            * TODO: This uses base name matching, should have a function that honors the paths in the href
-            * relative the path of the qti file.
-            */
-          val src = sources.collectFirst {
-            case (key, src) if (baseName(key) == baseHref) => src
-          }
-
-          logger.debug(describe(src))
-
-          src
-            .map(cssSource => <style type="text/css">
-              {CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds")}
-            </style>)
-            .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $name"))
-
-        }
-        case _ => node
-      }
-    }, ItemBodyTransformer).transform(html).head.toString
+    val finalHtml  = new RuleTransformer(
+       addInlinedCssToBody,
+      ItemBodyTransformer
+    ).transform(html).head.toString
 
     logger.trace(describe(finalHtml))
-    val converted = convertHtml(finalHtml)
+    val noCdata = CDataHelper.stripCDataTags(finalHtml)
+    val converted = convertHtml(noCdata)
+    /** this is a cheap move - but it means we don't have to get into writing our own jsoup TreeBuilder.
+      * The correct way to do this would be getting jsoup to not escape the contents of a <style> node. */
+    val inlinedCssString = InlinedCss.apply(qti, sources).map(_.toString).mkString("")
+    val cssInserted = converted.replaceFirst("<inline_css />", inlinedCssString)
     logger.trace(describe(converted))
 
     Json.obj(
-      "xhtml" -> s"${KDSTableReset} ${converted}",
+      "xhtml" -> s"${KDSTableReset} ${cssInserted}",
       "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
   }
 

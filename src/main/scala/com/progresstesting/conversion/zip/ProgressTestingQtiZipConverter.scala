@@ -58,23 +58,24 @@ object ProgressTestingQtiZipConverter
     }
 
     def toCorespringItem(m:ManifestItem) : Future[Option[CorespringItem]] = Future{
-      val qti = ZipReader.fileContents(zip, m.filename)
-
-      qti.map{ q =>
-        val sources : Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-        val playerDefinition = itemTransformer.transform(q, m, sources)
-        sources.mapValues{ v =>
-          IOUtils.closeQuietly(v.inputStream )
-        }
-
-        val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
-        val common = metadata.getOrElse(Json.obj())
-        val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
-        val profile = common ++ resourceMetadata
-        val out = CorespringItem(m.id, playerDefinition, profile, m.resources.map(_.path))
-        logger.info(s"[toCorespringItem] id: ${m.id}")
-        out
-      }
+      ???
+//      val qti = ZipReader.fileContents(zip, m.filename)
+//
+//      qti.map{ q =>
+//        val sources : Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+//        val playerDefinition = itemTransformer.transform(q, m, sources)
+//        sources.mapValues{ v =>
+//          IOUtils.closeQuietly(v.inputStream )
+//        }
+//
+//        val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
+//        val common = metadata.getOrElse(Json.obj())
+//        val resourceMetadata = MetadataExtractor.metadataFromResourceNode(m.manifest, id)
+//        val profile = common ++ resourceMetadata
+//        val out = CorespringItem(m.id, playerDefinition, profile, m.resources.map(_.path))
+//        logger.info(s"[toCorespringItem] id: ${m.id}")
+//        out
+//      }
     }
 
     def writeCorespringItem(item: Option[CorespringItem]) : Future[Option[CorespringItem]] = item.map{ i =>

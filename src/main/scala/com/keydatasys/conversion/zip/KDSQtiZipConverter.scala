@@ -16,9 +16,8 @@ import org.corespring.common.util.HtmlProcessor
 import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.libs.json.Json._
-
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -74,7 +73,7 @@ object KDSQtiZipConverter
 //          val scrubbed = scrub(preprocessed)
 //          logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(q, m, sources)
+          val playerDefinition = ItemTransformer.transform(q.qti, m, sources)
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }
@@ -193,14 +192,15 @@ object KDSQtiZipConverter
         new ZipFile(outFile)
       })
   }
-
+  //TODO: not a relevant name any more.
   override def postProcess(item: JsValue): JsValue = item match {
     case json: JsObject => {
-      json ++ obj(
-        "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
-        "components" -> postprocessHtml((json \ "components")),
-        "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
+      val additions : JsObject = obj(
+        "xhtml" -> (json \ "xhtml").as[String],
+        "components" -> (json \ "components"),
+        "summaryFeedback" -> JsString((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       )
+      (json ++ additions)
     }
     case _ => item
   }

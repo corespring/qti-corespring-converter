@@ -16,7 +16,7 @@ object CDataHelper {
 
   val logger = LoggerFactory.getLogger(CDataHelper.this.getClass)
 
-  private def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
+  def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
 
   private def escapeTags(s: String): String = {
     s
@@ -80,7 +80,7 @@ object CDataHelper {
     * plain old XML parser won't complain about it. When it hits the user's browser, their browser can probably render
     * it, but Scala's XML parser is a lot more strict, so we have to deal with it. Good stuff.
     */
-  private def fixXml(xml: String) = {
+  def fixXml(xml: String) = {
     /** Jsoup.clean is too aggressive - just parse and emit */
     val doc = Jsoup.parse(xml, "", Parser.xmlParser())
     doc.outputSettings(outputSettings)

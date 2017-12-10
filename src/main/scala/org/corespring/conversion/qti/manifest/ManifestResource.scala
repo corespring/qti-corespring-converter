@@ -6,7 +6,7 @@ import scala.xml.Node
 
 
 trait ManifestResource{
-  def path:String,
+  def path:String
   def resourceType: ManifestResourceType.Value
   def inline : Boolean
   def is(resourceType: ManifestResourceType.Value) = this.resourceType == resourceType
@@ -24,6 +24,11 @@ case class QtiManifestResource(path:String, qti:Node) extends ManifestResource {
   override def inline = false
 }
 
+case class PassageManifestResource(path:String, xml:Node) extends ManifestResource{
+  override def resourceType = ManifestResourceType.Passage
+  //TODO: this is not strictly true??
+  override def inline = false
+}
 
 object ManifestResource {
 
@@ -53,7 +58,8 @@ object ManifestResource {
     * @param node the qti/passage xml
     * @return a map of sources per type
     */
-  private def extractSources(node: Node): Map[ManifestResourceType, Seq[String]] = {
+  @deprecated("whats this for?", "")
+  def extractSources(node: Node): Map[ManifestResourceType, Seq[String]] = {
     typeToSrcExtractor.map {
       case (manifestType, extractFn) => manifestType -> extractFn(node)
     }

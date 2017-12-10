@@ -1,8 +1,7 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.util.{PassageTransformer, PathTransformer, TableTransformer}
+import com.keydatasys.conversion.qti.util.{PathTransformer, TableTransformer}
 import org.corespring.common.file.SourceWrapper
-import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 import org.corespring.conversion.qti.manifest._
 import org.slf4j.LoggerFactory
@@ -13,27 +12,52 @@ import org.corespring.macros.DescribeMacro._
 import scala.xml._
 import scala.xml.transform._
 
+class AddPassageToXml(passages:Seq[Node]) extends RewriteRule{
+
+  def blockToDiv(p:Node) : Seq[Node] = (p \ "passageBody" \\ "passageParts" \\ "partBlock").map(pb => <div/>.copy(child = pb))
+
+  lazy val blockContent : Node = {
+    val nodes = passages.map(p => blockToDiv(p)).flatten
+    <div class="passage">{nodes}</div>
+  }
+
+  override def transform(n:Node) = {
+    n match {
+      case e: Elem if e.label == "itemBody" => e.copy(child = blockContent ++ n.child )
+      case _ => n
+    }
+  }
+}
+
 //TODO: should be private[keydatasys]
-class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
+class ItemTransformer(qtiTransformer: SuperQtiTransformer) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
+
   def transform(qti: Node, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
-    val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
-      .map(transformPassage(_)(sources).getOrElse(""))
-    val passageXml = passages.length match {
-      case 1 => passages.head
-      case _ => s"<div>${passages.mkString}</div>"
-    }
+    //val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
+      //.map(transformPassage(_)(sources).getOrElse(""))
+//    val passageXml = passages.length match {
+//      case 1 => passages.head
+//      case _ => s"<div>${passages.mkString}</div>"
+//    }
     try {
       /** TODO:
-        //1. add passage xml
-        //2. add stylesheet
-        //3. transform paths
-        //3. transform tables?
-      */
-      val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
-      logger.info(describe(sources))
-      val out = qtiTransformer.transform(xml, sources, manifestItem.manifest)
+        * //1. add passage xml
+        * //2. add stylesheet - >>> not needed any more
+        * //3. transform paths
+        * //3. transform tables?
+        */
+      val transformer = new RuleTransformer(
+        new AddPassageToXml(manifestItem.passages.map(_.xml)),
+        PathTransformer.rule,
+        TableTransformer.rule
+      )
+      val result = transformer.transform(qti)
+
+      ////      val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
+      ////      logger.info(describe(sources))
+      val out = qtiTransformer.transform(result.head.asInstanceOf[Elem], sources, manifestItem.manifest)
       logger.trace(describe(out))
       out
     } catch {
@@ -43,10 +67,10 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
       }
     }
   }
+}
 
   /**
    * Maps some KDS QTI nodes to valid HTML nodes, and cleans up namespaces.
-   */
  class XMLCleaner(string: String) extends XMLNamespaceClearer {
 
 
@@ -70,8 +94,9 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
 
   }
 
+    */
 
-}
+
 
 //TODO: should be private[keydatasys]
 object ItemTransformer extends ItemTransformer(QtiTransformer)

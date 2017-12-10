@@ -52,8 +52,9 @@ object ZipReader extends PassageScrubber with EntityEscaper {
       */
     stream(zip, name).map{ s =>
       val parser = ConstructingParser.fromSource(Source.fromInputStream(s, "UTF-8"), true)
+      val e = parser.document().docElem
       IOUtils.closeQuietly(s)
-      parser.document().docElem
+      e
     }
   }
 

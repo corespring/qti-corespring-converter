@@ -23,7 +23,7 @@ object TableTransformer {
     case head :: tail => head.copy(next = iterableToMetaData(tail))
   }
 
-  def transform(node: Node) = new RuleTransformer(new RewriteRule {
+  val rule = new RewriteRule {
     override def transform(node: Node) = node match {
       case elem: Elem if node.label == "table" =>
         elem.copy(attributes =
@@ -35,6 +35,8 @@ object TableTransformer {
         )
       case _ => node
     }
-  }).transform(node).head.asInstanceOf[Elem]
+  }
+
+  def transform(node: Node) = new RuleTransformer(rule).transform(node).head.asInstanceOf[Elem]
 
 }

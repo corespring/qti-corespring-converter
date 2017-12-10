@@ -2,12 +2,15 @@ package org.corespring.conversion.qti
 
 import org.apache.commons.io.IOUtils
 import org.corespring.common.file.SourceWrapper
+import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import play.api.libs.json.JsObject
 
 import scala.xml.{Elem, Node, XML}
 
 class QtiTransformerSpec extends Specification {
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   def qti(body: Elem) =
     <assessmentItem>
@@ -50,6 +53,7 @@ class QtiTransformerSpec extends Specification {
 
        val qtiData = <assessmentItem>
          <stylesheet href="style/LiveInspect.css"></stylesheet>
+         <itemBody>no style in item body</itemBody>
        </assessmentItem>
 
        val sources: Map[String,SourceWrapper] = Map("style/LiveInspect.css" ->
@@ -61,7 +65,9 @@ class QtiTransformerSpec extends Specification {
        val json = QtiTransformer.transform(qtiData, sources, manifest)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
-       (xml \\ "style")(1).text.trim must_== """.qti.kds body { color:red; }"""
+       logger.debug(s"xml: $xml")
+       (xml \\ "style").length must_== 2
+       (xml \\ "style")(1).text.trim must_== """/* style/LiveInspect.css */ .qti.kds body { color:red; }"""
      }
 
      "convert stylesheets" in {
@@ -76,7 +82,7 @@ class QtiTransformerSpec extends Specification {
        val json = QtiTransformer.transform(qtiData, sources, manifest)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
-       (xml \\ "style")(1).text.trim must_== """.qti.kds body { color:red; }"""
+       (xml \\ "style")(1).text.trim must_== """/* style/LiveInspect.css */ .qti.kds body { color:red; }"""
      }
    }
 
