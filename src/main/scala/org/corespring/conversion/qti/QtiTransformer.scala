@@ -5,22 +5,16 @@ import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
-import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
+import org.corespring.macros.DescribeMacro._
+import org.corespring.utils.CDataHelper
 import org.measuredprogress.conversion.qti.interactions.ImageConverter
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
 import scala.xml._
 import scala.xml.transform._
-import org.corespring.macros.DescribeMacro._
-import org.corespring.utils.CDataHelper
 
-import scala.xml.parsing.ConstructingParser
-
-object R {
-
-}
 
 object InlinedCss {
 
@@ -60,46 +54,9 @@ object InlinedCss {
         .getOrElse (throw new IllegalStateException (s"unable to locate stylesheet by name: $href") )
 
     }
-
   }
 }
 
-class InlineCss(sources:Map[String,SourceWrapper]) extends RewriteRule{
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
-
-  def baseName(s: String) : String = {
-    val out = s.split("/").last
-    out
-  }
-
-  override def transform (node: Node) = node match {
-    case node: Node if node.label == "stylesheet" => {
-
-      val href = (node \ "@href").text
-      val baseHref = baseName (href)
-
-      logger.trace(describe (baseHref))
-
-      /**
-        * TODO: This uses base name matching, should have a function that honors the paths in the href
-        * relative the path of the qti file.
-        */
-      val src = sources.collectFirst {
-        case (key, src) if (baseName (key) == baseHref) => src
-      }
-
-      logger.debug (describe (src) )
-
-      src
-        .map (cssSource => <style type="text/css">{CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
-        //.map (cssSource => <style type="text/css">/* {href} */ {CssSandboxer.sandbox (cssSource.getLines.mkString, ".qti.kds")}</style>)
-        .getOrElse (throw new IllegalStateException (s"unable to locate stylesheet by name: $name") )
-
-    }
-    case _ => node
-  }
-}
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
@@ -114,26 +71,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
   def statefulTransformers: Seq[Transformer]
 
-  def transform(qti: Elem): JsValue = {
-    val transformers = interactionTransformers(qti)
-
-    /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
-    val texProcessedQti = new RuleTransformer(FontTransformer).transform(new RuleTransformer(TexTransformer).transform(qti))
-    val components = transformers.foldLeft(Map.empty[String, JsObject])(
-      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, QTIManifest.EmptyManifest))
-
-    val transformedHtml = new RuleTransformer(transformers: _*).transform(texProcessedQti)
-    val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
-      (html, transformer) => transformer.transform(html, QTIManifest.EmptyManifest).head)
-
-    val divRoot = new RuleTransformer(ItemBodyTransformer).transform(html).head
-
-    Json.obj(
-      "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
-      "components" -> components) ++ customScoring(qti, components)
-  }
-
-  def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
+  final val ItemBodyTransformer = new RewriteRule {
 
     override def transform(node: Node): Seq[Node] = {
       node match {
@@ -168,10 +106,6 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val transformedHtml = new InteractionRuleTransformer(transformers: _*).transform(texProcessedQti, manifest)
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
-
-    val inlinedCss = new RuleTransformer(new InlineCss(sources)).transform((qti \\ "stylesheet"))
-
-    logger.debug(s"inlined css: $inlinedCss")
 
     val addInlinedCssToBody = new RewriteRule{
       override def transform(n:Node) = {
@@ -228,7 +162,7 @@ object QtiTransformer extends QtiTransformer {
     TextEntryInteractionTransformer(qti)
   )
 
-  def statefulTransformers = Seq(
+  val statefulTransformers = Seq(
     FeedbackBlockTransformer,
     NumberedLinesTransformer
   )

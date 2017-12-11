@@ -43,15 +43,4 @@ trait ImageConverter {
     doc.outerHtml()
   }
 
-  def convertJson(json: JsValue): JsValue = {
-    json match {
-      case jsObject: JsObject => JsObject(jsObject.fields.map{ case (key, value) => {
-        (key, convertJson(value))
-      }})
-      case jsArray: JsArray => JsArray(jsArray.value.map{ value => convertJson(value) })
-      case jsString: JsString => JsString(convertHtml(jsString.value))
-      case _ => json
-    }
-  }
-
 }

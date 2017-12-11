@@ -45,5 +45,7 @@ sbt "run --input X ... --output latest.zip"
 Check:
 * audio transformer picks up comp and markup is correctly emitted
 * video and audio tags are corrected by jsoup
-* pt escaped entities
+* progress testing escaped entities
 * <br/> to <br></br>?
+* -> 677198.xml - has graphicGapMatchInteraction - check images are ok.
+* ->
