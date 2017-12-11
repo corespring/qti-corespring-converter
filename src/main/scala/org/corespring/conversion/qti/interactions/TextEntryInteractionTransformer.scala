@@ -26,8 +26,10 @@ class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer 
     }
   }
 
-  def correctResponses(node: Node, qti: Node) =
-    (responseDeclaration(node, qti) \ "correctResponse" \\ "value").map(_.text).toSet
+  def correctResponses(node: Node, qti: Node) = {
+    val rd = responseDeclaration(node, qti)
+    (rd\ "correctResponse" \\ "value").map(_.text).toSet
+  }
 
   override def interactionJs(qti: Node, manifest: Node) = (qti \\ "textEntryInteraction").map(implicit node => {
     val responseDeclarationNode = responseDeclaration(node, qti)

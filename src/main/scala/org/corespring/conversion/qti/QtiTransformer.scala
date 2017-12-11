@@ -196,9 +196,10 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val cssInserted = converted.replaceFirst("<inline_css />", inlinedCssString)
     logger.trace(describe(converted))
 
+    // remove convertJson - escapes values ..."components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${cssInserted}",
-      "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
+      "components" -> components.map { case (id, json) => id -> json }) ++ customScoring(qti, components)
   }
 
 }

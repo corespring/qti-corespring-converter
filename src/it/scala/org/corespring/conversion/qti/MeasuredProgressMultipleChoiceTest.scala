@@ -33,7 +33,7 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
         zip.toAbsolutePath.toString,
         output.toString,
         "measuredprogress",
-        sourceId)
+        Some(sourceId))
 
       val playerDef = new ZipFile(output.toFile).entries.find{
          e =>
@@ -45,7 +45,7 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
         zip.toAbsolutePath.toString,
         legacy.toString,
         "old-measuredprogress",
-        sourceId
+        Some(sourceId)
       )
 
       val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{

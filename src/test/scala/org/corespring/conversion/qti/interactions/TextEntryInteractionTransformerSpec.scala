@@ -7,6 +7,7 @@ import org.specs2.mutable.Specification
 import play.api.libs.json._
 
 import scala.xml._
+import scala.xml.parsing.ConstructingParser
 
 class TextEntryInteractionTransformerTest extends Specification with DomainParser {
 
@@ -14,13 +15,17 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
   val equationIdentifier = "Q_02"
   val lineIdentifier = "Q_03"
 
-  def qti(correctResponses: Seq[String], correctFeedback: String, incorrectFeedback: String, popupFeedback: Boolean): Node =
-    XML.loadString(s"""
-    <assessmentItem>
-      <responseDeclaration identifier="${identifier}" cardinality="single" baseType="string">
-        <correctResponse>
-          ${correctResponses.map(response => s"<value>${response}</value>")}
-        </correctResponse>
+  def toXml(s: String): Node = {
+    val src = scala.io.Source.fromString(s)
+    val p = ConstructingParser.fromSource(src, false)
+    p.document().docElem
+  }
+
+  def qti(correctResponses: Seq[String], correctFeedback: String, incorrectFeedback: String, popupFeedback: Boolean): Node = {
+    toXml(
+      s"""<assessmentItem>
+ <responseDeclaration identifier="${identifier}" cardinality="single" baseType="string">
+        <correctResponse>${correctResponses.map(response => s"<value>${response}</value>").mkString("")}</correctResponse>
       </responseDeclaration>
       <itemBody>
         <p>This is some info that's in the prompt</p>
@@ -28,62 +33,64 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
         <feedbackBlock outcomeIdentifier="responses.${identifier}.value" identifier="someCorrect"><div>correct</div></feedbackBlock>
         <feedbackBlock outcomeIdentifier="responses.${identifier}.value" incorrectResponse="true" ><div>incorrect</div></feedbackBlock>
         <feedbackBlock outcomeIdentifier="responses.someOther.value" incorrectResponse="true" ><div>incorrect</div></feedbackBlock>
-      </itemBody>
-    </assessmentItem>
-    """)
+      </itemBody></assessmentItem>""".stripMargin)
+  }
 
   def equationQti(equation: String, vars: String, domain: String, sigfigs: Int, popupFeedback: Boolean): Node = {
     val baseType = s"eqn: vars:$vars domain:$domain sigfigs:$sigfigs"
     <assessmentItem>
-      <responseDeclaration identifier={ equationIdentifier } cardinality="single" baseType={ baseType }>
+      <responseDeclaration identifier={equationIdentifier} cardinality="single" baseType={baseType}>
         <correctResponse>
-          <value>{ equation }</value>
+          <value>{equation}</value>
         </correctResponse>
       </responseDeclaration>
       <itemBody>
         <p>This is some info that's in the prompt</p>
-        <textEntryInteraction responseIdentifier={ equationIdentifier } expectedLength="15" popupFeedback={ popupFeedback.toString }/>
+        <textEntryInteraction responseIdentifier={equationIdentifier} expectedLength="15" popupFeedback={popupFeedback.toString}/>
       </itemBody>
     </assessmentItem>
   }
 
   def lineQti(equation: String): Node = {
     <assessmentItem>
-      <responseDeclaration identifier={ lineIdentifier } cardinality="single" baseType="line">
+      <responseDeclaration identifier={lineIdentifier} cardinality="single" baseType="line">
         <correctResponse>
-          <value>{ equation }</value>
+          <value>
+            {equation}
+          </value>
         </correctResponse>
       </responseDeclaration>
       <itemBody>
         <p>This is some info that's in the prompt</p>
-        <textEntryInteraction responseIdentifier={ lineIdentifier } expectedLength="15"/>
+        <textEntryInteraction responseIdentifier={lineIdentifier} expectedLength="15"/>
       </itemBody>
     </assessmentItem>
   }
 
   "TextEntryInteractionTransformer" should {
 
+
     val correctResponses = Seq("a", "b", "c")
     val correctFeedback = "That's correct!"
     val incorrectFeedback = "Oops! Not right."
 
-    val input = qti(
-      correctResponses = correctResponses,
-      correctFeedback = correctFeedback,
-      incorrectFeedback = incorrectFeedback,
-      popupFeedback = true)
+        val input = qti(
+          correctResponses = correctResponses,
+          correctFeedback = correctFeedback,
+          incorrectFeedback = incorrectFeedback,
+          popupFeedback = true)
 
-    val inputNoPopup = qti(
-      correctResponses = correctResponses,
-      correctFeedback = correctFeedback,
-      incorrectFeedback = incorrectFeedback,
-      popupFeedback = false)
+        val inputNoPopup = qti(
+          correctResponses = correctResponses,
+          correctFeedback = correctFeedback,
+          incorrectFeedback = incorrectFeedback,
+          popupFeedback = false)
 
-    val interactionResult = TextEntryInteractionTransformer(input).interactionJs(input, QTIManifest.EmptyManifest)
-      .get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))
+        val interactionResult = TextEntryInteractionTransformer(input).interactionJs(input, QTIManifest.EmptyManifest)
+          .get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))
 
-    val output = new InteractionRuleTransformer(TextEntryInteractionTransformer(input)).transform(input)
-    val outputNoPopup = new InteractionRuleTransformer(TextEntryInteractionTransformer(inputNoPopup)).transform(inputNoPopup)
+        val output = new InteractionRuleTransformer(TextEntryInteractionTransformer(input)).transform(input)
+        val outputNoPopup = new InteractionRuleTransformer(TextEntryInteractionTransformer(inputNoPopup)).transform(inputNoPopup)
 
     val equation = "y=2x+7"
     val vars = "x,y"
@@ -103,65 +110,75 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
     new TextEntryInteractionTransformer(lineInput).interactionJs(lineInput, QTIManifest.EmptyManifest)
       .get(lineIdentifier).getOrElse(throw new RuntimeException(s"No component called $lineIdentifier"))
 
-    "return the correct interaction component type" in {
-      (interactionResult \ "componentType").as[String] must be equalTo "corespring-text-entry"
-      (equationInteractionResult \ "componentType").as[String] must be equalTo "corespring-function-entry"
-    }
+        "return the correct interaction component type" in {
+          (interactionResult \ "componentType").as[String] must be equalTo "corespring-text-entry"
+          (equationInteractionResult \ "componentType").as[String] must be equalTo "corespring-function-entry"
+        }
 
-    "return the correct answers for the interaction" in {
-      (interactionResult \ "correctResponses" \ "values").as[Seq[String]] diff correctResponses must beEmpty
-    }
+        "return the correct answers for the interaction" in {
+          (interactionResult \ "correctResponses" \ "values").as[Seq[String]] diff correctResponses must beEmpty
+        }
 
-    "returns the correct correct response vars" in {
-      (equationInteractionResult \ "correctResponse" \ "vars").as[String] must be equalTo vars
-    }
+        "returns the correct correct response vars" in {
+          (equationInteractionResult \ "correctResponse" \ "vars").as[String] must be equalTo vars
+        }
 
-    "returns the correct correct response domain" in {
-      (equationInteractionResult \ "correctResponse" \ "domain") must be equalTo parseDomain(domain)
-    }
+        "returns the correct correct response domain" in {
+          (equationInteractionResult \ "correctResponse" \ "domain") must be equalTo parseDomain(domain)
+        }
 
-    "returns the correct correct response sigfigs" in {
-      (equationInteractionResult \ "correctResponse" \ "sigfigs").as[Int] must be equalTo sigfigs
-    }
+        "returns the correct correct response sigfigs" in {
+          (equationInteractionResult \ "correctResponse" \ "sigfigs").as[Int] must be equalTo sigfigs
+        }
 
-    "returns the correct correct response equation" in {
-      (equationInteractionResult \ "correctResponse" \ "equation").as[String] must be equalTo equation
-    }
+        "returns the correct correct response equation" in {
+          (equationInteractionResult \ "correctResponse" \ "equation").as[String] must be equalTo equation
+        }
 
-    "returns feedback type default for correct answers" in {
-      (equationInteractionResult \ "feedback" \ "correctFeedbackType").as[String] must be equalTo "default"
-    }
+        "returns feedback type default for correct answers" in {
+          (equationInteractionResult \ "feedback" \ "correctFeedbackType").as[String] must be equalTo "default"
+        }
 
-    "returns feedback type default for correct answers" in {
-      (equationInteractionResult \ "feedback" \ "incorrectFeedbackType").as[String] must be equalTo "default"
-    }
+        "returns feedback type default for correct answers" in {
+          (equationInteractionResult \ "feedback" \ "incorrectFeedbackType").as[String] must be equalTo "default"
+        }
 
-    "text entry feedback blocks are removed from the xml (popup)" in {
-      // only feedback blocks that do not belong to text entry interactions are left in the xml
-      (output \\ "feedbackBlock").size == 1
-      !(output \\ "feedbackBlock").find(n => (n \ "@outcomeIdentifier").text == "responses.someOther.value").isEmpty
-    }
+        "text entry feedback blocks are removed from the xml (popup)" in {
+          // only feedback blocks that do not belong to text entry interactions are left in the xml
+          (output \\ "feedbackBlock").size == 1
+          !(output \\ "feedbackBlock").find(n => (n \ "@outcomeIdentifier").text == "responses.someOther.value").isEmpty
+        }
 
-    "text entry feedback blocks are not removed from the xml (no popup)" in {
-      // only feedback blocks that do not belong to text entry interactions are left in the xml
-      (outputNoPopup \\ "feedbackBlock").size == 3
-    }
+        "text entry feedback blocks are not removed from the xml (no popup)" in {
+          // only feedback blocks that do not belong to text entry interactions are left in the xml
+          (outputNoPopup \\ "feedbackBlock").size == 3
+        }
 
-    "correct feedback is extracted from feedback blocks" in {
-      (interactionResult \ "correctResponses" \ "feedback" \ "specific") must be equalTo Json.arr(
-        Json.obj(
-          "answer" -> "someCorrect",
-          "feedback" -> "<div>correct</div>"))
-    }
+        "correct feedback is extracted from feedback blocks" in {
+          (interactionResult \ "correctResponses" \ "feedback" \ "specific") must be equalTo Json.arr(
+            Json.obj(
+              "answer" -> "someCorrect",
+              "feedback" -> "<div>correct</div>"))
+        }
 
-    "incorrect feedback is extracted from feedback blocks" in {
-      (interactionResult \ "incorrectResponses" \ "feedback" \ "value") must be equalTo JsString("<div>incorrect</div>")
-    }
+        "incorrect feedback is extracted from feedback blocks" in {
+          (interactionResult \ "incorrectResponses" \ "feedback" \ "value") must be equalTo JsString("<div>incorrect</div>")
+        }
 
-    "converts baseType=line to <corespring-function-entry/>" in {
-      (lineOutput \\ "corespring-function-entry") must not beEmpty
-    }
+        "converts baseType=line to <corespring-function-entry/>" in {
+          (lineOutput \\ "corespring-function-entry") must not beEmpty
+        }
 
+
+    "handle cdata" in {
+      val node = qti(Seq("<![CDATA[8<2]]>"), correctFeedback, incorrectFeedback, popupFeedback = true)
+
+      val interactionResult = TextEntryInteractionTransformer(node).interactionJs(node, QTIManifest.EmptyManifest)
+        .get(identifier).getOrElse(throw new RuntimeException(s"No component called $identifier"))
+
+
+      (interactionResult \ "correctResponses" \ "values").as[Seq[String]].head must_== "8<2"
+    }
   }
 
 }

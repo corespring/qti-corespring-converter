@@ -2,7 +2,7 @@ package org.corespring.conversion.qti
 
 import java.io.File
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.zip.{ZipEntry, ZipFile}
 
 import org.apache.commons.io.IOUtils
@@ -32,35 +32,38 @@ object RunHelper {
   def run(input:String,
           output:String,
           vendor: String,
-          sourceId:String,
+          sourceId:Option[String],
           metadata: String = "{}") = {
-    Runner.main(Array(
+    val args = Array(
       "--input", input,
       "--vendor", vendor,
       "--limit", "0",
-      "--sourceId", sourceId,
       "--output", output,
       "--killRuntime", "false",
-      "--metadata", metadata
-    //"""{"scoringType": "SBAC"}"""
-    ))
+      "--metadata", metadata) ++ sourceId.map(id => Array("--sourceId", id)).getOrElse(Array.empty)
+        //"""{"scoringType": "SBAC"}"""
+    Runner.main(args)
   }
 }
 
-trait BaseRunner extends Specification {
-
-  def sourceId: String
-
-  def vendor: String = "kds"
-
-  val logger = LoggerFactory.getLogger(this.getClass)
-
-  val tmpDir = RunHelper.mkTmpDir(s"sbac-runner-test-$sourceId")
+trait BaseRunnerUtils {
 
   def json(zip: ZipFile, e: ZipEntry) = {
     val jsonString = IOUtils.toString(zip.getInputStream(e))
     Json.parse(jsonString)
   }
+
+}
+trait BaseRunner extends Specification with BaseRunnerUtils{
+
+  def sourceId: String
+
+  def vendor: String = "kds"
+
+  protected val logger = LoggerFactory.getLogger(this.getClass)
+
+  val tmpDir = RunHelper.mkTmpDir(s"sbac-runner-test-$sourceId")
+
 
   val sbacOutput = tmpDir.resolve(s"sbac-output-$sourceId.zip")
 
@@ -82,7 +85,7 @@ trait BaseRunner extends Specification {
     pathToSbac,
     sbacOutput.toString,
     vendor,
-    sourceId,
+    Some(sourceId),
     """{"scoringType": "SBAC"}"""
   )
 

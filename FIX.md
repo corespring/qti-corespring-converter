@@ -9,6 +9,7 @@ The problems with the converter right now are:
 
 ## Full Fix
 
+1. Don't escape CDATA - honor it (except when looking for resources in the markup).
 1. We need to be able to parse the contents of <itemBody> as xml so we can convert certain tags within it. so we need to:
   1. remove all CDATA in <itemBody>
   2. fix the markup using jsoup
@@ -41,7 +42,8 @@ sbt "run --input X ... --output latest.zip"
 > summary - everything is the same (or X files are different)...
 ```
 
-
-Check
+Check:
 * audio transformer picks up comp and markup is correctly emitted
 * video and audio tags are corrected by jsoup
+* pt escaped entities
+* <br/> to <br></br>?
