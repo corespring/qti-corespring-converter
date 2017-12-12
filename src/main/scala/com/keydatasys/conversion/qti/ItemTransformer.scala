@@ -12,18 +12,22 @@ import org.corespring.macros.DescribeMacro._
 import scala.xml._
 import scala.xml.transform._
 
-class AddPassageToXml(passages:Seq[Node]) extends RewriteRule{
+private class AddPassageToXml(passages:Seq[Node]) extends RewriteRule{
 
   def blockToDiv(p:Node) : Seq[Node] = (p \ "passageBody" \\ "passageParts" \\ "partBlock").map(pb => <div/>.copy(child = pb))
 
-  lazy val blockContent : Node = {
+  lazy val blockContent : Option[Node] = {
     val nodes = passages.map(p => blockToDiv(p)).flatten
-    <div class="passage">{nodes}</div>
+    if(nodes.length > 0) {
+      Some(<div class="passage">{nodes}</div>)
+    } else {
+      None
+    }
   }
 
   override def transform(n:Node) = {
     n match {
-      case e: Elem if e.label == "itemBody" => e.copy(child = blockContent ++ n.child )
+      case e: Elem if e.label == "itemBody" => e.copy(child = blockContent.getOrElse(Seq.empty) ++ n.child )
       case _ => n
     }
   }
@@ -35,28 +39,13 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def transform(qti: Node, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
-    //val passages: Seq[String] = manifestItem.resources.filter(_.resourceType == ManifestResourceType.Passage)
-      //.map(transformPassage(_)(sources).getOrElse(""))
-//    val passageXml = passages.length match {
-//      case 1 => passages.head
-//      case _ => s"<div>${passages.mkString}</div>"
-//    }
     try {
-      /** TODO:
-        * //1. add passage xml
-        * //2. add stylesheet - >>> not needed any more
-        * //3. transform paths
-        * //3. transform tables?
-        */
       val transformer = new RuleTransformer(
         new AddPassageToXml(manifestItem.passages.map(_.xml)),
         PathTransformer.rule,
         TableTransformer.rule
       )
       val result = transformer.transform(qti)
-
-      ////      val xml = TableTransformer.transform(PathTransformer.transform(xmlString.toXML(passageXml)))
-      ////      logger.info(describe(sources))
       val out = qtiTransformer.transform(result.head.asInstanceOf[Elem], sources, manifestItem.manifest)
       logger.trace(describe(out))
       out
@@ -68,35 +57,6 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) {
     }
   }
 }
-
-  /**
-   * Maps some KDS QTI nodes to valid HTML nodes, and cleans up namespaces.
- class XMLCleaner(string: String) extends XMLNamespaceClearer {
-
-
-    def toXML(passageXml: String): Elem = {
-      def stripCDataTags(xmlString: String) = """(?s)<!\[CDATA\[(.*?)\]\]>""".r.replaceAllIn(xmlString, "$1")
-      val xml = XML.loadString(stripCDataTags(string))
-      /**
-        * TODO: we only do this because the QTITransformer is not pulling in stylesheets outside of itemBody. Fix it there
-        */
-      val stylesheets = (xml \ "stylesheet")
-      clearNamespace(new RuleTransformer(new RewriteRule {
-        override def transform(n: Node): NodeSeq = n match {
-          case n: Elem if (n.label == "itemBody") => passageXml.nonEmpty match {
-            case true => n.copy(child = stylesheets ++ XML.loadString(passageXml) ++ n.child)
-            case _ => n.copy(child = stylesheets ++ n.child)
-          }
-          case _ => n
-        }
-      }).transform(xml).headOption.getOrElse(throw new Exception("There was no head element!"))).head.asInstanceOf[Elem]
-    }
-
-  }
-
-    */
-
-
 
 //TODO: should be private[keydatasys]
 object ItemTransformer extends ItemTransformer(QtiTransformer)

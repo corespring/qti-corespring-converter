@@ -2,7 +2,7 @@ package org.corespring.conversion.qti
 
 import java.io.File
 import java.net.URL
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
 import org.slf4j.LoggerFactory
 
@@ -15,13 +15,23 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
 trait Instruction
 
 case class AddItem(id: String, node: Elem) extends Instruction
+case class AddMp3(name: String, src: String) extends Instruction
+case class AddCss(contents: String, name: String, addToResource:Boolean) extends Instruction
 
 class Builder(instructions: Seq[Instruction] = Seq.empty) {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def addItem(id: String, node: Elem): Builder = {
-    return new Builder(this.instructions :+ AddItem(id, node))
+    new Builder(this.instructions :+ AddItem(id, node))
+  }
+
+  def addMp3(name:String, src:String) : Builder = {
+    new Builder(this.instructions :+ AddMp3(name, src))
+  }
+
+  def addCss(contents:String, name:String, addToResource:Boolean = false) : Builder = {
+    new Builder(this.instructions :+ AddCss(contents, name, addToResource))
   }
 
   private def addResourceNode(i: Instruction): Option[Node] = i match {
@@ -68,6 +78,20 @@ class Builder(instructions: Seq[Instruction] = Seq.empty) {
         val path = dir.resolve(s"$id.xml")
         scala.xml.XML.save(path.toAbsolutePath.toString, update.asInstanceOf[Node], "UTF-8", true, null)
       }
+      case AddMp3(name, src) => {
+        val srcPath = Paths.get(this.getClass.getResource(src).toURI)
+        val outPath = dir.resolve(name)
+        Files.copy(srcPath, outPath)
+      }
+
+      case AddCss(contents, name, addToResource) => {
+        if(addToResource){
+          throw new NotImplementedError("todo")
+        }
+        val outPath = dir.resolve(name)
+        Files.createDirectories(outPath.getParent)
+        Files.write(outPath, contents.getBytes("UTF-8"))
+      }
       case _ => // do nothing
     }
 
@@ -99,6 +123,33 @@ object ItemBuilder {
 
 class ItemBuilder(e: Elem = ItemBuilder.defaultQti) {
 
+
+  private def applyTransform(t:RuleTransformer) : ItemBuilder = {
+    new ItemBuilder(t.transform(Seq(this.e.asInstanceOf[Node])).head.asInstanceOf[Elem])
+  }
+
+  def addStylesheet(styleNode:Node) : ItemBuilder = {
+
+    val t = new RuleTransformer(new RewriteRule{
+      override def transform(n:Node) = n match   {
+        case e : Elem if e.label == "assessmentItem" => {
+          e.copy(child = e.child ++ styleNode)
+        }
+        case _ => n
+      }
+    })
+    applyTransform(t)
+  }
+
+  /**
+    * If you need to add CDATA - send in an xml string for raw parsing.
+    * @param s
+    * @return
+    */
+  def addToItemBody(s:String): ItemBuilder = {
+    addToItemBody(rawParse(s).asInstanceOf[Elem])
+  }
+
   def addToItemBody(body: Elem): ItemBuilder = {
 
     val t = new scala.xml.transform.RuleTransformer(
@@ -110,12 +161,16 @@ class ItemBuilder(e: Elem = ItemBuilder.defaultQti) {
           case _ => n
         }
       })
-    new ItemBuilder(t.transform(Seq(this.e.asInstanceOf[Node])).head.asInstanceOf[Elem])
+    applyTransform(t)
+  }
+
+  def rawParse(s:String) : Node = {
+    val p = ConstructingParser.fromSource(Source.fromString(s), true)
+    p.document.docElem
   }
 
   def addResponseDeclaration(rd: String): ItemBuilder = {
-    val p = ConstructingParser.fromSource(Source.fromString(rd), true)
-    this.addResponseDeclaration(p.document.docElem)
+    this.addResponseDeclaration(this.rawParse(rd))
   }
 
   def addResponseDeclaration(rd: Node) : ItemBuilder = {

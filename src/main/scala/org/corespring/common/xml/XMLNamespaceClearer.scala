@@ -12,3 +12,6 @@ trait XMLNamespaceClearer {
   def clearNamespace(seq: Seq[Node]): Seq[Node] = seq.map(clearNamespace)
 
 }
+
+object XMLNamespaceClearer extends XMLNamespaceClearer
+

@@ -65,6 +65,8 @@ trait NodeAndJsonTransformer {
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
+  def itemBodyClassnames = "item-body qti"
+
   override val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
   private val KDSTableReset =
@@ -83,7 +85,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     override def transform(node: Node): Seq[Node] = {
       node match {
         case elem: Elem if elem.label == "itemBody" => {
-          <div class="item-body qti">
+          <div class={itemBodyClassnames}>
             {elem.child}
           </div>
         }
@@ -102,7 +104,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
   private def convertHtml(html: String): String = {
     /** Note: we parse as xml so as not to corrupt the markup structure */
-    val doc = JsoupParser.parse(html)
+    val doc = JsoupParser.parseXml(html)
     doc.select("object").foreach(obj => {
       obj.attr("type") match {
         case "image/png" => {
@@ -150,7 +152,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
     /**
       * Some transformers work best once we have the xhtml prepared.
-      * The restriction being that the only work with xhtml not qti.
+      * The restriction being that they only work with xhtml not qti.
       * Apply those transformations last.
       */
     val xhtmlNode : Elem = XML.loadString(converted)
@@ -163,9 +165,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
       * The correct way to do this would be getting jsoup to not escape the contents of a <style> node. */
     val inlinedCssString = InlinedCss.apply(qti, sources).mkString("")
     val cssInserted = markup.toString.replaceFirst("<inline_css/>", inlinedCssString)
-    logger.trace(describe(converted))
 
-    // remove convertJson - escapes values ..."components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${cssInserted}",
       "components" -> comps.map { case (id, json) => id -> json }) ++ customScoring(qti, components)

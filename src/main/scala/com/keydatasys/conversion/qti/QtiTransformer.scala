@@ -6,10 +6,10 @@ import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{NodeAndJsonTransformer, QtiTransformer => SuperQtiTransformer}
 
 import scala.xml.Elem
-import scala.xml.transform.RewriteRule
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
+  override val itemBodyClassnames = s"${super.itemBodyClassnames} kds"
 
   override def postXhtmlTransformers: Seq[NodeAndJsonTransformer] = Seq(AudioMarkupAndComponent)
 

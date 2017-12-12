@@ -8,7 +8,7 @@ import java.util.zip.{ZipEntry, ZipFile}
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.JavaConversions._
 import scala.sys.process._
@@ -19,9 +19,9 @@ object RunHelper {
   val logger = LoggerFactory.getLogger(RunHelper.this.getClass)
 
 
-  def mkTmpDir(prefix:String = "run-helper") = Files.createTempDirectory(s"$prefix")
+  def mkTmpDir(prefix: String = "run-helper") = Files.createTempDirectory(s"$prefix")
 
-  def buildZip(dir:Path, sourceId:String, cwd: URL): Path = {
+  def buildZip(dir: Path, sourceId: String, cwd: URL): Path = {
     val out = dir.resolve(s"$sourceId.zip")
     val cmd = Seq("zip", "-r", out.toAbsolutePath.toString, ".")
     val code = Process(cmd, new File(cwd.toURI)).!
@@ -29,10 +29,10 @@ object RunHelper {
     out
   }
 
-  def run(input:String,
-          output:String,
+  def run(input: String,
+          output: String,
           vendor: String,
-          sourceId:Option[String],
+          sourceId: Option[String],
           metadata: String = "{}") = {
     val args = Array(
       "--input", input,
@@ -41,20 +41,42 @@ object RunHelper {
       "--output", output,
       "--killRuntime", "false",
       "--metadata", metadata) ++ sourceId.map(id => Array("--sourceId", id)).getOrElse(Array.empty)
-        //"""{"scoringType": "SBAC"}"""
+    //"""{"scoringType": "SBAC"}"""
     Runner.main(args)
   }
 }
 
 trait BaseRunnerUtils {
 
+  private val logger = LoggerFactory.getLogger(BaseRunnerUtils.this.getClass)
+
   def json(zip: ZipFile, e: ZipEntry) = {
     val jsonString = IOUtils.toString(zip.getInputStream(e))
     Json.parse(jsonString)
   }
 
+  def loadFirstProfileJson(outPath:Path) : Option[JsValue] = {
+    load(outPath, "profile.json")
+  }
+
+  def loadFirstPlayerDefJson(outPath: Path): Option[JsValue] = {
+    load(outPath, "player-definition.json")
+  }
+
+  private def load(outPath: Path, name:String): Option[JsValue] = {
+
+    val zip = new ZipFile(new File(outPath.toAbsolutePath.toString))
+
+    val file = zip.entries.find {
+      e =>
+        logger.info(s"e.getName: ${e.getName}")
+        e.getName.contains(name)
+    }
+    file.map { e => json(zip, e) }
+  }
 }
-trait BaseRunner extends Specification with BaseRunnerUtils{
+
+trait BaseRunner extends Specification with BaseRunnerUtils {
 
   def sourceId: String
 

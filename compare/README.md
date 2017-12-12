@@ -16,7 +16,7 @@ yarn install
 ## Running
 
 ```bash
-node index.js \
+node index.js \§
 --compareName set-one \
 --input ~/dev/github/corespring/kds-processor/target/KDS-SBAC.zip \
 --sourceIdList ./sourceIdList.txt \

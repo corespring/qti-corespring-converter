@@ -1,15 +1,17 @@
 package org.corespring.conversion.qti
 
-import java.io.File
-import java.util.zip.ZipFile
-
+import org.corespring.macros.DescribeMacro.{describe => d}
+import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
-import scala.collection.JavaConversions._
+import play.api.libs.json.JsObject
 
-class MeasuredProgressMultipleChoiceTest extends Specification {
+class MeasuredProgressMultipleChoiceTest
+  extends Specification
+    with BaseRunnerUtils {
 
 
-  //  override def vendor = "measuredprogress"
+
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   val sourceId = "MP-688"
 
@@ -26,39 +28,19 @@ class MeasuredProgressMultipleChoiceTest extends Specification {
 
 
       val output = dir.resolve("new-mp.zip")
-      val legacy = dir.resolve("legacy-mp.zip")
 
-       //run the new converter
+      //run the new converter
       RunHelper.run(
         zip.toAbsolutePath.toString,
         output.toString,
         "measuredprogress",
         Some(sourceId))
 
-      val playerDef = new ZipFile(output.toFile).entries.find{
-         e =>
-          e.getName.contains("player-definition.json")
-      }
+      val playerDefJson = loadFirstPlayerDefJson(output).get
 
-
-      RunHelper.run(
-        zip.toAbsolutePath.toString,
-        legacy.toString,
-        "old-measuredprogress",
-        Some(sourceId)
-      )
-
-      val legacyPlayerDef = new ZipFile(legacy.toFile).entries.find{
-        e =>
-          e.getName.contains("player-definition.json")
-      }
-
-      println(s"playerDefinition: $playerDef")
-      println(s"legacy: playerDefinition: $legacyPlayerDef")
-      println(s"dir: $dir")
-
-      true === true
-
+      val m = (playerDefJson \ "components" \ "RESPONSE618" \ "model").as[JsObject]
+      logger.info(d(m))
+      (m \ "choices" \\ "value").map(_.as[String]) must_== Seq("SC-9831", "SC-9832", "SC-9833", "SC-9844")
     }
   }
 }
