@@ -2,11 +2,13 @@ package org.corespring.conversion.qti
 
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.file.SourceWrapper
+import org.corespring.common.html.JsoupParser
 import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.corespring.macros.DescribeMacro._
+import scala.collection.JavaConversions._
 import org.corespring.utils.CDataHelper
 import org.measuredprogress.conversion.qti.interactions.ImageConverter
 import org.slf4j.LoggerFactory
@@ -57,6 +59,9 @@ object InlinedCss {
   }
 }
 
+trait NodeAndJsonTransformer {
+  def transform(n:Elem, json:Map[String,JsObject]) : (Elem, Map[String,JsObject])
+}
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
 
@@ -68,6 +73,8 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     </style>
 
   def interactionTransformers(qti: Elem): Seq[InteractionTransformer]
+
+  def postXhtmlTransformers : Seq[NodeAndJsonTransformer] = Seq.empty
 
   def statefulTransformers: Seq[Transformer]
 
@@ -91,6 +98,22 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
+  }
+
+  private def convertHtml(html: String): String = {
+    /** Note: we parse as xml so as not to corrupt the markup structure */
+    val doc = JsoupParser.parse(html)
+    doc.select("object").foreach(obj => {
+      obj.attr("type") match {
+        case "image/png" => {
+          val img = doc.createElement("img")
+          img.attr("src", obj.attr("data").split("/").last)
+          obj.replaceWith(img)
+        }
+        case _ => {}
+      }
+    })
+    doc.outerHtml()
   }
 
   def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
@@ -124,16 +147,28 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     logger.trace(describe(finalHtml))
     val noCdata = CDataHelper.stripCDataTags(finalHtml)
     val converted = convertHtml(noCdata)
+
+    /**
+      * Some transformers work best once we have the xhtml prepared.
+      * The restriction being that the only work with xhtml not qti.
+      * Apply those transformations last.
+      */
+    val xhtmlNode : Elem = XML.loadString(converted)
+    val (markup, comps) = postXhtmlTransformers.foldLeft((xhtmlNode -> components))((t, transformer) => {
+      val (xhtml, components) = t
+      transformer.transform(xhtml, components)
+    })
+
     /** this is a cheap move - but it means we don't have to get into writing our own jsoup TreeBuilder.
       * The correct way to do this would be getting jsoup to not escape the contents of a <style> node. */
     val inlinedCssString = InlinedCss.apply(qti, sources).mkString("")
-    val cssInserted = converted.replaceFirst("<inline_css />", inlinedCssString)
+    val cssInserted = markup.toString.replaceFirst("<inline_css/>", inlinedCssString)
     logger.trace(describe(converted))
 
     // remove convertJson - escapes values ..."components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${cssInserted}",
-      "components" -> components.map { case (id, json) => id -> json }) ++ customScoring(qti, components)
+      "components" -> comps.map { case (id, json) => id -> json }) ++ customScoring(qti, components)
   }
 
 }

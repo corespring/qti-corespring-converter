@@ -1,11 +1,5 @@
 package org.measuredprogress.conversion.qti.interactions
 
-import org.corespring.common.html.JsoupParser
-import org.jsoup.Jsoup
-import org.jsoup.nodes.{Entities, Document}
-import play.api.libs.json.{JsString, JsArray, JsObject, JsValue}
-
-import scala.collection.JavaConversions._
 import scala.xml._
 import scala.xml.transform._
 
@@ -27,20 +21,5 @@ trait ImageConverter {
     }).transform(html)
   }
 
-  def convertHtml(html: String): String = {
-    /** Note: we parse as xml so as not to corrupt the markup structure */
-    val doc = JsoupParser.parseXml(html)
-    doc.select("object").foreach(obj => {
-      obj.attr("type") match {
-        case "image/png" => {
-          val img = doc.createElement("img")
-          img.attr("src", obj.attr("data").split("/").last)
-          obj.replaceWith(img)
-        }
-        case _ => {}
-      }
-    })
-    doc.outerHtml()
-  }
 
 }
