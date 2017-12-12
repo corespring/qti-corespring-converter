@@ -1,13 +1,47 @@
 package com.keydatasys.conversion.qti.manifest
 
-import org.corespring.common.file.SourceWrapper
+import java.io.{File, FileInputStream, InputStream}
+import java.nio.charset.CodingErrorAction
+
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.input.BOMInputStream
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.xml._
 import scala.xml.pull._
 
-trait ManifestFilter {
+/**
+  * Caches the result of a Source's getLines into a temporary file buffer. Then provides interfaces for obtaining Source
+  * objects from the cached file in future. File is removed when the JVM halts.
+  */
+private class SourceBuilder(name:String, is:InputStream) {
+
+
+  val tmpFile = {
+    val f = File.createTempFile(s"$name", ".tmp")
+    f.deleteOnExit()
+    FileUtils.copyInputStreamToFile(is, f)
+    f
+  }
+
+
+  /**
+    * Creates a Source object from the lines contained within the file. Provided for compatibility with APIs that require
+    * a Source object.
+    */
+  def source() : Source = {
+    val codec = Codec("UTF-8")
+    codec.onMalformedInput(CodingErrorAction.IGNORE)
+    codec.onUnmappableCharacter(CodingErrorAction.IGNORE)
+    Source.fromInputStream(new BOMInputStream(new FileInputStream(tmpFile)))(codec)
+  }
+}
+
+object ManifestFilter {
+
+  val logger = LoggerFactory.getLogger(ManifestFilter.this.getClass)
 
   val ItemTypeIds = Map(
     7 -> "Selectable Text",
@@ -26,7 +60,7 @@ trait ManifestFilter {
    * KDS manifest files are ~200mb, and we're only interested in a few hundred results. This method uses Scala's XML
    * pull-parser to create a manifest that includes only the files we're really interested in.
    */
-  def filterManifest(file: SourceWrapper): Node = {
+  def filterManifest(is:InputStream): Node = {
 
     def getResources(source: Source, keepNode: MetaData => Boolean): Seq[NodeSeq] = {
       var resources: Seq[String] = Seq.empty
@@ -78,7 +112,7 @@ trait ManifestFilter {
             }
             case EvText(text) => {
               if (insideItemTypeId) {
-                if (ImportableItemTypeIds.map(_.toString).toSeq.contains(text)) {
+                if (ImportableItemTypeIds.map(_.toString).contains(text)) {
                   buf += text
                 } else {
                   insideResource = false
@@ -94,14 +128,18 @@ trait ManifestFilter {
       }
 
       parse(xml)
-      resources.map(XML.loadString(_))
+      resources.map { s =>
+        val out = XML.loadString(s.trim)
+        out
+      }
     }
 
     val ofType: (MetaData, String) => Boolean = { case(attr, tipe) => attr.get("type").getOrElse("").toString == tipe }
 
-    val resources = getResources(file.toSource(), attrs => ofType(attrs, "imsqti_item_xmlv2p1"))
+    val sourceBuilder = new SourceBuilder("imsmanifest.xml", is)
+    val resources = getResources(sourceBuilder.source, attrs => ofType(attrs, "imsqti_item_xmlv2p1"))
     val files = resources.map(_ \\ "file" \ "@href").map(_.toString).filter(_.nonEmpty)
-    val passages = getResources(file.toSource(), attrs => ofType(attrs, "passage") && files.contains(attrs.get("href").getOrElse("").toString))
+    val passages = getResources(sourceBuilder.source, attrs => ofType(attrs, "passage") && files.contains(attrs.get("href").getOrElse("").toString))
 
     <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_v1p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:imsqti="http://www.imsglobal.org/xsd/imsqti_v2p1" identifier="MANIFEST-10/3/2014" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.imsglobal.org/xsd/imsmd_v1p2 imsmd_v1p2p4.xsd http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/imsqti_v2p1.xsd">
       <resources>

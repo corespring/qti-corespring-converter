@@ -10,11 +10,11 @@ import com.keydatasys.conversion.qti.util.PathFlattener
 import com.keydatasys.conversion.qti.{ItemTransformer, MetadataExtractor}
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
-import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.conversion.qti.manifest.{ManifestItem, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.corespring.macros.DescribeMacro._
+import org.corespring.utils.ErrorDir
 import org.slf4j.LoggerFactory
 import play.api.libs.json.Json._
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
@@ -26,8 +26,7 @@ import scala.xml.Node
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
     with PathFlattener
-    with JsonUtil
-    with ManifestFilter {
+    with JsonUtil {
 
   private val collectionName = "kds"
   private val collectionId = "5453b4e4e4b05f38dd6440a8"
@@ -47,35 +46,29 @@ object KDSQtiZipConverter
 
     val manifestEntry = zip.getEntry("imsmanifest.xml")
     val is = zip.getInputStream(manifestEntry)
-    val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
+    logger.debug(">> parse xml")
+    val xml = ManifestFilter.filterManifest(is)
+
+    logger.debug(">> parsed xml")
 
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
       val out = ManifestItem(node, zip)
-      logger.info(describe(out))
+      logger.trace(describe(out))
       out
     }
 
     def toCorespringItem(m: ManifestItem): Future[Option[CorespringItem]] = Future {
 
-//      val qti = ZipReader.fileContents(zip, m.filename)
-
       m.qti.map { q =>
         try {
-//          logger.debug(describe(q))
-//          val preprocessed = preprocessHtml(q)
-//          logger.debug(describe(preprocessed))
-//          val scrubbed = scrub(preprocessed)
-//          logger.debug(describe(scrubbed))
-          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(q.qti, m, sources)
-          sources.mapValues { v =>
-            IOUtils.closeQuietly(v.inputStream)
-          }
-
-          //          logger.trace(describe(playerDefinition))
+          //val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
+          val playerDefinition = ItemTransformer.transform(q.qti, m)
+//          sources.mapValues { v =>
+//            IOUtils.closeQuietly(v.inputStream)
+//          }
 
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
           val metadata = maybeMetadata.getOrElse(obj()) ++ MetadataExtractor.sourceIdObj(id)
@@ -99,6 +92,8 @@ object KDSQtiZipConverter
         } catch {
           case e: Exception => {
             logger.error(s"Error reading ${m.filename}: ${e.getMessage}")
+
+            ErrorDir.dump(m.id, Some(e), "qti.xml" -> m.qti.map(_.qti.toString()).get)
             if(logger.isDebugEnabled){
               e.printStackTrace()
             }
@@ -143,11 +138,15 @@ object KDSQtiZipConverter
         i.assets.map {
           a =>
             val entry = zip.getEntry(a)
-            val is = zip.getInputStream(entry)
-            val dest = dataPath.resolve(flattenPath(a))
-            logger.debug(s"[writeCorespringItem] write $a to $dest")
-            Files.copy(is, dest)
-            IOUtils.closeQuietly(is)
+            if(entry == null){
+              logger.warn(s"missing resource: $a for ${i.id}")
+            } else {
+              val is = zip.getInputStream(entry)
+              val dest = dataPath.resolve(flattenPath(a))
+              logger.debug(s"[writeCorespringItem] write $a to $dest")
+              Files.copy(is, dest)
+              IOUtils.closeQuietly(is)
+            }
         }
         Some(i)
       }

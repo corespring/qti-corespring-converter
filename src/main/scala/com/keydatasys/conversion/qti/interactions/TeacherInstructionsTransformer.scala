@@ -11,7 +11,7 @@ object TeacherInstructionsTransformer extends InteractionTransformer with XHTMLC
   import NodeWithFinder.NodeWithFinder
 
   val isInstructions: Node => Boolean = n =>
-    ((n.label == "partBlock") && Seq("@label", "@identifier").find(a => (n \ a).text == "teacherInstructions").nonEmpty) ||
+    ((n.label == "partBlock") && Seq("@label", "@identifier").find(a => (n \ a).text.trim == "teacherInstructions").nonEmpty) ||
       (n.label == "teacherInstructions")
 
   def teacherInstructionsId(node: Node) = s"teacher-instructions-${node.hashCode()}"
@@ -29,7 +29,7 @@ object TeacherInstructionsTransformer extends InteractionTransformer with XHTMLC
         teacherInstructionsId(teacherInstructions) ->
           Json.obj(
             "componentType" -> "corespring-teacher-instructions",
-            "teacherInstructions" -> teacherInstructions.convertNonXHTMLElements.map(_.text)
+            "teacherInstructions" -> teacherInstructions.convertNonXHTMLElements.map(_.text.trim)
               .getOrElse(throw new Exception("Teacher instructions could not be converted")))
       }
     }.toMap

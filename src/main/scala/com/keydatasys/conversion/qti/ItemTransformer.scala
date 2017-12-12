@@ -1,7 +1,6 @@
 package com.keydatasys.conversion.qti
 
 import com.keydatasys.conversion.qti.util.{PathTransformer, TableTransformer}
-import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
 import org.corespring.conversion.qti.manifest._
 import org.slf4j.LoggerFactory
@@ -38,7 +37,7 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def transform(qti: Node, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
+  def transform(qti: Node, manifestItem: ManifestItem): JsValue = {
     try {
       val transformer = new RuleTransformer(
         new AddPassageToXml(manifestItem.passages.map(_.xml)),
@@ -46,7 +45,7 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) {
         TableTransformer.rule
       )
       val result = transformer.transform(qti)
-      val out = qtiTransformer.transform(result.head.asInstanceOf[Elem], sources, manifestItem.manifest)
+      val out = qtiTransformer.transform(result.head.asInstanceOf[Elem], manifestItem)
       logger.trace(describe(out))
       out
     } catch {

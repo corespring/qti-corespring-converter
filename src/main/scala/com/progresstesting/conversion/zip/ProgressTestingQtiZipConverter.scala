@@ -7,11 +7,9 @@ import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.ItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestFilter
-import com.progresstesting.conversion.qti.MetadataExtractor
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
 import org.corespring.conversion.qti.{QtiTransformer => DefaultQtiTransformer}
-import org.corespring.common.file.SourceWrapper
 import org.corespring.conversion.qti.manifest._
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
@@ -22,8 +20,7 @@ import scala.concurrent.Future
 import scala.xml.Node
 
 object ProgressTestingQtiZipConverter
-  extends QtiToCorespringConverter
-  with ManifestFilter {
+  extends QtiToCorespringConverter {
 
   private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
@@ -45,7 +42,7 @@ object ProgressTestingQtiZipConverter
 
     val manifestEntry = zip.getEntry("imsmanifest.xml")
     val is = zip.getInputStream(manifestEntry)
-    val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
+    val xml = ManifestFilter.filterManifest(is)
 
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")

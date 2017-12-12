@@ -1,4 +1,5 @@
 import java.io.File
+import java.nio.file.{Path, Paths}
 
 import scala.io.Source
 import scala.xml.{Elem, Node, XML}
@@ -12,6 +13,9 @@ import org.jsoup.parser.Parser
 
 import scala.xml.transform.RewriteRule
 
+Paths.get("./test.xml").normalize().toString
+Paths.get("test.xml").normalize().toString
+Paths.get("././test.xml").normalize().toString
 def toXml(s:String) : Node = {
   ConstructingParser.fromSource(scala.io.Source.fromString(s), false).document.docElem
 }

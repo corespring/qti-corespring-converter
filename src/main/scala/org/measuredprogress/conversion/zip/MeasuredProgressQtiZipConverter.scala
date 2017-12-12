@@ -5,27 +5,25 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
+import com.keydatasys.conversion.qti.manifest.ManifestFilter
 import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
-import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest }
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
-import org.corespring.common.file.SourceWrapper
-import org.corespring.common.util.UnicodeCleaner
-import org.corespring.conversion.qti.manifest.{ManifestItem, ZipReader, ZipWriter}
+import org.corespring.conversion.qti.manifest.{ManifestItem, ZipWriter}
 import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
+import org.corespring.macros.DescribeMacro._
 import org.measuredprogress.conversion.qti.{MeasuredProgressExtractor, QtiTransformer => MPQtiTransformer}
-import play.api.libs.json._
+import org.slf4j.LoggerFactory
 import play.api.libs.json.Json._
+import play.api.libs.json._
 
 import scala.collection.JavaConversions._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.corespring.macros.DescribeMacro._
-import org.slf4j.LoggerFactory
-
+import scala.concurrent.Future
 import scala.xml.Node
 
-object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
+object MeasuredProgressQtiZipConverter
+  extends QtiToCorespringConverter  {
 
   private val logger = LoggerFactory.getLogger(MeasuredProgressQtiZipConverter.this.getClass)
 
@@ -46,7 +44,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
 
     val manifestEntry = zip.getEntry("imsmanifest.xml")
     val is = zip.getInputStream(manifestEntry)
-    val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
+    val xml = ManifestFilter.filterManifest(is)
 
     val (qtiResources, resources) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
@@ -68,12 +66,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
 
       m.qti.flatMap { q =>
         try {
-          val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(q.qti, m, sources)
-
-          sources.mapValues { v =>
-            IOUtils.closeQuietly(v.inputStream)
-          }
+          val playerDefinition = new KDSItemTransformer(MPQtiTransformer).transform(q.qti, m)
 
           logger.trace(describe(playerDefinition))
 

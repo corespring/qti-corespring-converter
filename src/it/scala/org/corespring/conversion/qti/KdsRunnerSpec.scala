@@ -24,15 +24,15 @@ class KdsRunnerSpec extends Specification with BaseRunnerUtils {
       (profileJson \ "taskInfo" \ "extended" \ "kds" \ "scoringType").as[String] must_== "SBAC"
     }
 
-    "add sourceId to profile.json" in {
-      (profileJson \ "taskInfo" \ "extended" \ "kds" \ "sourceId").as[String] must_== "1"
-    }
-    "add title to profile.json" in {
-      (profileJson \ "taskInfo" \ "title").as[String] must_== "1 - SBAC"
-    }
-    "add description to profile.json" in {
-      (profileJson \ "taskInfo" \ "description").as[String] must_== "1 - SBAC"
-    }
+//    "add sourceId to profile.json" in {
+//      (profileJson \ "taskInfo" \ "extended" \ "kds" \ "sourceId").as[String] must_== "1"
+//    }
+//    "add title to profile.json" in {
+//      (profileJson \ "taskInfo" \ "title").as[String] must_== "1 - SBAC"
+//    }
+//    "add description to profile.json" in {
+//      (profileJson \ "taskInfo" \ "description").as[String] must_== "1 - SBAC"
+//    }
   }
 }
 

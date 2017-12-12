@@ -38,6 +38,6 @@ object ChoiceInteractionTransformer extends InteractionTransformer with XHTMLCle
   private def rationale(qti: Node, id: String, choiceId: String): Option[JsString] =
     (qti \\ "choiceRationales" ++ qti \\ "inlineChoiceRationales").find(c => (c \ "@responseIdentifier").text == id)
       .map(c => (c \\ "rationale").find(r => (r \ "@identifier").text == choiceId)).flatten
-      .map(n => JsString(n.child.mkString.cleanWhitespace))
+      .map(n => JsString(n.child.text.cleanWhitespace))
 
 }

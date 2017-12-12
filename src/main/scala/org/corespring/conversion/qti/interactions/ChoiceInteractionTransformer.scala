@@ -53,7 +53,7 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
           "showCorrectAnswer" -> JsString(if (correctResponses.length == 1) "inline" else "separately")),
         "choices" -> JsArray(((node \\ "simpleChoice").toSeq ++ (node \\ "inlineChoice")).map { n =>
           Json.obj(
-            "label" -> n.child.filterNot(e => e.label == "feedbackInline").mkString.trim,
+            "label" -> n.child.filterNot(e => e.label == "feedbackInline").text.trim,
             "value" -> (n \ "@identifier").text.trim)
         })),
       "feedback" -> (node.label match {
