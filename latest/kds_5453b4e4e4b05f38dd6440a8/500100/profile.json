@@ -1,0 +1,12 @@
+{
+  "taskInfo" : {
+    "title" : "500100 - SBAC",
+    "description" : "500100 - SBAC",
+    "extended" : {
+      "kds" : {
+        "scoringType" : "SBAC",
+        "sourceId" : "500100"
+      }
+    }
+  }
+}

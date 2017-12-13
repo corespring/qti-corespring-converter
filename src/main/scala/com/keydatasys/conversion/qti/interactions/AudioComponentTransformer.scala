@@ -10,22 +10,6 @@ import scala.xml.{Elem, Node}
 /**
   * Some nodes contain CDATA within which is an <audio> tag.
   * expose these in the markup.
-  * object ExtractAudioFromText extends RewriteRule {
-  * *
-  * override def transform(n: Node) = {
-  * *
-  * n match {
-  * case e: Elem if e.text.indexOf("<audio") != -1 => {
-  * val stripped = CDataHelper.stripCDataTags(e.text)
-  * val empty = e.copy(child = Seq(<extract_audio_contents_here/>))
-  * val xmlMarkup = CDataHelper.fixXml(empty.toString.replaceFirst("<extract_audio_contents_here/>", stripped))
-  * val p = ConstructingParser.fromSource(Source.fromString(xmlMarkup), false)
-  *p.document().docElem
-  * }
-  * case _ => n
-  * }
-  * }
-  * }
   */
 
 object AudioMarkupAndComponent extends NodeAndJsonTransformer {
@@ -70,6 +54,7 @@ object AudioMarkupAndComponent extends NodeAndJsonTransformer {
   }
 }
 
+@deprecated("Use AudioMarkupAndComponent", "1.0.0")
 object AudioComponentTransformer extends InteractionTransformer {
 
   private val reg = "(.*/)?(.*).mp3".r

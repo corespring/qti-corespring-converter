@@ -10,7 +10,7 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
 
   override def transform(node: Node, manifest: Node): Seq[Node] = node match {
     case node: Node if (node.label == "matchInteraction") =>
-      <p class="prompt">{ (node \ "prompt").map(_.child).flatten }</p> ++
+      <p class="prompt">{ (node \ "prompt").map(_.child.text).flatten }</p> ++
           <corespring-match id={ (node \\ "@responseIdentifier").text }/>
     case _ => node
   }
@@ -29,7 +29,7 @@ object MatchInteractionTransformer extends InteractionTransformer with ImageConv
       "legacyScoring" -> legacyScoring(qti),
       "model" -> Json.obj(
         "columns" -> {
-          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(convertObjectsToImages(col.child).toString)))
+          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(convertObjectsToImages(col.child).text)))
           Json.obj("labelHtml" -> JsString(stripNamespaces((node \ "prompt").headOption.map(n => convertObjectsToImages(n.child)).getOrElse(Seq.empty).toString))) +: cols
         },
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(

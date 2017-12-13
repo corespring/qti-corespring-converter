@@ -1,13 +1,14 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.common.xml.XhtmlParser
 import org.corespring.conversion.qti.interactions.equation.DomainParser
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
-import scala.xml._
-import scala.xml.parsing.ConstructingParser
+import scala.xml.Node
+
 
 class TextEntryInteractionTransformerTest extends Specification with DomainParser {
 
@@ -15,11 +16,8 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
   val equationIdentifier = "Q_02"
   val lineIdentifier = "Q_03"
 
-  def toXml(s: String): Node = {
-    val src = scala.io.Source.fromString(s)
-    val p = ConstructingParser.fromSource(src, false)
-    p.document().docElem
-  }
+  def toXml(s: String): Node = XhtmlParser.loadString(s)
+
 
   def qti(correctResponses: Seq[String], correctFeedback: String, incorrectFeedback: String, popupFeedback: Boolean): Node = {
     toXml(

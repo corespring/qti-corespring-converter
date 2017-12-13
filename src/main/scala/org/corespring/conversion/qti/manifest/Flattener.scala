@@ -1,11 +1,10 @@
 package org.corespring.conversion.qti.manifest
 
+import org.corespring.common.xml.XhtmlParser
 import org.corespring.utils.CDataHelper
 import org.slf4j.LoggerFactory
 
-import scala.io.Source
-import scala.xml.parsing.ConstructingParser
-import scala.xml.{Node, XML}
+import scala.xml.Node
 
 object Flattener {
 
@@ -23,8 +22,7 @@ object Flattener {
 
     logger.debug(s"fixed: $fixed")
     try {
-      val p = ConstructingParser.fromSource(Source.fromString(fixed), false)
-      p.document.docElem
+      XhtmlParser.loadString(fixed)
     } catch {
       case t : Throwable => {
         logger.error(fixed)

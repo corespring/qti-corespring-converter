@@ -41,12 +41,12 @@ object MatchInteractionTransformer extends InteractionTransformer with Namespace
       ),
       "model" -> Json.obj(
         "columns" -> {
-          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(col.child.mkString.trim)))
-          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(_.child.mkString).getOrElse(""))) +: cols
+          val cols: Seq[JsObject] = ((node \\ "simpleMatchSet").tail \\ "simpleAssociableChoice").map(col => Json.obj("labelHtml" -> stripNamespaces(col.child.text.trim)))
+          Json.obj("labelHtml" -> JsString((node \ "prompt").headOption.map(_.child.text).getOrElse(""))) +: cols
         },
         "rows" -> ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(row => Json.obj(
           "id" -> (row \ "@identifier").text,
-          "labelHtml" -> stripNamespaces(row.child.mkString.trim)
+          "labelHtml" -> stripNamespaces(row.child.text.trim)
         )),
         "config" -> Json.obj(
           "inputType" -> "radiobutton",

@@ -3,20 +3,18 @@ package org.corespring.conversion.qti
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.html.JsoupParser
 import org.corespring.common.util.CssSandboxer
-import org.corespring.common.xml.XMLNamespaceClearer
+import org.corespring.common.xml.{XMLNamespaceClearer, XhtmlParser}
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.manifest.{CssManifestResource, ManifestItem, ManifestResource}
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import org.corespring.macros.DescribeMacro._
-
-import scala.collection.JavaConversions._
 import org.corespring.utils.CDataHelper
 import org.measuredprogress.conversion.qti.interactions.ImageConverter
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
+import scala.collection.JavaConversions._
 import scala.xml._
-import scala.xml.parsing.ConstructingParser
 import scala.xml.transform._
 
 
@@ -117,11 +115,8 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     doc.outerHtml()
   }
 
-  private def rawXml(s: String) = {
-    val src = scala.io.Source.fromString(s)
-    val p = ConstructingParser.fromSource(src, false)
-    p.document().docElem.asInstanceOf[Elem]
-  }
+  private def rawXml(s: String) = XhtmlParser.loadString(s)
+
 
   def transform(qti: Elem, mi: ManifestItem): JsValue = {
     val transformers = interactionTransformers(qti)
@@ -160,7 +155,8 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
       * The restriction being that they only work with xhtml not qti.
       * Apply those transformations last.
       */
-    val xhtmlNode: Elem = rawXml(converted)
+    val xhtmlNode: Elem = rawXml(converted).asInstanceOf[Elem]
+
     val (markup, comps) = postXhtmlTransformers.foldLeft((xhtmlNode -> components))((t, transformer) => {
       val (xhtml, components) = t
       transformer.transform(xhtml, components)

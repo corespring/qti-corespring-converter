@@ -1,12 +1,10 @@
 package org.corespring.conversion.qti
 
-import org.apache.commons.io.IOUtils
-import org.corespring.common.file.SourceWrapper
+import org.corespring.conversion.qti.manifest.{CssManifestResource, ManifestItem}
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
-import play.api.libs.json.JsObject
 
-import scala.xml.{Elem, Node, XML}
+import scala.xml.{Elem, XML}
 
 class QtiTransformerSpec extends Specification {
 
@@ -40,15 +38,16 @@ class QtiTransformerSpec extends Specification {
          </itemBody>
        </assessmentItem>
 
+     val mi = ManifestItem("1", "1", Seq.empty, <resource/>)
+
      "not throw an exception" in {
-       QtiTransformer.transform(qti) must not(throwAn[Exception])
+       QtiTransformer.transform(qti, mi) must not(throwAn[Exception])
      }
 
    }
 
    "with sources" should {
 
-      // ---> TODO: get this to work.
      "convert stylesheets if not in itemBody" in {
 
        val qtiData = <assessmentItem>
@@ -56,13 +55,11 @@ class QtiTransformerSpec extends Specification {
          <itemBody>no style in item body</itemBody>
        </assessmentItem>
 
-       val sources: Map[String,SourceWrapper] = Map("style/LiveInspect.css" ->
-         SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
-         ))
+       val mi = ManifestItem("1", "1", Seq(
+         CssManifestResource("style/LiveInspect.css", "body{color: red}")
+       ), <resource/>)
 
-       val manifest : Node = MockManifest.manifest
-
-       val json = QtiTransformer.transform(qtiData, sources, manifest)
+       val json = QtiTransformer.transform(qtiData, mi)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
        logger.debug(s"xml: $xml")
@@ -73,13 +70,12 @@ class QtiTransformerSpec extends Specification {
      "convert stylesheets" in {
 
        val qtiData = qti(<stylesheet href="style/LiveInspect.css"></stylesheet>)
-       val sources: Map[String,SourceWrapper] = Map("style/LiveInspect.css" ->
-         SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
-       ))
 
-       val manifest : Node = MockManifest.manifest
 
-       val json = QtiTransformer.transform(qtiData, sources, manifest)
+       val mi = ManifestItem("1", "1", Seq(
+         CssManifestResource("style/LiveInspect.css", "body{color: red}")
+       ), <resource/>)
+       val json = QtiTransformer.transform(qtiData, mi)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
        (xml \\ "style")(1).text.trim must_== """/* style/LiveInspect.css */ .qti.kds body { color:red; }"""

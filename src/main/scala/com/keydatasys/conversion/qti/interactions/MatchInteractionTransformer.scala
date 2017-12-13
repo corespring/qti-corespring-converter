@@ -29,7 +29,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
       "correctResponse" -> Some(JsArray(answers(qti)(node))),
       "legacyScoring" -> legacyScoring(qti),
       "model" -> Some(Json.obj(
-        "columns" -> (Json.obj("labelHtml" -> ((node \ "cornerText").text.toString match {
+        "columns" -> (Json.obj("labelHtml" -> ((node \ "cornerText").text match {
           case empty if (empty.isEmpty) => DefaultCornerText
           case nonEmpty: String => nonEmpty
         })) +: columns.values.map(text => Json.obj("labelHtml" -> text)).toSeq),
@@ -81,7 +81,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
       (n \ "simpleAssociableChoice") match {
         case choices if comparator(choices, acc) => choices
         case _ => acc
-      })).map(choice => (choice \ "@identifier").text -> choice.child.mkString).toMap.toArray: _*)
+      })).map(choice => (choice \ "@identifier").text -> choice.child.text).toMap.toArray: _*)
 
   private def regexMatch(regex: String, string: String) = {
     val regexX = regex.r
@@ -93,7 +93,7 @@ object MatchInteractionTransformer extends InteractionTransformer {
 
   private def missingAnswers(node: Node)(implicit qti: Node): Seq[String] = {
     val id = (node \ "@responseIdentifier").text
-    val rowIds = ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(n => (n \ "@identifier").toString).toSeq
+    val rowIds = ((node \\ "simpleMatchSet").head \\ "simpleAssociableChoice").map(n => (n \ "@identifier").text).toSeq
     val correctIds = (qti \ "responseDeclaration").find(n => (n \ "@identifier").text == id).map(n => {
       (n \\ "value").map(_.text.split(" ").head)
     }).getOrElse(Seq.empty)

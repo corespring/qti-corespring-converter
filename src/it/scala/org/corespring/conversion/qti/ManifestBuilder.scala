@@ -4,12 +4,12 @@ import java.io.File
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 
+import org.corespring.common.xml.XhtmlParser
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.sys.process.Process
 import scala.xml._
-import scala.xml.parsing.ConstructingParser
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 trait Instruction
@@ -164,10 +164,8 @@ class ItemBuilder(e: Elem = ItemBuilder.defaultQti) {
     applyTransform(t)
   }
 
-  def rawParse(s:String) : Node = {
-    val p = ConstructingParser.fromSource(Source.fromString(s), true)
-    p.document.docElem
-  }
+  def rawParse(s:String) : Node = XhtmlParser.loadString(s)
+
 
   def addResponseDeclaration(rd: String): ItemBuilder = {
     this.addResponseDeclaration(this.rawParse(rd))
@@ -193,10 +191,7 @@ object ManifestUtils {
 
   def buildItem(s: String) = {
 
-    val content = {
-      val p = ConstructingParser.fromSource(Source.fromString(s), false)
-      p.document.docElem
-    }
+    val content = XhtmlParser.loadString(s)
 
     <assessmentItem>
       <itemBody>

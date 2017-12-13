@@ -1,5 +1,6 @@
 package org.corespring.conversion.qti.interactions
 
+import org.corespring.common.xml.XhtmlParser
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.specs2.mutable.Specification
 import play.api.libs.json.{JsArray, JsObject, Json}
@@ -17,24 +18,33 @@ class MatchInteractionTransformerSpec extends Specification {
 
   val identifier = "RESPONSE"
 
-  val qti = <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"
+  val qti = mkQti(addCdata=true)
+
+
+  def mkQti(addCdata:Boolean) = {
+
+
+    def labelString(s:String) = if(addCdata) s"<![CDATA[$s]]>" else s
+
+    val s =
+      s"""<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"
                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                             xmlns:m="http://www.w3.org/1998/Math/MathML"
                             xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p1.xsd"
                             identifier="item-128727" title="Sample Export - Reading Advanced - 128727" adaptive="false" timeDependent="false">
-    <responseDeclaration identifier={identifier} cardinality="multiple" baseType="directedPair">
+    <responseDeclaration identifier="${identifier}" cardinality="multiple" baseType="directedPair">
       <correctResponse>
-        {
+        ${
           responses.map{ case ((columnId, columnLabel), (rowId, rowLabel)) => {
-            <value>{s"$columnId $rowId"}</value>
-          }}
+            s"""<value>${columnId} ${rowId}</value>"""
+          }}.mkString("")
         }
       </correctResponse>
       <mapping defaultValue="0">
-        {
+        ${
           responses.map { case ((columnId, columnLabel), (rowId, rowLabel)) => {
-            <mapEntry mapKey={s"$columnId $rowId"} mappedValue="1"/>
-          }}
+            s"""<mapEntry mapKey="$columnId $rowId" mappedValue="1"/>"""
+          }}.mkString("")
         }
       </mapping>
     </responseDeclaration>
@@ -45,29 +55,32 @@ class MatchInteractionTransformerSpec extends Specification {
         <object type="text/html" data="passages/5578.html" />
       </div>
       <div>Matching Interaction for Passage 1</div>
-      <matchInteraction responseIdentifier={identifier} shuffle="false" maxAssociations="4">
-        <prompt>{cornerText}</prompt>
+      <matchInteraction responseIdentifier="$identifier" shuffle="false" maxAssociations="4">
+        <prompt>$cornerText</prompt>
         <simpleMatchSet>
-          {
+          ${
             responses.keys.toSeq.sortBy(_._1).map { case(id, label) => {
-              <simpleAssociableChoice identifier={id} matchMax="1" fixed="true">
-                {label}
-              </simpleAssociableChoice>
-            }}
+              s"""<simpleAssociableChoice identifier="${id}" matchMax="1" fixed="true">
+                ${labelString(label)}
+              </simpleAssociableChoice>"""
+            }}.mkString("")
           }
         </simpleMatchSet>
         <simpleMatchSet>
-          {
+          ${
             responses.values.toSeq.sortBy(_._1).map { case(id, label) => {
-              <simpleAssociableChoice identifier={id} matchMax="1" fixed="true">
-                {label}
-              </simpleAssociableChoice>
-            }}
+              s"""<simpleAssociableChoice identifier="${id}" matchMax="1" fixed="true">
+                ${labelString(label)}
+              </simpleAssociableChoice>"""
+            }}.mkString("")
           }
         </simpleMatchSet>
       </matchInteraction>
     </itemBody>
-  </assessmentItem>
+  </assessmentItem>"""
+  println(s)
+    XhtmlParser.loadString(s)
+  }
 
   "interactionJs" should {
 
