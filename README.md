@@ -27,3 +27,7 @@ Or utilize it directly from Scala code:
 #### Testing
 
     sbt test
+
+#### Build Executable 
+
+```sbt stage```
