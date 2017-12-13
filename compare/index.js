@@ -9,7 +9,7 @@ const jsesc = require('jsesc');
 const chalk = require('chalk');
 const log = console.log;
 
-var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30";
+var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30.3";
 
 log(chalk.yellow(`LEGACY_LIB: ${legacyLib}`));
 
