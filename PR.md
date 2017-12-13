@@ -17,6 +17,10 @@ This branch is nearly ready to be merged the main outstanding tasks are:
 * check all the transformers are not using `node.toString` (should be `node.text` always).
 * check imports from the other vendors (measuredprogress, progresstesting)
 
+## what i've checked already: 
+
+* kds/sbac - multiple choice, match, drag and drop - all fine.
+
 > There is a compare tool that will do 2 conversions of an input zip and then diff them.. one version is from 0.30.3 and the other is from this branch. This allows you to quickly see what differences there are.
 
 * after an import to staging - a pretty thorough check of the imported items should be done.
