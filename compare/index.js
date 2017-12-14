@@ -10,8 +10,16 @@ const chalk = require('chalk');
 const log = console.log;
 const expandZip = require('./zip-expander');
 
-var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30.3";
+argv['skip-latest-build'] = argv['skip-latest-build'] === true;
 
+var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30.3";
+/**
+ * Future options
+ * --ignore-html
+ * --remove-inline-css from index.html
+ * --remove-passages (from json too?)
+ * sbt option? --add-passage false (default:true)
+ */
 log(chalk.yellow(`LEGACY_LIB: ${legacyLib}`));
 
 const name = argv.compareName.toString();
@@ -54,8 +62,11 @@ if (!fs.existsSync(legacyUnzippedDir)) {
 log(chalk.red('removing sbt build assets'));
 var latestPathOut = path.join(rootPath, 'latest.zip');
 var latestDir = path.join(rootPath, 'latest');
-rimraf.sync(latestPathOut);
-rimraf.sync(latestDir);
+if (!argv['skip-latest-build']) {
+  rimraf.sync(latestPathOut);
+  rimraf.sync(latestDir);
+
+}
 
 const sbtArgs = converterArgs(argv, { output: path.resolve('.', latestPathOut) });
 
@@ -75,7 +86,9 @@ var sbtLogStream = fs.createWriteStream(path.join(rootPath, 'sbt.log'));
 
 sbtLogStream.on('open', () => {
 
-  run(`/usr/local/bin/sbt`, cmd, dir, sbtLogStream);
+  if (!argv['skip-latest-build']) {
+    run(`/usr/local/bin/sbt`, cmd, dir, sbtLogStream);
+  }
 
   if (!fs.existsSync(latestDir)) {
     expandZip('latest.zip', 'latest', rootPath);
@@ -83,8 +96,13 @@ sbtLogStream.on('open', () => {
 
   try {
     log(chalk.yellow('running diff...'));
-    run('/usr/bin/diff', '-r legacy/ latest/', rootPath);
+    let args = '-r legacy/ latest';
+    if (argv['ignore-html']) {
+      args += ' --exclude *.html'
+    }
+
+    run('/usr/bin/diff', args, rootPath);
   } catch (e) {
-    log(e.stdout.toString())
+    log(e.message);
   }
 });
