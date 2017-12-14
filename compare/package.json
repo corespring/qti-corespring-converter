@@ -5,6 +5,7 @@
   "main": "./index.js",
   "dependencies": {
     "chalk": "^2.3.0",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "jsesc": "^2.5.1",
     "minimist": "^1.2.0",

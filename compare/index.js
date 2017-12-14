@@ -8,6 +8,7 @@ var rimraf = require('rimraf');
 const jsesc = require('jsesc');
 const chalk = require('chalk');
 const log = console.log;
+const expandZip = require('./zip-expander');
 
 var legacyLib = process.env.LEGACY_LIB || "/Users/edeustace/dev/executables/corespring/qti-corespring-converter/0.30.3";
 
@@ -45,8 +46,7 @@ if (!fs.existsSync(legacyPathOut)) {
 }
 
 if (!fs.existsSync(legacyUnzippedDir)) {
-  log(chalk.green('unzipping legacy zip to: ', legacyUnzippedDir));
-  run('unzip', `${legacyPathOut} -d legacy`, rootPath);
+  expandZip('legacy.zip', 'legacy', rootPath);
 }
 
 /** now run the current projects code. */
@@ -78,7 +78,7 @@ sbtLogStream.on('open', () => {
   run(`/usr/local/bin/sbt`, cmd, dir, sbtLogStream);
 
   if (!fs.existsSync(latestDir)) {
-    run('unzip', 'latest.zip -d latest', rootPath);
+    expandZip('latest.zip', 'latest', rootPath);
   }
 
   try {
