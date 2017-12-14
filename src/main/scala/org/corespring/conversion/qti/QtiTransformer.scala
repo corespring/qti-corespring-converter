@@ -46,9 +46,7 @@ object InlinedCss {
       })
 
       r.map(mr => {
-        s"""<style type="text/css">
-            ${CssSandboxer.sandbox(mr.asInstanceOf[CssManifestResource].src, ".qti.kds")}
-          </style>"""
+        s"""<style type="text/css"> ${CssSandboxer.sandbox(mr.asInstanceOf[CssManifestResource].src, ".qti.kds").trim} </style>"""
       })
         .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $href"))
 
