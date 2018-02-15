@@ -12,6 +12,8 @@ import scala.xml.{Node, Elem}
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
+  override val normalizeScore = false
+
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 
     override def transform(node: Node): Seq[Node] = {

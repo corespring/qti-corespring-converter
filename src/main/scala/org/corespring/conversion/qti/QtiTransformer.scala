@@ -1,6 +1,6 @@
 package org.corespring.conversion.qti
 
-import com.keydatasys.conversion.qti.processing.ProcessingTransformer
+import com.keydatasys.conversion.qti.processing.{ProcessingTransformer, V2JavascriptWrapper}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.CssSandboxer
 import org.corespring.common.xml.XMLNamespaceClearer
@@ -14,9 +14,17 @@ import play.api.libs.json._
 import scala.xml._
 import scala.xml.transform._
 import org.corespring.macros.DescribeMacro._
-import org.measuredprogress.conversion.qti.QtiTransformer
 
 trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with ImageConverter {
+
+
+  /**
+    * Some js custom processing wants the score to be normalized to between 0 - 1.
+    * Some providers always do this though, so we need to turn it on/off depending on the provider.
+    * At the moment MeasuredProgress are the only ones that need it normalized.
+    * @return
+    */
+  def normalizeScore: Boolean
 
   private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
@@ -64,7 +72,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
 
   def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
-    toJs(qti).map(wrap) match {
+    toJs(qti).map(V2JavascriptWrapper.wrap(_, normalizeScore)) match {
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
@@ -136,6 +144,8 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 }
 
 object QtiTransformer extends QtiTransformer {
+
+  override val normalizeScore = false
 
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorTransformer,

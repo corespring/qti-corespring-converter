@@ -1,6 +1,5 @@
 package org.measuredprogress.conversion.qti
 
-import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
@@ -9,6 +8,8 @@ import org.measuredprogress.conversion.qti.interactions.{OrderingInteractionTran
 import scala.xml.Elem
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
+
+  override val normalizeScore = true
 
   override def interactionTransformers(qti: Elem) = {
     val hasFeedback: Seq[InteractionTransformer] = Seq(
@@ -46,4 +47,3 @@ object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
   )
 }
 
-object ItemTransformer extends KDSItemTransformer(QtiTransformer)

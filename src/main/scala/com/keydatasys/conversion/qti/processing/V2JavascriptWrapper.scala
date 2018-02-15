@@ -1,10 +1,10 @@
 package com.keydatasys.conversion.qti.processing
 
-trait V2JavascriptWrapper {
+object V2JavascriptWrapper {
 
   import VariableSanitizer._
 
-  def wrap(js: JsResponseProcessing): String = {
+  def wrap(js: JsResponseProcessing, normalize: Boolean): String = {
     s"""exports.process = function(item, session, outcomes) {
        |  var answers = session.components;
        |
@@ -41,7 +41,7 @@ trait V2JavascriptWrapper {
        |  ${js.lines.mkString("\n|  ")}
        |
        |  var divider = ${ if (js.responseVars.isEmpty) 1 else js.responseVars.length}
-       |  var normalizedScore = SCORE / divider;
+       |  var normalizedScore = ${if(normalize) "SCORE / divider" else "SCORE"};
        |  var maxPoints = ${js.responseVars.length};
        |
        |  var summary = {
