@@ -27,9 +27,18 @@ object KDSMode extends Enumeration {
 private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
   override def normalizeScore(resource:Node) = {
-    val twoPointKey = s"${mode.toString.toLowerCase}TwoPointScoring"
-    val twoPointFlag : String = (resource \ "metadata" \ "lom" \ "general" \ twoPointKey).text.trim
-    twoPointFlag == "1"
+
+    /**
+      * KDS have said that sbacTwoPointScoring is redundant - so never normalize SBAC
+      */
+    if(mode == KDSMode.SBAC){
+      false
+    } else {
+      val FLAG = s"parccTwoPointScoring"
+      val twoPointFlag : String = (resource \ "metadata" \ "lom" \ "general" \ FLAG).text.trim
+      twoPointFlag == "1"
+
+    }
   }
 
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
