@@ -38,7 +38,7 @@ class QtiTransformerSpec extends Specification {
        </assessmentItem>
 
      "not throw an exception" in {
-       QtiTransformer.transform(qti) must not(throwAn[Exception])
+       QtiTransformer.transform(qti, Map.empty, <resource></resource>) must not(throwAn[Exception])
      }
 
    }

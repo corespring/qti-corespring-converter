@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.KDSItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestFilter
 import com.progresstesting.conversion.qti.MetadataExtractor
 import org.apache.commons.io.IOUtils
@@ -28,7 +28,7 @@ object ProgressTestingQtiZipConverter
   private val collectionName = "progress-testing"
   private val collectionId = "5665af0ce4b03794c324adbd"
 
-  val itemTransformer = new ItemTransformer(DefaultQtiTransformer)
+  val itemTransformer = new KDSItemTransformer(DefaultQtiTransformer)
 
   val logger = LoggerFactory.getLogger(ProgressTestingQtiZipConverter.this.getClass)
 

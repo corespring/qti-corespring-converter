@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="664014" identifier="664014" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE11" cardinality="single" baseType="string">
+        <correctResponse>
+            <value>-\frac{\sqrt5}3</value>
+            <value>-\frac{\sqrt{5}}{3}</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="multiple" baseType="identifier">
+        <correctResponse>
+            <value>1</value>
+            <value>4</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE31" cardinality="single" baseType="string">
+        <correctResponse>
+            <value>0.75</value>
+            <value>.75</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE4" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>4</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <teacherInstructions>
+            <strong>TEACHER READS:</strong>
+            <br/>
+            <br/>Read and complete the task that follows.
+        </teacherInstructions>
+        <div>
+            <strong>Hunter is investigating four angles: <em>j</em>, <em>k</em>, <em>m</em>, and <em>n</em>. &nbsp;He
+                knows that Angle <em>j</em> is in Quadrant IV and that
+            </strong>
+            <div style="display:inline; white-space:nowrap;">
+                <strong>cos(<em>j</em>) =
+                </strong>
+                <table class="frac">
+                    <tr>
+                        <td class="nu">
+                            <strong>2</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="de">
+                            <strong>3</strong>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <strong>.</strong>
+            <br/>
+            <br/>
+            <strong>Part A:</strong>
+            <br/>
+            <br/>
+            <strong>What is the value of</strong>
+            <span style="white-space:nowrap;">
+                <strong>sin(<em>j</em>)
+                </strong>
+            </span>
+            <strong>? &nbsp;Express your answer as an exact answer.</strong>
+            <br/>
+            <br/>
+            <textEntryInteraction responseIdentifier="RESPONSE11" expectedLength="20"/>
+        </div>
+        <br/>
+        <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="4">
+            <prompt visible="true">
+                <strong>Part B:</strong>
+                <br/>
+                <br/>
+                <strong>Hunter knows that</strong>
+                <strong>. &nbsp;Select <em>each</em> true statement regarding the value of
+                </strong>
+                <span style="white-space:nowrap;">
+                    <strong>cos(<em>k</em>)
+                    </strong>
+                </span>
+                <strong>.</strong>
+            </prompt>
+            <simpleChoice identifier="1">If Angle <em>k</em> is in Quadrant I, then
+                <div style="display:inline; white-space:nowrap;">cos(<em>k</em>) =
+                    <table class="frac">
+                        <tr>
+                            <td class="nu">1</td>
+                        </tr>
+                        <tr>
+                            <td class="de">2</td>
+                        </tr>
+                    </table>
+                </div>
+                .
+            </simpleChoice>
+            <simpleChoice identifier="2">If Angle <em>k</em> is in Quadrant II, then
+                <div style="display:inline; white-space:nowrap;">cos(<em>k</em>) =
+                    <table class="frac">
+                        <tr>
+                            <td class="nu">1</td>
+                        </tr>
+                        <tr>
+                            <td class="de">2</td>
+                        </tr>
+                    </table>
+                </div>
+                .
+            </simpleChoice>
+            <simpleChoice identifier="3">If Angle <em>k</em> is in Quadrant I, then
+            </simpleChoice>
+            <simpleChoice identifier="4">If Angle <em>k</em> is in Quadrant II, then cos(<em>k</em>) = &#8211;
+                <table class="frac">
+                    <tr>
+                        <td class="nu">1</td>
+                    </tr>
+                    <tr>
+                        <td class="de">2</td>
+                    </tr>
+                </table>
+                .
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">Correct answer</rationale>
+            <rationale identifier="2">Student(s) may have thought that cosine is positive in Quadrant II.</rationale>
+            <rationale identifier="3">Student(s) may have thought that sin(<em>k</em>) = cos(<em>k</em>) in Quadrant I.
+            </rationale>
+            <rationale identifier="4">Correct answer</rationale>
+        </choiceRationales>
+        <br/>
+        <div>
+            <strong>Part C:
+                <br/>
+                <br/>
+                Hunter knows that Angle <em>m</em> is in Quadrant III and that sin(<em>m</em>) = &#8211;0.6.&nbsp; What
+                is the value of tan(<em>m</em>)?&nbsp; Enter your answer in decimal form.
+            </strong>
+            <br/>
+            <br/>
+            <textEntryInteraction responseIdentifier="RESPONSE31" expectedLength="10"/>
+        </div>
+        <br/>
+        <choiceInteraction responseIdentifier="RESPONSE4" shuffle="false" maxChoices="1">
+            <prompt visible="true">
+                <strong>Part D:
+                    <br/>
+                    <br/>
+                    Hunter knows that Angle <em>n</em> is in Quadrant I and that tan(<em>n</em>) =
+                </strong>
+                <table class="frac">
+                    <tr>
+                        <td class="nu">
+                            <strong>1</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="de">
+                            <strong>6</strong>
+                        </td>
+                    </tr>
+                </table>
+                <strong>.&nbsp; Which of the following equations can Hunter use to determine cos(<em>n</em>)?
+                </strong>
+            </prompt>
+            <simpleChoice identifier="1">
+                <table class="frac">
+                    <tr>
+                        <td class="nu">1</td>
+                    </tr>
+                    <tr>
+                        <td class="de">3</td>
+                    </tr>
+                </table>
+                cos<sup>2</sup>(<em>n</em>) + cos<sup>2</sup>(<em>n</em>) = 1
+            </simpleChoice>
+            <simpleChoice identifier="2">
+                <table class="frac">
+                    <tr>
+                        <td class="nu">1</td>
+                    </tr>
+                    <tr>
+                        <td class="de">6</td>
+                    </tr>
+                </table>
+                cos<sup>2</sup>(<em>n</em>) + cos<sup>2</sup>(<em>n</em>) = 1
+            </simpleChoice>
+            <simpleChoice identifier="3">
+                <table class="frac">
+                    <tr>
+                        <td class="nu">1</td>
+                    </tr>
+                    <tr>
+                        <td class="de">12</td>
+                    </tr>
+                </table>
+                cos<sup>2</sup>(<em>n</em>) + cos<sup>2</sup>(<em>n</em>) = 1
+            </simpleChoice>
+            <simpleChoice identifier="4">
+                <table class="frac">
+                    <tr>
+                        <td class="nu">1</td>
+                    </tr>
+                    <tr>
+                        <td class="de">36</td>
+                    </tr>
+                </table>
+                cos<sup>2</sup>(<em>n</em>) + cos<sup>2</sup>(<em>n</em>) = 1
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE4">
+            <rationale identifier="1">Student(s) may have incorrectly simplified (1/6cos(<em>n</em>))<sup>2</sup> by
+                multiplying 1/6 by 2, rather than squaring 1/6.
+            </rationale>
+            <rationale identifier="2">Student(s) may not have realized that the 1/6 needed to be squared when
+                simplifying (1/6cos(<em>n</em>))<sup>2</sup>.
+            </rationale>
+            <rationale identifier="3">Student(s) may have incorrectly simplified (1/6cos(<em>n</em>))<sup>2</sup> by
+                multiplying the denominator of 1/6 by 2, rather than squaring 1/6.
+            </rationale>
+            <rationale identifier="4">Correct answer</rationale>
+        </choiceRationales>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <or>
+                    <match>
+                        <variable identifier="RESPONSE11"/>
+                        <baseValue baseType="string">-\frac{\sqrt5}3</baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE11"/>
+                        <baseValue baseType="string">-\frac{\sqrt{5}}{3}</baseValue>
+                    </match>
+                </or>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE2"/>
+                    <correct identifier="RESPONSE2"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <or>
+                    <match>
+                        <variable identifier="RESPONSE31"/>
+                        <baseValue baseType="string">0.75</baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE31"/>
+                        <baseValue baseType="string">.75</baseValue>
+                    </match>
+                </or>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE4"/>
+                    <correct identifier="RESPONSE4"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <gt>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">0</baseValue>
+                </gt>
+                <setOutcomeValue identifier="SCORE">
+                    <variable identifier="NUMCORRECT"/>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

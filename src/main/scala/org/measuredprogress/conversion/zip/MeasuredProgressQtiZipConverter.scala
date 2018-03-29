@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
+import com.keydatasys.conversion.qti.{KDSItemTransformer => KDSItemTransformer}
 import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest, scrub}
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem

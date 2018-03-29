@@ -1,6 +1,6 @@
 package org.measuredprogress.conversion.qti
 
-import com.keydatasys.conversion.qti.{ItemTransformer => KDSItemTransformer}
+import com.keydatasys.conversion.qti.{KDSItemTransformer => KDSItemTransformer}
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.json.JsonUtil
 import org.corespring.common.util.HtmlProcessor

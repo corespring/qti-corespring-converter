@@ -14,7 +14,7 @@ import scala.xml._
 import scala.xml.transform._
 
 //TODO: should be private[keydatasys]
-class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
+class KDSItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransformer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   def transform(xmlString: String, manifestItem: ManifestItem, sources: Map[String, SourceWrapper]): JsValue = {
@@ -74,4 +74,4 @@ class ItemTransformer(qtiTransformer: SuperQtiTransformer) extends PassageTransf
 }
 
 //TODO: should be private[keydatasys]
-object ItemTransformer extends ItemTransformer(QtiTransformer)
+//object KDSItemTransformer extends KDSItemTransformer(KDSQtiTransformer)

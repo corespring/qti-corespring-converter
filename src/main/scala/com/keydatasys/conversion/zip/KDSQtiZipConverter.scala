@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
 import com.keydatasys.conversion.qti.manifest.ManifestFilter
-import com.keydatasys.conversion.qti.{ItemTransformer, MetadataExtractor}
+import com.keydatasys.conversion.qti.{KDSItemTransformer, KDSMode, KDSQtiTransformer, MetadataExtractor}
 import com.keydatasys.conversion.qti.util.{PassageScrubber, PathFlattener}
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
@@ -18,7 +18,6 @@ import org.corespring.conversion.zip.{ConversionOpts, QtiToCorespringConverter}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.json.Json._
-
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -44,6 +43,10 @@ object KDSQtiZipConverter
                maybeMetadata: Option[JsObject] = None,
                opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
 
+    val scoringType = maybeMetadata.flatMap( o => (o \ "scoringType").asOpt[String]).getOrElse("PARCC")
+    val mode = KDSMode.withName(scoringType)
+    val transformer = new KDSItemTransformer(new KDSQtiTransformer(mode))
+
     logger.info(describe(output, opts))
 
     val tmpDir = Files.createTempDirectory("qti-conversion")
@@ -53,7 +56,7 @@ object KDSQtiZipConverter
     val is = zip.getInputStream(manifestEntry)
     val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
 
-    val (qtiResources, resources) = (xml \ "resources" \\ "resource")
+    val (qtiResources, _) = (xml \ "resources" \\ "resource")
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
@@ -73,7 +76,7 @@ object KDSQtiZipConverter
           val scrubbed = scrub(preprocessed)
           logger.debug(describe(scrubbed))
           val sources: Map[String, SourceWrapper] = m.resources.toSourceMap(zip)
-          val playerDefinition = ItemTransformer.transform(scrubbed, m, sources)
+          val playerDefinition = transformer.transform(scrubbed, m, sources)
           sources.mapValues { v =>
             IOUtils.closeQuietly(v.inputStream)
           }

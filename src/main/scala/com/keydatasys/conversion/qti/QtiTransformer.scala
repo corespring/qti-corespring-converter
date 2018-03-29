@@ -10,9 +10,27 @@ import play.api.libs.json.{Json, JsObject}
 import scala.xml.transform.RewriteRule
 import scala.xml.{Node, Elem}
 
-object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
+/**
+  * PARCC allows 1 point per part but only for items that have the following metadata set to 1.
+  * The “TwoPointScoring” is a misnomer as the items can have up to 4 parts and be worth 4 points.
+  *
+  * <imsmd:parccTwoPointScoring>1</imsmd:parccTwoPointScoring>
+  *
+  */
 
-  override val normalizeScore = false
+object KDSMode extends Enumeration {
+  type Mode = Value
+  val SBAC,PARCC = Value
+}
+
+
+private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
+
+  override def normalizeScore(resource:Node) = {
+    val twoPointKey = s"${mode.toString.toLowerCase}TwoPointScoring"
+    val twoPointFlag : String = (resource \ "metadata" \ "lom" \ "general" \ twoPointKey).text.trim
+    twoPointFlag == "1"
+  }
 
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 

@@ -5,6 +5,7 @@ import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 import java.util.zip.{ZipEntry, ZipFile}
 
+import com.keydatasys.conversion.qti.KDSMode
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
@@ -50,19 +51,20 @@ object RunHelper {
 trait BaseRunner extends Specification {
 
   def sourceId: String
+  def scoringType:KDSMode.Mode = KDSMode.SBAC
 
   def vendor: String = "kds"
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  val tmpDir = RunHelper.mkTmpDir(s"sbac-runner-test-$sourceId")
+  val tmpDir = RunHelper.mkTmpDir(s"${scoringType.toString}-runner-test-$sourceId")
 
   def json(zip: ZipFile, e: ZipEntry) = {
     val jsonString = IOUtils.toString(zip.getInputStream(e))
     Json.parse(jsonString)
   }
 
-  val sbacOutput = tmpDir.resolve(s"sbac-output-$sourceId.zip")
+  val sbacOutput = tmpDir.resolve(s"${scoringType.toString}-output-$sourceId.zip")
 
 
   val zippedPath = RunHelper.buildZip(
@@ -82,11 +84,13 @@ trait BaseRunner extends Specification {
     sbacOutput.toString,
     vendor,
     sourceId,
-    """{"scoringType": "SBAC"}"""
+    s"""{"scoringType": "${scoringType.toString()}"}"""
   )
 
 
   val zip = new ZipFile(new File(sbacOutput.toString))
+
+  logger.info(s"entries: ${zip.entries.toArray.map(_.getName).mkString(",")}")
 
   val playerDef = zip.entries.find {
     e =>

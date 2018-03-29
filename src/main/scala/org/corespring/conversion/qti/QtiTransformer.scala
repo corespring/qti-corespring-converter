@@ -24,7 +24,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     * At the moment MeasuredProgress are the only ones that need it normalized.
     * @return
     */
-  def normalizeScore: Boolean
+  def normalizeScore(resource:Node) : Boolean
 
   private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
@@ -37,24 +37,24 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
   def statefulTransformers: Seq[Transformer]
 
-  def transform(qti: Elem): JsValue = {
-    val transformers = interactionTransformers(qti)
-
-    /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
-    val texProcessedQti = new RuleTransformer(FontTransformer).transform(new RuleTransformer(TexTransformer).transform(qti))
-    val components = transformers.foldLeft(Map.empty[String, JsObject])(
-      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, QTIManifest.EmptyManifest))
-
-    val transformedHtml = new RuleTransformer(transformers: _*).transform(texProcessedQti)
-    val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
-      (html, transformer) => transformer.transform(html, QTIManifest.EmptyManifest).head)
-
-    val divRoot = new RuleTransformer(ItemBodyTransformer).transform(html).head
-
-    Json.obj(
-      "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
-      "components" -> components) ++ customScoring(qti, components)
-  }
+//  private def transform(qti: Elem): JsValue = {
+//    val transformers = interactionTransformers(qti)
+//
+//    /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
+//    val texProcessedQti = new RuleTransformer(FontTransformer).transform(new RuleTransformer(TexTransformer).transform(qti))
+//    val components = transformers.foldLeft(Map.empty[String, JsObject])(
+//      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, QTIManifest.EmptyManifest))
+//
+//    val transformedHtml = new RuleTransformer(transformers: _*).transform(texProcessedQti)
+//    val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
+//      (html, transformer) => transformer.transform(html, QTIManifest.EmptyManifest).head)
+//
+//    val divRoot = new RuleTransformer(ItemBodyTransformer).transform(html).head
+//
+//    Json.obj(
+//      "xhtml" -> divRoot.toString.replaceAll("\\p{Cntrl}", ""),
+//      "components" -> components) ++ customScoring(qti, components)
+//  }
 
   def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
 
@@ -71,8 +71,9 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
   }
 
 
-  def customScoring(qti: Node, components: Map[String, JsObject]): JsObject = {
-    toJs(qti).map(V2JavascriptWrapper.wrap(_, normalizeScore)) match {
+  private def customScoring(qti: Node, components: Map[String, JsObject], normalize:Boolean): JsObject = {
+    logger.info(describe(normalize))
+    toJs(qti).map(V2JavascriptWrapper.wrap(_, normalize)) match {
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
@@ -138,14 +139,15 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${converted}",
-      "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++ customScoring(qti, components)
+      "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++
+      customScoring(qti, components, normalizeScore(manifest))
   }
 
 }
 
 object QtiTransformer extends QtiTransformer {
 
-  override val normalizeScore = false
+  override def normalizeScore(resource:Node) = false
 
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorTransformer,

@@ -1,6 +1,6 @@
 package org.corespring.conversion.qti
 
-import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.KDSItemTransformer
 import org.corespring.common.file.SourceWrapper
 import org.corespring.common.util.HtmlProcessor
 import org.corespring.conversion.qti.manifest.{ManifestReader, QTIManifest}
@@ -9,7 +9,7 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import scala.xml.XML
 import scalaz.{Failure, Success, Validation}
 
-class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
+class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: KDSItemTransformer)
   extends AbstractItemExtractor with HtmlProcessor {
 
   val manifest: Option[QTIManifest] = sources.find{ case(filename, _) => filename == ManifestReader.filename }

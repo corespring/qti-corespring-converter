@@ -25,7 +25,7 @@ class ProcessingTransformerTest extends Specification {
 
     val TestData(qti, item, session) = loadTestData("one")
     val responseProcessing = transformer.toJs(qti)
-    val js = responseProcessing.map(rp => transformer.wrap(rp)).get
+    val js = responseProcessing.map(rp => V2JavascriptWrapper.wrap(rp, normalize = true)).get
     logger.info(s"js: \n$js\n")
     val result = process(js, item, session, outcomes)
   }

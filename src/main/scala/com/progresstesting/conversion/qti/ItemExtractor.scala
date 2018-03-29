@@ -2,7 +2,7 @@ package com.progresstesting.conversion.qti
 
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.ItemTransformer
+import com.keydatasys.conversion.qti.KDSItemTransformer
 import com.keydatasys.conversion.qti.manifest.ManifestReader
 import com.keydatasys.conversion.qti.util.{PassageScrubber, PassageTransformer, PathFlattener}
 import org.corespring.common.file.SourceWrapper
@@ -68,7 +68,7 @@ object MetadataExtractor extends JsonUtil{
   }
 }
 
-class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: ItemTransformer)
+class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMetadata: JsObject, itemTransformer: KDSItemTransformer)
   extends AbstractItemExtractor with PassageTransformer with HtmlProcessor with PathFlattener with PassageScrubber with JsonUtil {
 
   val elaId = "4ffb535f6bb41e469c0bf2ac"
