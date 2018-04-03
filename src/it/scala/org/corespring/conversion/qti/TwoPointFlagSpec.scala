@@ -17,7 +17,7 @@ class TwoPointFlagSpec extends BaseRunner {
 
   "kds --sourceId 664014" should {
 
-    "foo" in {
+    "score correctly" in {
 
       println(playerDef)
 
