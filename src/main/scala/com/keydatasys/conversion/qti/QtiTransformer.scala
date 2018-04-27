@@ -18,10 +18,64 @@ import scala.xml.{Node, Elem}
   *
   */
 
+/**
+  * The part count can be determined by looking at the <parts> node in the manifest here:
+  *
+  *
+  *
+  * <parts>
+  *
+  * <part itemTypeId="19"/>
+  *
+  * <part itemTypeId="12"/>
+  *
+  * <part itemTypeId="10"/>
+  *
+  * <part itemTypeId="12"/>
+  *
+  * </parts>
+  *
+  *
+  *
+  * The part count should always be used for normalization
+  * because the student is expected to get all interactions correct for the part.
+  *
+  * Only Multi-Part (itemTypeId = 8)
+  * and EBSR
+  * (itemTypeId = 11)
+  * items will have a parts node. This is true for both PARCC and SBAC.
+  *
+  */
 object KDSMode extends Enumeration {
   type Mode = Value
   val SBAC,PARCC = Value
 }
+
+
+object KdsType {
+  def apply(resource: Node) : Option[KdsType] = {
+
+    try {
+      val itemTypeId = (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim.toInt
+      itemTypeId match {
+        case MultiPart.id => Some(MultiPart)
+        case Ebsr.id => Some(Ebsr)
+      }
+    } catch {
+      case t:Throwable => None
+    }
+  }
+}
+
+sealed abstract class KdsType(val id:Int) {
+  def isType(resource:Node) = {
+    (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == this.id.toString
+  }
+}
+
+case object MultiPart extends KdsType(8)
+case object Ebsr extends KdsType(11)
+
 
 
 private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
@@ -39,10 +93,21 @@ private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiT
     }
   }
 
-  override def normalizeScore(resource:Node) = {
+  override def normalizeDenominator(resource:Node, qti: Node) = {
+
+    KdsType(resource).map { t =>
+
+      
+    }
+    val js = toJs(qti).map( j =>
+      j.responseVars.length
+    )
+
     val ebsrItem = isEbsrItem(resource)
     val twoPointScoring = isParccTwoPointScoring(resource)
     ebsrItem || twoPointScoring
+    //TODO:
+    None
   }
 
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {

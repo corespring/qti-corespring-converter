@@ -20,11 +20,11 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
   /**
     * Some js custom processing wants the score to be normalized to between 0 - 1.
-    * Some providers always do this though, so we need to turn it on/off depending on the provider.
+    * Some providers always do this though, so we need to turn it on/off depending on the provider and the item.
     * At the moment MeasuredProgress are the only ones that need it normalized.
     * @return
     */
-  def normalizeScore(resource:Node) : Boolean
+  def normalizeDenominator(resource:Node, qti: Node) : Option[Int]
 
   private lazy val logger = LoggerFactory.getLogger(QtiTransformer.this.getClass)
 
@@ -53,9 +53,14 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
   }
 
 
-  private def customScoring(qti: Node, components: Map[String, JsObject], normalize:Boolean): JsObject = {
-    logger.info(describe(normalize))
-    toJs(qti).map(V2JavascriptWrapper.wrap(_, normalize)) match {
+  private def customScoring(
+                             qti: Node,
+                             components: Map[String, JsObject],
+                             denominator: Option[Int]): JsObject = {
+
+    logger.info(describe(denominator))
+
+    toJs(qti).map(V2JavascriptWrapper.wrap(_, denominator)) match {
       case Some(javascript) => Json.obj("customScoring" -> javascript)
       case _ => Json.obj()
     }
@@ -119,17 +124,19 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val converted = convertHtml(finalHtml)
     logger.trace(describe(converted))
 
+    val denominator = normalizeDenominator(manifest, qti)
+
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${converted}",
       "components" -> components.map { case (id, json) => id -> convertJson(json) }) ++
-      customScoring(qti, components, normalizeScore(manifest))
+      customScoring(qti, components, denominator)
   }
 
 }
 
 object QtiTransformer extends QtiTransformer {
 
-  override def normalizeScore(resource:Node) = false
+  override def normalizeDenominator(resource:Node, qti: Node) = None
 
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorTransformer,

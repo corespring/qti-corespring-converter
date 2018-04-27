@@ -9,7 +9,9 @@ import scala.xml.{Elem, Node}
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
-  override def normalizeScore(resource:Node) = true
+  override def normalizeDenominator(resource:Node) = {
+    Some(???)
+  }
 
   override def interactionTransformers(qti: Elem) = {
     val hasFeedback: Seq[InteractionTransformer] = Seq(
