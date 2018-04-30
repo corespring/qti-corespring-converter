@@ -136,7 +136,10 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
 
 object QtiTransformer extends QtiTransformer {
 
-  override def normalizeDenominator(resource:Node, qti: Node) = None
+  override def normalizeDenominator(resource:Node, qti: Node) = {
+    toJs(qti).map(t => t.responseVars.length)
+  }
+
 
   def interactionTransformers(qti: Elem) = Seq(
     CalculatorTransformer,

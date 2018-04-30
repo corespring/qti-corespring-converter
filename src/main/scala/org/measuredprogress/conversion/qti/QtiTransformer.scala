@@ -9,8 +9,8 @@ import scala.xml.{Elem, Node}
 
 object QtiTransformer extends SuperQtiTransformer with ProcessingTransformer {
 
-  override def normalizeDenominator(resource:Node) = {
-    Some(???)
+  override def normalizeDenominator(resource:Node, qti:Node) = {
+    toJs(qti).map{ t => t.responseVars.length}
   }
 
   override def interactionTransformers(qti: Elem) = {

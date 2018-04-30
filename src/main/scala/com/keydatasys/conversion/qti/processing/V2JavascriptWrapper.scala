@@ -54,6 +54,10 @@ object V2JavascriptWrapper {
        |  };
        |
        |  summary.maxPoints = maxPoints;
+       |  summary.__corespringInternal = {
+       |    divider : ${denominator.getOrElse(-1)},
+       |    responseCount : ${js.responseVars.length}
+       |  };
        |  summary.points = SCORE;
        |  summary.score = normalizedScore;
        |  summary.percentage = (normalizedScore * 100).toFixed();

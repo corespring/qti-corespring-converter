@@ -25,7 +25,9 @@ class ProcessingTransformerTest extends Specification {
 
     val TestData(qti, item, session) = loadTestData("one")
     val responseProcessing = transformer.toJs(qti)
-    val js = responseProcessing.map(rp => V2JavascriptWrapper.wrap(rp, normalize = true)).get
+    val denominator = responseProcessing.map(t => t.responseVars.length)
+
+    val js = responseProcessing.map(rp => V2JavascriptWrapper.wrap(rp, denominator)).get
     logger.info(s"js: \n$js\n")
     val result = process(js, item, session, outcomes)
   }
@@ -69,7 +71,11 @@ class ProcessingTransformerTest extends Specification {
     "score114" -> 1,
     "score115" -> 1,
     "score116" -> 1,
-    "score117" -> 1
+    "score117" -> 1,
+    "__corespringInternal" -> obj(
+      "divider" -> 5,
+      "responseCount" -> 5
+    )
   )
 
   val halfScore = obj(
@@ -81,7 +87,11 @@ class ProcessingTransformerTest extends Specification {
     "score114" -> 0.5,
     "score115" -> 0.5,
     "score116" -> 0.5,
-    "score117" -> 0.5
+    "score117" -> 0.5,
+    "__corespringInternal" -> obj(
+      "divider" -> 5,
+      "responseCount" -> 5
+    )
   )
 
   "V2JavascriptWrapperTest" should {
