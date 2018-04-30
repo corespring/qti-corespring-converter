@@ -6,7 +6,7 @@ object V2JavascriptWrapper {
 
   /**
     * @param js
-    * @param denominator - a denominator for normalization otherwise the interaction count is used.
+    * @param denominator - a denominator for normalization
     * @return
     */
   def wrap(js: JsResponseProcessing, denominator : Option[Int]): String = {
