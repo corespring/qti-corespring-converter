@@ -4,7 +4,13 @@ object V2JavascriptWrapper {
 
   import VariableSanitizer._
 
-  def wrap(js: JsResponseProcessing, normalize: Boolean): String = {
+  /**
+    * @param js
+    * @param denominator - a denominator for normalization
+    * @return
+    */
+  def wrap(js: JsResponseProcessing, denominator : Option[Int]): String = {
+
     s"""exports.process = function(item, session, outcomes) {
        |  var answers = session.components;
        |
@@ -40,8 +46,7 @@ object V2JavascriptWrapper {
        |
        |  ${js.lines.mkString("\n|  ")}
        |
-       |  var divider = ${ if (js.responseVars.isEmpty) 1 else js.responseVars.length}
-       |  var normalizedScore = ${if(normalize) "SCORE / divider" else "SCORE"};
+       |  var normalizedScore = ${denominator.map(d => s"SCORE / $d").getOrElse("SCORE")};
        |  var maxPoints = ${js.responseVars.length};
        |
        |  var summary = {
@@ -49,6 +54,10 @@ object V2JavascriptWrapper {
        |  };
        |
        |  summary.maxPoints = maxPoints;
+       |  summary.__corespringInternal = {
+       |    divider : ${denominator.getOrElse(-1)},
+       |    responseCount : ${js.responseVars.length}
+       |  };
        |  summary.points = SCORE;
        |  summary.score = normalizedScore;
        |  summary.percentage = (normalizedScore * 100).toFixed();

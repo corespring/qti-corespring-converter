@@ -18,31 +18,74 @@ import scala.xml.{Node, Elem}
   *
   */
 
+/**
+  * The part count can be determined by looking at the <parts> node in the manifest here:
+  *
+  *
+  *
+  * <parts>
+  *
+  * <part itemTypeId="19"/>
+  *
+  * <part itemTypeId="12"/>
+  *
+  * <part itemTypeId="10"/>
+  *
+  * <part itemTypeId="12"/>
+  *
+  * </parts>
+  *
+  *
+  *
+  * The part count should always be used for normalization
+  * because the student is expected to get all interactions correct for the part.
+  *
+  * Only Multi-Part (itemTypeId = 8)
+  * and EBSR
+  * (itemTypeId = 11)
+  * items will have a parts node. This is true for both PARCC and SBAC.
+  *
+  */
+
 object KDSMode extends Enumeration {
   type Mode = Value
-  val SBAC,PARCC = Value
+  val SBAC, PARCC = Value
 }
 
+private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
-private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
-
-  private def isEbsrItem(resource:Node) =
+  private def isEbsr(resource: Node) =
     (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == "11"
 
-  private def isParccTwoPointScoring(resource:Node) = {
-    if(mode == KDSMode.SBAC){
+  private def isMultiPart(resource: Node) =
+    (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == "8"
+
+  private def isParccTwoPointScoring(resource: Node) = {
+    if (mode == KDSMode.SBAC) {
       false
     } else {
       val FLAG = s"parccTwoPointScoring"
-      val twoPointFlag : String = (resource \ "metadata" \ "lom" \ "general" \ FLAG).text.trim
+      val twoPointFlag: String = (resource \ "metadata" \ "lom" \ "general" \ FLAG).text.trim
       twoPointFlag == "1"
     }
   }
 
-  override def normalizeScore(resource:Node) = {
-    val ebsrItem = isEbsrItem(resource)
-    val twoPointScoring = isParccTwoPointScoring(resource)
-    ebsrItem || twoPointScoring
+  private def shouldNormalize(resource: Node): Boolean = isEbsr(resource) ||
+    isMultiPart(resource) ||
+    isParccTwoPointScoring(resource)
+
+  private def partsCount(resource: Node) = {
+    val count = (resource \ "metadata" \ "lom" \ "parts" \\ "part").length
+    if (count > 0) Some(count) else None
+  }
+
+  override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
+    lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
+    if (shouldNormalize(resource)) {
+      partsCount(resource).orElse(defaultDenominator)
+    } else {
+      defaultDenominator
+    }
   }
 
   override def ItemBodyTransformer = new RewriteRule with XMLNamespaceClearer {
@@ -50,7 +93,9 @@ private[keydatasys] class KDSQtiTransformer(mode:KDSMode.Mode) extends SuperQtiT
     override def transform(node: Node): Seq[Node] = {
       node match {
         case elem: Elem if elem.label == "itemBody" => {
-          <div class="item-body kds qti">{ elem.child }</div>
+          <div class="item-body kds qti">
+            {elem.child}
+          </div>
         }
         case _ => node
       }

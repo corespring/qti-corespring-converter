@@ -90,7 +90,7 @@ trait BaseRunner extends Specification {
 
   val zip = new ZipFile(new File(sbacOutput.toString))
 
-  logger.info(s"entries: ${zip.entries.toArray.map(_.getName).mkString(",")}")
+  logger.info(s"path: ${sbacOutput}, entries: ${zip.entries.toArray.map(_.getName).mkString(",")}")
 
   val playerDef = zip.entries.find {
     e =>
