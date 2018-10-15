@@ -81,7 +81,9 @@ private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQti
 
   override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
     lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
-    if (shouldNormalize(resource)) {
+    if(isMultiPart(resource) || isEbsr(resource)){
+      Some(1)
+    } else if (isParccTwoPointScoring(resource)){
       partsCount(resource).orElse(defaultDenominator)
     } else {
       defaultDenominator
