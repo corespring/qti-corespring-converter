@@ -1,14 +1,15 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, _}
+import com.keydatasys.conversion.qti.interactions.{ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, _}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json.{JsObject, Json}
 
+import scala.util.Try
 import scala.xml.transform.RewriteRule
-import scala.xml.{Node, Elem}
+import scala.xml.{Elem, Node}
 
 /**
   * PARCC allows 1 point per part but only for items that have the following metadata set to 1.
@@ -79,11 +80,32 @@ private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQti
     if (count > 0) Some(count) else None
   }
 
+  def attributeValueEquals(value: String)(node: Node) = {
+    node.attributes.exists(_.value.text == value)
+  }
+
+  private def getMaxOutcomeScore(qti: Node): Option[Int] = {
+    val ov = qti \ "responseProcessing" \\ "setOutcomeValue"
+    val filtered = ov.filter(attributeValueEquals("SCORE"))
+    val bv = filtered.map(n => (n \ "baseValue").text).flatMap(s => {
+      try {
+        Some(s.toInt)
+      }
+      catch {
+        case _: Throwable => None
+      }
+    })
+
+    bv.sorted.lastOption
+  }
+
   override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
+
+    lazy val maxOutcomeScore = getMaxOutcomeScore(qti)
     lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
-    if(isMultiPart(resource) || isEbsr(resource)){
-      Some(1)
-    } else if (isParccTwoPointScoring(resource)){
+    if (isMultiPart(resource) || isEbsr(resource)) {
+      maxOutcomeScore.orElse(partsCount(resource)).orElse(defaultDenominator)
+    } else if (isParccTwoPointScoring(resource)) {
       partsCount(resource).orElse(defaultDenominator)
     } else {
       defaultDenominator

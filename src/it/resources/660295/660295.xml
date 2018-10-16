@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd" title="660295" identifier="660295" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>1</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <teacherInstructions>
+            <strong>TEACHER READS:</strong>
+            <br />
+            <br />
+            Read the question to yourself and select the best answer(s).
+        </teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="1">
+            <prompt visible="true">
+                <div>
+                    <strong>This question has two parts.  First, answer part A.  Then, answer part B.</strong>
+                    <br />
+                    <br />
+                    <strong>Part A:</strong>
+                    <br />
+                    <br />
+                    <strong>
+                        Which statement
+                        <em>best</em>
+                        describes how Granny Fox and Reddy Fox are different near the end of the text?
+                    </strong>
+                </div>
+            </prompt>
+            <simpleChoice identifier="1">
+                <p>Granny is sneaky, while Reddy is confused.</p>
+            </simpleChoice>
+            <simpleChoice identifier="2">
+                <p>Granny is frightened, while Reddy is surprised.</p>
+            </simpleChoice>
+            <simpleChoice identifier="3">
+                <p>Granny is funny, while Reddy is nervous.</p>
+            </simpleChoice>
+            <simpleChoice identifier="4">
+                <p>Granny is foolish, while Reddy is cautious.</p>
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1">Correct answer</rationale>
+            <rationale identifier="2">
+                <p>Student(s) may have misinterpreted Granny's actions as being truly frightened of the hound.</p>
+            </rationale>
+            <rationale identifier="3">
+                <p>Student(s) may have misinterpreted Granny's laughter as her being funny.</p>
+            </rationale>
+            <rationale identifier="4">
+                <p>Student(s) may have misinterpreted Granny's reaction to the hound as being foolish.</p>
+            </rationale>
+        </choiceRationales>
+        <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="1">
+            <prompt visible="true">
+                <div>
+                    <strong>Part B:</strong>
+                    <br />
+                    <br />
+                    <strong>
+                        Which evidence from the text
+                        <em>best</em>
+                        supports your answer in part A?
+                    </strong>
+                </div>
+            </prompt>
+            <simpleChoice identifier="1">
+                <p>"Bowser the Hound! Come, Reddy, come!" she cried, and started across the bridge as fast as she could go.</p>
+            </simpleChoice>
+            <simpleChoice identifier="2">
+                <p>"Wait, Granny! Wait!" he cried, and started after her as fast as he could run.</p>
+            </simpleChoice>
+            <simpleChoice identifier="3">
+                <p>Then for the first time Reddy looked behind him to see where Bowser the Hound might be.  He was nowhere to be seen.  Could he have fallen off the bridge?</p>
+            </simpleChoice>
+            <simpleChoice identifier="4">
+                <p>Then he began to understand that Granny Fox had simply scared him into running across the bridge.  Reddy felt very cheap…</p>
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">
+                <p>Student(s) may have misinterpreted option B in part A as the correct answer and selected this option as support.</p>
+            </rationale>
+            <rationale identifier="2">
+                <p>Student(s) may have misinterpreted option C in part A as the correct answer and selected this option as support.</p>
+            </rationale>
+            <rationale identifier="3">Correct answer</rationale>
+            <rationale identifier="4">
+                <p>Student(s) may have misinterpreted option D in part A as the correct answer and selected this option as support. Student(s) may have confused the feelings of Reddy for Granny.</p>
+            </rationale>
+        </choiceRationales>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <and>
+                    <match>
+                        <variable identifier="RESPONSE1" />
+                        <correct identifier="RESPONSE1" />
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE2" />
+                        <correct identifier="RESPONSE2" />
+                    </match>
+                </and>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">2</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElseIf>
+                <match>
+                    <variable identifier="RESPONSE1" />
+                    <correct identifier="RESPONSE1" />
+                </match>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseElseIf>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>
