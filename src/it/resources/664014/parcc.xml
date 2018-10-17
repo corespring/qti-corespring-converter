@@ -43,7 +43,7 @@
             <br/>Read and complete the task that follows.
         </teacherInstructions>
         <div>
-            <strong>Hunter is investigating four angles: <em>j</em>, <em>k</em>, <em>m</em>, and <em>n</em>. &nbsp;He
+            <strong>Hunter is investigating four angles: <em>j</em>, <em>k</em>, <em>m</em>, and <em>n</em>.  He
                 knows that Angle <em>j</em> is in Quadrant IV and that
             </strong>
             <div style="display:inline; white-space:nowrap;">
@@ -73,7 +73,7 @@
                 <strong>sin(<em>j</em>)
                 </strong>
             </span>
-            <strong>? &nbsp;Express your answer as an exact answer.</strong>
+            <strong>?  Express your answer as an exact answer.</strong>
             <br/>
             <br/>
             <textEntryInteraction responseIdentifier="RESPONSE11" expectedLength="20"/>
@@ -85,7 +85,7 @@
                 <br/>
                 <br/>
                 <strong>Hunter knows that</strong>
-                <strong>. &nbsp;Select <em>each</em> true statement regarding the value of
+                <strong>.  Select <em>each</em> true statement regarding the value of
                 </strong>
                 <span style="white-space:nowrap;">
                     <strong>cos(<em>k</em>)
@@ -145,8 +145,8 @@
             <strong>Part C:
                 <br/>
                 <br/>
-                Hunter knows that Angle <em>m</em> is in Quadrant III and that sin(<em>m</em>) = &#8211;0.6.&nbsp; What
-                is the value of tan(<em>m</em>)?&nbsp; Enter your answer in decimal form.
+                Hunter knows that Angle <em>m</em> is in Quadrant III and that sin(<em>m</em>) = &#8211;0.6.  What
+                is the value of tan(<em>m</em>)?  Enter your answer in decimal form.
             </strong>
             <br/>
             <br/>
@@ -172,7 +172,7 @@
                         </td>
                     </tr>
                 </table>
-                <strong>.&nbsp; Which of the following equations can Hunter use to determine cos(<em>n</em>)?
+                <strong>.  Which of the following equations can Hunter use to determine cos(<em>n</em>)?
                 </strong>
             </prompt>
             <simpleChoice identifier="1">
@@ -240,7 +240,7 @@
                 <or>
                     <match>
                         <variable identifier="RESPONSE11"/>
-                        <baseValue baseType="string">-\frac{\sqrt5}3</baseValue>
+                        <baseValue baseType="string">-frac{sqrt5}3</baseValue>
                     </match>
                     <match>
                         <variable identifier="RESPONSE11"/>

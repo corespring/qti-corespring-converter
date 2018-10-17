@@ -33,7 +33,6 @@
             <value>0</value>
         </defaultValue>
     </outcomeDeclaration>
-    <stylesheet href="style/LiveInspect.css" type="text/css" />
     <itemBody>
         <teacherInstructions><![CDATA[<strong>TEACHER READS:</strong><br /><br />Read and complete the task that follows.]]></teacherInstructions>
         <div>
@@ -52,7 +51,7 @@
         <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="4">
             <prompt visible="true"><![CDATA[<strong>Part B:</strong>
 <br /><br />
-<strong>Hunter knows that </strong><img alt="" src="./images/664014s.png" width="80" height="30" /><strong>. &nbsp;Select <em>each</em> true statement regarding the value of </strong><span style="white-space:nowrap;"><strong>cos(<em>k</em>)</strong></span><strong>.</strong>]]></prompt>
+<strong>Hunter knows that </strong><strong>. &nbsp;Select <em>each</em> true statement regarding the value of </strong><span style="white-space:nowrap;"><strong>cos(<em>k</em>)</strong></span><strong>.</strong>]]></prompt>
             <simpleChoice identifier="1"><![CDATA[If Angle <em>k</em> is in Quadrant I, then <div style="display:inline; white-space:nowrap;"> cos(<em>k</em>) = <table class="frac">
    <tr><td class="nu">1</td></tr>
    <tr><td class="de">2</td></tr>
@@ -61,7 +60,7 @@
    <tr><td class="nu">1</td></tr>
    <tr><td class="de">2</td></tr>
 </table></div>.]]></simpleChoice>
-            <simpleChoice identifier="3"><![CDATA[If Angle <em>k</em> is in Quadrant I, then <img alt="" src="./images/664014c.png" width="77" height="29" />.]]></simpleChoice>
+            <simpleChoice identifier="3"><![CDATA[If Angle <em>k</em> is in Quadrant I, then .]]></simpleChoice>
             <simpleChoice identifier="4"><![CDATA[If Angle <em>k</em> is in Quadrant II, then cos(<em>k</em>) = &#8211; <table class="frac">
    <tr><td class="nu">1</td></tr>
    <tr><td class="de">2</td></tr>
@@ -121,7 +120,7 @@ Hunter knows that Angle <em>n</em> is in Quadrant I and that tan(<em>n</em>) = <
                 <or>
                     <match>
                         <variable identifier="RESPONSE11" />
-                        <baseValue baseType="string"><![CDATA[-\frac{\sqrt5}3]]></baseValue>
+                        <baseValue baseType="string"><![CDATA[-frac{sqrt5}3]]></baseValue>
                     </match>
                     <match>
                         <variable identifier="RESPONSE11" />

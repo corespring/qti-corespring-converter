@@ -13,9 +13,14 @@ object V2JavascriptWrapper {
 
     s"""exports.process = function(item, session, outcomes) {
        |  var answers = session.components;
-       |
+       |  console.log(">>>> answers:", JSON.stringify(answers))
+       |  console.log(">>>> outcomes:", JSON.stringify(outcomes))
        |  function isCorrect(key) {
-       |    return (outcomes && outcomes[key]) ? (outcomes[key].correctness === 'correct' || outcomes[key].correctness === 'all_correct') : false;
+       |
+       |
+       |    var out = (outcomes && outcomes[key]) ? (outcomes[key].correctness === 'correct' || outcomes[key].correctness === 'all_correct') : false;
+       |    console.log('[isCorrect] ', key, out, outcomes[key]);
+       |    return out;
        |  }
        |
        |  function contains(a1, a2) {
@@ -48,6 +53,8 @@ object V2JavascriptWrapper {
        |
        |  var normalizedScore = ${denominator.map(d => s"SCORE / $d").getOrElse("SCORE")};
        |  var maxPoints = ${js.responseVars.length};
+       |
+       |  console.log("SCORE: ", SCORE, "divider: ${denominator.getOrElse("1")}");
        |
        |  var summary = {
        |    ${js.vars.keySet.map(name => s"'${name.toLowerCase}': ${name.toVar}").mkString(",\n|      ")}
