@@ -1,27 +1,27 @@
 package org.corespring.conversion.qti
 
-import com.keydatasys.conversion.qti.KDSMode
+import com.keydatasys.conversion.qti.{KDSMode, MULTIPART}
 import org.corespring.container.js.rhino.score.CustomScoreProcessor
 import play.api.libs.json.{JsObject, JsValue}
-import play.api.libs.json.Json.{obj, prettyPrint}
+import play.api.libs.json.Json.{obj}
 
-class TwoPointFlagSpec extends BaseRunner {
 
-  override def sourceId = "664014"
 
-  override def scoringType = KDSMode.PARCC
+class TwoPointFlagSpec extends NewKdsBaseRunner {
+
 
   /**
     * 664014 has the metadata/lom/general/parccTwoPointScoring flag - which means that we should normalize the score.
     */
 
-  "kds --sourceId 664014" should {
+  "kds --sourceId 664014 PARCC - twoPoint" should {
 
     "score correctly" in {
 
-      println(playerDef)
+      val converted = convert("664014", MULTIPART.id, KDSMode.PARCC, partsCount = 4, twoPointScoring = true)
 
-      val playerDefinition = playerDef.map(json(zip, _)).get
+
+      val playerDefinition = getPlayerDef(converted).get //playerDef.map(json(zip, _)).get
 
       (playerDefinition \ "customScoring")
 

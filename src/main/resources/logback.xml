@@ -10,7 +10,7 @@
     </appender>
 
     <logger name="org.measuredprogress.conversion.zip" level="INFO"></logger>
-    <root level="warn">
+    <root level="trace">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

@@ -52,6 +52,10 @@ object KDSMode extends Enumeration {
   val SBAC, PARCC = Value
 }
 
+sealed abstract class ItemType(val id:String)
+case object MULTIPART extends ItemType("8")
+case object EBSR extends ItemType("11")
+
 private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
   private def isEbsr(resource: Node) =
