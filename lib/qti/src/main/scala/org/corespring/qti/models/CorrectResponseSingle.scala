@@ -5,6 +5,7 @@ import scala.xml.Node
 case class CorrectResponseSingle(value: String) extends CorrectResponse {
   def isCorrect(responseValue: String): Boolean = responseValue == value
   def isValueCorrect(v: String, index: Option[Int]) = v == value
+  def getValues = Seq(value)
 }
 
 object CorrectResponseSingle {

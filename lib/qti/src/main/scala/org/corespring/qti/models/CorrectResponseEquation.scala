@@ -43,6 +43,7 @@ case class CorrectResponseEquation(value: String,
 
   def isCorrect(responseValue: String): Boolean = CorrectResponseEquation.lineEquationMatch(value, responseValue, domain, variables, numOfTestPoints,sigfigs)
   def isValueCorrect(v: String, index: Option[Int]) = CorrectResponseEquation.lineEquationMatch(value, v, domain, variables, numOfTestPoints,sigfigs)
+  def getValues = Seq(value)
 }
 object CorrectResponseEquation {
   def apply(node: Node, lineAttr: String): CorrectResponseEquation = {

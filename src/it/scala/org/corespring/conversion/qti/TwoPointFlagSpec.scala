@@ -42,6 +42,8 @@ class TwoPointFlagSpec extends BaseRunner {
       )
 
       val result = CustomScoreProcessor.score(playerDefinition, session.as[JsValue], outcomes.as[JsValue]).as[JsObject]
+
+      logger.info(s"result ${ prettyPrint(result)}")
       (result \ "summary" \ "score").as[Float] === 0.75
     }
   }

@@ -1,15 +1,23 @@
 package org.corespring.qti.models.responses.processing
 
 import org.corespring.qti.models._
+
 import scala.xml.Node
 import org.corespring.qti.models.responses.Response
 import play.api.libs.json._
 import com.scalapeno.rhinos.RhinosJsonSupport
+import org.slf4j.LoggerFactory
 
 case class ResponseProcessing(
   itemBody: ItemBody, typeOption: Option[String] = None, script: Option[Script] = None) extends RhinosJsonSupport {
 
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   def process(variables: Option[Map[String, Any]] = None, responses: Option[Seq[Response]] = None): Option[(String,Any)] = {
+
+
+    logger.info(s"script: $script")
     script match {
       case Some(scriptObj) => {
         val responseVariables: Map[String, JsValue] = responses match {

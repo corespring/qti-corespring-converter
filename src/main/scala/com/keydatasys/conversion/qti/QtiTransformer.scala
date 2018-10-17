@@ -5,6 +5,7 @@ import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
+import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, Json}
 
 import scala.util.Try
@@ -55,6 +56,8 @@ object KDSMode extends Enumeration {
 
 private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
+  private lazy val logger = LoggerFactory.getLogger(this.getClass)
+
   private def isEbsr(resource: Node) =
     (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == "11"
 
@@ -86,23 +89,32 @@ private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQti
 
   private def getMaxOutcomeScore(qti: Node): Option[Int] = {
     val ov = qti \ "responseProcessing" \\ "setOutcomeValue"
+    logger.debug(s"getMaxOutcome: outcomeValues: $ov")
     val filtered = ov.filter(attributeValueEquals("SCORE"))
-    val bv = filtered.map(n => (n \ "baseValue").text).flatMap(s => {
-      try {
-        Some(s.toInt)
-      }
-      catch {
-        case _: Throwable => None
-      }
-    })
+    logger.debug(s"getMaxOutcome: filtered: $ov")
 
-    bv.sorted.lastOption
+    if (filtered.length == 0) {
+      None
+    } else {
+
+      val bv = filtered.map(n => (n \ "baseValue").text).flatMap(s => {
+        try {
+          Some(s.toInt)
+        }
+        catch {
+          case _: Throwable => None
+        }
+      })
+
+      bv.sorted.lastOption
+    }
   }
 
   override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
 
     lazy val maxOutcomeScore = getMaxOutcomeScore(qti)
     lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
+    logger.info(s"is multipart: ${isMultiPart(resource)} is ebsr: ${isEbsr(resource)}, isParccTwoPointScoring: ${isParccTwoPointScoring(resource)}")
     if (isMultiPart(resource) || isEbsr(resource)) {
       maxOutcomeScore.orElse(partsCount(resource)).orElse(defaultDenominator)
     } else if (isParccTwoPointScoring(resource)) {
