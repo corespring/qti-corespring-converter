@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="665182" identifier="665182" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE11" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[330]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE12" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[880]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE13" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[20]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE21" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[18.50]]></value>
+            <value><![CDATA[18.5]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE3" cardinality="multiple" baseType="directedPair">
+        <mapping lowerBound="0" upperBound="4" defaultValue="0">
+            <mapEntry mapKey="D Hotspot01" mappedValue="1"/>
+            <mapEntry mapKey="A Hotspot02" mappedValue="1"/>
+            <mapEntry mapKey="C Hotspot03" mappedValue="1"/>
+            <mapEntry mapKey="B Hotspot04" mappedValue="1"/>
+        </mapping>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT3" cardinality="single" baseType="integer">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <responseDeclaration identifier="RESPONSE41" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[d]]></value>
+            <value><![CDATA[D]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read and complete the task that follows.]]></teacherInstructions>
+        <div><![CDATA[<strong>Part A:
+<br /><br />
+A reporter is writing a report about fuel efficiency.&nbsp; Within his report he will be reviewing 4 different cars.&nbsp; The table below shows the number of miles driven by Car <em>A</em> within his report.&nbsp; If Car <em>A</em> uses gas at a constant rate, fill in the blanks to complete the table. </strong>
+<br /><br />
+<table class="KdsTable01">
+<tr>
+  <th width="100px"><strong>Miles Driven</strong></th>
+  <td width="100px"> ]]><textEntryInteraction responseIdentifier="RESPONSE11" expectedLength="10"/><![CDATA[ </td>
+  <td width="100px">440</td>
+<td width="100px">550</td>
+<td width="100px"> ]]><textEntryInteraction responseIdentifier="RESPONSE12" expectedLength="10"/><![CDATA[ </td>
+</tr>
+<tr>
+  <th><strong>Gallons of Gas Consumed</strong></th>
+  <td>12</td>
+  <td>16</td>
+  <td> ]]><textEntryInteraction responseIdentifier="RESPONSE13" expectedLength="10"/><![CDATA[ </td>
+  <td>32</td>
+</tr>
+</table>]]>
+        </div>
+        <br/>
+        <div><![CDATA[<strong>Part B:
+<br /><br />
+Four cars in total were included within the report.&nbsp; The three additional cars that were also evaluated are listed below with statistics about their fuel efficiency.</strong>
+<br /><br />
+<table class="KdsTable01">
+<tr>
+<th width="150px"><strong>Car <em>B</em></strong></th>
+<th width="100px"><strong>Car <em>C</em></strong></th>
+<th width="100px"><strong>Car <em>D</em></strong></th>
+</tr>
+<tr>
+  <td>The following equation can be used to illustrate the fuel efficiency of Car <em>B</em>, 
+<em>D</em> = 15<em>g</em>. &nbsp;Where <em>D</em> represents the distance traveled in miles, and <em>g</em> represents gallons of gas consumed. 
+</td>
+  <td>Car <em>C</em> can travel 296 miles on a 16 gallon tank.</td>
+ <td>Car <em>D</em> gets 30 mpg.</td>
+</tr>
+</table>
+<br />
+<strong>How many miles per gallon does Car <em>C</em> get?</strong>
+<br /><br />
+ ]]><textEntryInteraction responseIdentifier="RESPONSE21" expectedLength="10"/>
+            <![CDATA[ <strong>miles per gallon</strong>]]>
+        </div>
+        <br/>
+        <graphicGapMatchInteraction responseIdentifier="RESPONSE3">
+            <prompt visible="true"><![CDATA[<strong>Part C:
+<br /><br />
+Based on the fuel efficiency statistics provided for each car within the report from part B, order the four cars from greatest miles per gallon to least miles per gallon within the table below.</strong>]]></prompt>
+            <object data="./images/665182_p03.gif" type="image/gif" height="209" width="403"></object>
+            <gapImg matchMax="0" matchMin="0" identifier="A">
+                <object data="./images/665182_p03_gi01.gif" type="image/gif" height="21" width="55"></object>
+            </gapImg>
+            <gapImg matchMax="0" matchMin="0" identifier="B">
+                <object data="./images/665182_p03_gi02.gif" type="image/gif" height="21" width="55"></object>
+            </gapImg>
+            <gapImg matchMax="0" matchMin="0" identifier="C">
+                <object data="./images/665182_p03_gi03.gif" type="image/gif" height="21" width="55"></object>
+            </gapImg>
+            <gapImg matchMax="0" matchMin="0" identifier="D">
+                <object data="./images/665182_p03_gi04.gif" type="image/gif" height="21" width="55"></object>
+            </gapImg>
+            <associableHotspot matchMax="0" matchMin="0" identifier="Hotspot01" shape="rect" coords="193,2,399,53"
+                               height="51" width="206"/>
+            <associableHotspot matchMax="0" matchMin="0" identifier="Hotspot02" shape="rect" coords="192,55,399,108"
+                               height="53" width="207"/>
+            <associableHotspot matchMax="0" matchMin="0" identifier="Hotspot03" shape="rect" coords="192,109,400,157"
+                               height="48" width="208"/>
+            <associableHotspot matchMax="0" matchMin="0" identifier="Hotspot04" shape="rect" coords="193,158,400,204"
+                               height="46" width="207"/>
+            <choiceAreaPosition>Bottom</choiceAreaPosition>
+        </graphicGapMatchInteraction>
+        <br/>
+        <div><![CDATA[<strong>Part D:
+<br /><br />
+Dillon bought one of these cars.&nbsp; He drove 360 miles and used 12 gallons of gas.&nbsp; Based on his fuel consumption, which car did he most likely buy? 
+<br /><br />
+Car</strong> ]]>
+            <textEntryInteraction responseIdentifier="RESPONSE41" expectedLength="10"/>
+        </div>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <and>
+                    <match>
+                        <variable identifier="RESPONSE11"/>
+                        <baseValue baseType="string"><![CDATA[330]]></baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE12"/>
+                        <baseValue baseType="string"><![CDATA[880]]></baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE13"/>
+                        <baseValue baseType="string"><![CDATA[20]]></baseValue>
+                    </match>
+                </and>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <or>
+                    <match>
+                        <variable identifier="RESPONSE21"/>
+                        <baseValue baseType="string"><![CDATA[18.50]]></baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE21"/>
+                        <baseValue baseType="string"><![CDATA[18.5]]></baseValue>
+                    </match>
+                </or>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <isNull>
+                    <variable identifier="RESPONSE3"/>
+                </isNull>
+                <setOutcomeValue identifier="NUMCORRECT3">
+                    <baseValue baseType="integer">0</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="NUMCORRECT3">
+                    <mapResponse identifier="RESPONSE3"/>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <and>
+                    <equal>
+                        <containerSize>
+                            <variable identifier="RESPONSE3"/>
+                        </containerSize>
+                        <baseValue baseType="integer">4</baseValue>
+                    </equal>
+                    <equal>
+                        <variable identifier="NUMCORRECT3"/>
+                        <baseValue baseType="integer">4</baseValue>
+                    </equal>
+                </and>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <or>
+                    <match>
+                        <variable identifier="RESPONSE41"/>
+                        <baseValue baseType="string"><![CDATA[d]]></baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE41"/>
+                        <baseValue baseType="string"><![CDATA[D]]></baseValue>
+                    </match>
+                </or>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <gt>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">0</baseValue>
+                </gt>
+                <setOutcomeValue identifier="SCORE">
+                    <variable identifier="NUMCORRECT"/>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

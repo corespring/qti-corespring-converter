@@ -1,0 +1,69 @@
+    <resource identifier="663409" type="imsqti_item_xmlv2p1" href="663409.xml">
+      <metadata>
+        <qtiMetadata>
+          <timeDependent>false</timeDependent>
+          <interactionType>multipleInteraction</interactionType>
+          <feedbackType>none</feedbackType>
+          <solutionAvailable>true</solutionAvailable>
+        </qtiMetadata>
+        <lom>
+          <general>
+            <identifier>663409</identifier>
+            <parentId>663409</parentId>
+            <classicId>663409</classicId>
+            <classicParentId>663409</classicParentId>
+            <passageId/>
+            <classicPassageId/>
+            <depthOfKnowledge>1</depthOfKnowledge>
+            <bloomsLevel>2</bloomsLevel>
+            <omit>false</omit>
+            <replaceWith/>
+            <allowCalculator>0</allowCalculator>
+            <allowGrammarTools>0</allowGrammarTools>
+            <displayFormatId/>
+            <forceFullPage>0</forceFullPage>
+            <itemTypeId>8</itemTypeId>
+            <mediaTypeId>1</mediaTypeId>
+            <consortiumId/>
+            <useTwoPointScoring/>
+            <sbacTwoPointScoring/>
+            <parccTwoPointScoring>1</parccTwoPointScoring>
+            <gradeLevel>03</gradeLevel>
+            <subject>math</subject>
+            <language>English</language>
+            <languageEquivalentId/>
+            <teacherRead>false</teacherRead>
+            <studentRead>true</studentRead>
+          </general>
+          <claims>
+            <claim 
+            claimNumber="4" subject="math" category="Modeling and Data Analysis" target="A" priority="1">
+</claim>
+            <claim 
+            claimNumber="1" subject="math" category="Priority Cluster" target="A" priority="2">
+</claim>
+          </claims>
+          <mathPractices>
+            <mathPractice>1</mathPractice>
+            <mathPractice>2</mathPractice>
+            <mathPractice>4</mathPractice>
+          </mathPractices>
+          <parts>
+            <part itemTypeId="3"/>
+            <part itemTypeId="6"/>
+          </parts>
+          <lifecycle>
+            <version>2.1</version>
+            <status>
+              <source>LOMv1.0</source>
+              <value>Final</value>
+            </status>
+          </lifecycle>
+          <technical>
+            <format>text/x-imsqti-item-xml</format>
+          </technical>
+        </lom>
+      </metadata>
+      <file href="663409.xml"/>
+      <file href="style/LiveInspect.css"/>
+    </resource>

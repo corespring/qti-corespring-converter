@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="670508" identifier="670508" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="float">
+        <correctResponse>
+            <value>0.125</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read and complete the task that follows.]]></teacherInstructions>
+        <numberLineInteraction responseIdentifier="RESPONSE1" lowerBound="0" upperBound="1" step="0.125" title=""
+                               titleAbove="false" mode="numberLine" displayMinorTickMarks="false" minorTickMarkFreq="0">
+            <prompt visible="true"><![CDATA[<strong>Coloca un punto en la recta num&eacute;rica correspondiente a </strong> <table class="kds-fraction">
+   <tr><td class="kds-numerator"><strong>1</strong></td></tr> 
+   <tr><td class="kds-denominator"><strong>8</strong></td></tr>
+</table><strong>.</strong>]]></prompt>
+            <hatchMark value="0" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3" lineColor="#000000"
+                       label="0" isVisibleLabel="1" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.125" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3"
+                       lineColor="#000000" label="0.125" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.25" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3" lineColor="#000000"
+                       label="0.25" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.375" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3"
+                       lineColor="#000000" label="0.375" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.5" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3" lineColor="#000000"
+                       label="0.5" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.625" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3"
+                       lineColor="#000000" label="0.625" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.75" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3" lineColor="#000000"
+                       label="0.75" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="0.875" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3"
+                       lineColor="#000000" label="0.875" isVisibleLabel="0" labelColor="#000000" labelFormat="Text"/>
+            <hatchMark value="1" isVisibleHatch="1" upperLength="5" lowerLength="8" thickness="3" lineColor="#000000"
+                       label="1" isVisibleLabel="1" labelColor="#000000" labelFormat="Text"/>
+        </numberLineInteraction>
+    </itemBody>
+    <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
+</assessmentItem>

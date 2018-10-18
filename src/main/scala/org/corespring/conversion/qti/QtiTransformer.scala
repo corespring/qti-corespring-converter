@@ -80,7 +80,6 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
       (html, transformer) => transformer.transform(html, manifest).head)
 
-    logger.trace(describe(html))
 
 
     def baseName(s: String) : String = {
@@ -120,11 +119,16 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
       }
     }, ItemBodyTransformer).transform(html).head.toString
 
-    logger.trace(describe(finalHtml))
+    val id = (qti \ "@identifier").text.trim
+    logger.trace(describe(id))
     val converted = convertHtml(finalHtml)
-    logger.trace(describe(converted))
+    val maybeResource = (manifest \ "resources" \\ "resource").find( n => n.attribute("identifier").map(_.mkString("")) == Some(id))
 
-    val denominator = normalizeDenominator(manifest, qti)
+    if(maybeResource.isEmpty){
+      throw new Exception(s"Cant find resource for id: $id")
+    }
+
+    val denominator = normalizeDenominator(maybeResource.get, qti)
 
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${converted}",

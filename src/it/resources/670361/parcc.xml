@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="670361" identifier="670361" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>4</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read the question to yourself and select the best answer(s).]]></teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="1">
+            <prompt visible="true"><![CDATA[<strong>This question has two parts. First, answer part A.&nbsp; Then, answer part B.
+<br /><br />
+Part A:
+<br /><br />
+What inference can be made about how the author of "The Winning Flower Arrangement" decided to draw on the pattern of events in "Excerpt from The Conceited Apple Branch"? </strong> 
+]]></prompt>
+            <simpleChoice identifier="1">
+                <![CDATA[The author of "The Winning Flower Arrangement" decided to draw upon the ways in which the apple branch made others feel bad.]]></simpleChoice>
+            <simpleChoice identifier="2">
+                <![CDATA[The author of "The Winning Flower Arrangement" decided to draw upon the apple branch's comments about the value of creativity. ]]></simpleChoice>
+            <simpleChoice identifier="3">
+                <![CDATA[The author of "The Winning Flower Arrangement" decided to draw upon the opinions expressed by the apple branch about a common wildflower.]]></simpleChoice>
+            <simpleChoice identifier="4">
+                <![CDATA[The author of "The Winning Flower Arrangement" decided to draw upon the powers of giving pleasures that the sunbeam discussed.]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may have recognized that the apple branch speaks disparagingly about the dandelion in the traditional text in much of the same way that Rebecca looks down upon Emilio's arrangement in the modern work of fiction. Student(s) may not have recognized that the traditional text does not relate the dandelion's reaction to the apple branch's insults.]]></rationale>
+            <rationale identifier="2">
+                <![CDATA[Student(s) may not have identified that while Emilio's arrangement of common wildflowers is described as creative, the apple branch in the traditional text does not speak about creativity. ]]></rationale>
+            <rationale identifier="3"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="4">
+                <![CDATA[Student(s) may not have fully understood "The Winning Flower Arrangement" to know that it is more based upon the opinions of the apple branch rather than the sunbeam.]]></rationale>
+        </choiceRationales>
+        <br/>
+        <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="1">
+            <prompt visible="true"><![CDATA[<strong>Part B:
+<br /><br />
+Select the paragraph from "The Winning Flower Arrangement" that <em>best</em> supports your answer in part A.</strong> ]]></prompt>
+            <simpleChoice identifier="1"><![CDATA[<p class="indent">"Beautiful arrangement, Rebecca!"
+</p>]]></simpleChoice>
+            <simpleChoice identifier="2"><![CDATA[<p class="indent">"Ummm, thanks," she muttered.
+</p>]]></simpleChoice>
+            <simpleChoice identifier="3"><![CDATA[<p class="indent">She stared at the display he had put together, and she immediately felt embarrassed for him. &nbsp;The pitiful sight made her stand up even straighter and put her nose a little higher in the air.
+</p>]]></simpleChoice>
+            <simpleChoice identifier="4"><![CDATA[<p class="indent">The clay pot looked like something he might have roughly spun himself on a potter's wheel, and then there was the matter of what was inside of the ugly thing.&nbsp; Pale blue forget–me–nots that littered the local field by her house, bright yellow buttercups that could be found in every yard, and lavender lupines that were nothing more than weeds.
+</p>]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may have thought this option showed how the author drew upon opinions of the apple branch, since this is an opinion of Emilio.]]></rationale>
+            <rationale identifier="2">
+                <![CDATA[Student(s) may have believed that this showed how the author drew upon ways the apple branch made others feel badly since Rebecca muttered.]]></rationale>
+            <rationale identifier="3">
+                <![CDATA[Student(s) may have believed this excerpt showed that the author drew upon the giving powers since Rebecca was happy, as if she was given something.]]></rationale>
+            <rationale identifier="4"><![CDATA[Correct answer]]></rationale>
+        </choiceRationales>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE1"/>
+                    <correct identifier="RESPONSE1"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE2"/>
+                    <correct identifier="RESPONSE2"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <gt>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">0</baseValue>
+                </gt>
+                <setOutcomeValue identifier="SCORE">
+                    <variable identifier="NUMCORRECT"/>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+NUMBER="$1"
+echo "$@"
+
+echo $NUMBER
+
+rm -fr src/it/resources/$NUMBER
+mkdir src/it/resources/$NUMBER
+cp -rv ~/dev/tmp/kds-raw/parcc/$NUMBER.xml src/it/resources/$NUMBER/parcc.xml
+cp -rv ~/dev/tmp/kds-raw/sbac/$NUMBER.xml src/it/resources/$NUMBER/sbac.xml
+

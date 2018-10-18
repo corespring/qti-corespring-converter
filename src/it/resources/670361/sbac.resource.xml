@@ -1,0 +1,64 @@
+    <resource identifier="670361" type="imsqti_item_xmlv2p1" href="670361.xml">
+      <metadata>
+        <qtiMetadata>
+          <timeDependent>false</timeDependent>
+          <interactionType>multipleInteraction</interactionType>
+          <feedbackType>none</feedbackType>
+          <solutionAvailable>true</solutionAvailable>
+        </qtiMetadata>
+        <lom>
+          <general>
+            <identifier>670361</identifier>
+            <parentId>670361</parentId>
+            <classicId>670361</classicId>
+            <classicParentId>670361</classicParentId>
+            <passageId>669884</passageId>
+            <classicPassageId>300481</classicPassageId>
+            <depthOfKnowledge>3</depthOfKnowledge>
+            <bloomsLevel>4</bloomsLevel>
+            <omit>false</omit>
+            <replaceWith/>
+            <allowCalculator>0</allowCalculator>
+            <allowGrammarTools>0</allowGrammarTools>
+            <displayFormatId/>
+            <forceFullPage>0</forceFullPage>
+            <itemTypeId>8</itemTypeId>
+            <mediaTypeId>3</mediaTypeId>
+            <consortiumId/>
+            <useTwoPointScoring/>
+            <sbacTwoPointScoring/>
+            <parccTwoPointScoring>1</parccTwoPointScoring>
+            <gradeLevel>08</gradeLevel>
+            <subject>ela</subject>
+            <language>English</language>
+            <languageEquivalentId/>
+            <teacherRead>false</teacherRead>
+            <studentRead>false</studentRead>
+            <lastModifiedDate>2016-12-07T17:29:38Z</lastModifiedDate>
+            <modifiedDateMetadata>2016-12-07T17:29:38Z</modifiedDateMetadata>
+          </general>
+          <claims>
+            <claim 
+            claimNumber="1" subject="ela" category="Literary" target="04" priority="1">
+</claim>
+          </claims>
+          <parts>
+            <part itemTypeId="3"/>
+            <part itemTypeId="3"/>
+          </parts>
+          <lifecycle>
+            <version>2.1</version>
+            <status>
+              <source>LOMv1.0</source>
+              <value>Final</value>
+            </status>
+          </lifecycle>
+          <technical>
+            <format>text/x-imsqti-item-xml</format>
+          </technical>
+        </lom>
+      </metadata>
+      <file href="670361.xml"/>
+      <file href="passages/669884.xml"/>
+      <file href="style/LiveInspect.css"/>
+    </resource>

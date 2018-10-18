@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="670359" identifier="670359" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>2</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read the question to yourself and select the best answer(s).]]></teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="1">
+            <prompt visible="true"><![CDATA[<strong>This question has two parts.&nbsp; First, answer part A.&nbsp; Then, answer part B.
+<br /><br />
+Part A:
+<br /><br />
+Which of the following describes how "The Winning Flower Arrangement" draws on a character type found in "Excerpt from 'The Conceited Apple Branch'"?</strong>]]></prompt>
+            <simpleChoice identifier="1">
+                <![CDATA[Emilio in "The Winning Flower Arrangement" has some of the same character traits as the apple branch in "Excerpt from 'The Conceited Apple Branch.'"]]></simpleChoice>
+            <simpleChoice identifier="2">
+                <![CDATA[Melissa in "The Winning Flower Arrangement" has some of the same character traits as the sunbeam in "Excerpt from 'The Conceited Apple Branch.'"]]></simpleChoice>
+            <simpleChoice identifier="3">
+                <![CDATA[Rebecca in "The Winning Flower Arrangement" has some of the same character traits as the dandelion in "Excerpt from 'The Conceited Apple Branch.'"]]></simpleChoice>
+            <simpleChoice identifier="4">
+                <![CDATA[Emilio in "The Winning Flower Arrangement" has some of the same character traits as the sunbeam in "Excerpt from 'The Conceited Apple Branch.'"]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may not have recognized that Emilio is not like the apple branch in the traditional text since the text does not suggest that Emilio believes he is superior to others. ]]></rationale>
+            <rationale identifier="2"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="3">
+                <![CDATA[Student(s) may not have recognized that Rebecca most closely resembles the apple branch in the traditional text since she looks down upon Emilio's arrangement of common flowers. ]]></rationale>
+            <rationale identifier="4">
+                <![CDATA[Student(s) may have confused the characters Emilio and Melissa when reading this option. ]]></rationale>
+        </choiceRationales>
+        <br/>
+        <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="1">
+            <prompt visible="true"><![CDATA[<strong>Part B:
+<br /><br />
+Choose the paragraph from "The Winning Flower Arrangement" that <em>best</em> supports your answer in part A. </strong>
+]]></prompt>
+            <simpleChoice identifier="1"><![CDATA[<p class="indent">Rebecca spotted her best friend, Melissa, wandering around the gym. &nbsp;Rebecca waved her over and whispered, a little too loudly, into her ear.
+</p>]]></simpleChoice>
+            <simpleChoice identifier="2"><![CDATA[<p class="indent">Emilio hung his head in shame, and Melissa looked at the table.
+</p>]]></simpleChoice>
+            <simpleChoice identifier="3"><![CDATA[<p class="indent">"Well, I don't know.&nbsp; I like it.&nbsp; It showcases things that are found in nature in a creative way, and the colors work really well together, and&mdash;" Melissa continued.
+</p>]]></simpleChoice>
+            <simpleChoice identifier="4"><![CDATA[<p class="indent">Ms. Kelly approached Rebecca's table first. &nbsp;Rebecca was ready to tell her about the high cost of each flower and how she had to place a special order at the local flower shop for the white lilies.&nbsp; To her horror, Ms. Kelly barely glanced at her entry before moving on to Emilio's table.
+</p>]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may have thought that Rebecca whispering too loudly was similar to the dandelion in "Excerpt from The Conceited Apple Branch."]]></rationale>
+            <rationale identifier="2">
+                <![CDATA[Student(s) may have believed this excerpt showed that Emilio was similar to the apple branch; however, this option shows Emilio is more similar to the dandelion.]]></rationale>
+            <rationale identifier="3"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="4">
+                <![CDATA[Student(s) may have misinterpreted this excerpt or may not have selected the correct option for part A.]]></rationale>
+        </choiceRationales>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE1"/>
+                    <correct identifier="RESPONSE1"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE2"/>
+                    <correct identifier="RESPONSE2"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <equal>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">2</baseValue>
+                </equal>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

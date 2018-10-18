@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="663409" identifier="663409" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>2</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read and complete the task that follows.]]></teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="1">
+            <prompt visible="true">
+                <![CDATA[<strong>Part A:</strong><br /><br /><strong>James solved the math problem 7 &times;  9 = _____.&nbsp; Choose a situation that could be described by this problem.</strong>]]></prompt>
+            <simpleChoice identifier="1">
+                <![CDATA[Jerry had a package of 9 sodas.&nbsp; He shared his sodas with 7 friends.&nbsp; How many sodas did Jerry have left?]]></simpleChoice>
+            <simpleChoice identifier="2">
+                <![CDATA[Mary had 7 shirts. She then bought 9 more.&nbsp; How many shirts does Mary have?]]></simpleChoice>
+            <simpleChoice identifier="3">
+                <![CDATA[Jenny earned $7 an hour, and worked for 9 hours.&nbsp; How much money did Jenny have?]]></simpleChoice>
+            <simpleChoice identifier="4">
+                <![CDATA[Sandra sold 9 cars.&nbsp; The next day, she sold 7 cars.&nbsp; How many cars did Sandra sell in all?]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may not have understood when to use subtraction and when to use multiplication. ]]></rationale>
+            <rationale identifier="2"><![CDATA[Student(s) may have confused addition with multiplication.]]></rationale>
+            <rationale identifier="3"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="4"><![CDATA[Student(s) may have confused addition with multiplication.]]></rationale>
+        </choiceRationales>
+        <br/>
+        <div><![CDATA[<strong>Part B:</strong><br /><br /><strong>7 &times; 9 = </strong>]]>
+            <inlineChoiceInteraction responseIdentifier="RESPONSE2" shuffle="false">
+                <inlineChoice identifier="1"><![CDATA[49]]></inlineChoice>
+                <inlineChoice identifier="2"><![CDATA[63]]></inlineChoice>
+                <inlineChoice identifier="3"><![CDATA[72]]></inlineChoice>
+            </inlineChoiceInteraction>
+            <![CDATA[]]>
+        </div>
+        <inlineChoiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">
+                <![CDATA[Student(s) may have solved for 7 &times; 7, rather than 7 &times; 9.]]></rationale>
+            <rationale identifier="2"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="3">
+                <![CDATA[Student(s) may have made a computational error and may have multiplied 9 &times; 8, rather than 9 &times; 7.]]></rationale>
+        </inlineChoiceRationales>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE1"/>
+                    <correct identifier="RESPONSE1"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE2"/>
+                    <correct identifier="RESPONSE2"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <equal>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">2</baseValue>
+                </equal>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

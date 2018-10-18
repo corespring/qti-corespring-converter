@@ -10,11 +10,11 @@
     </appender>
 
 
-    <!--<logger name="org.corespring.conversion.qti.manifest" level="TRACE"></logger>-->
-    <!--<logger name="org.corespring.conversion.qti" level="TRACE"></logger>-->
-    <!--<logger name="com.keydatasys.conversion.qti" level="TRACE"></logger>-->
-    <!--<logger name="org.measuredprogress.conversion.zip" level="DEBUG"></logger>-->
-    <!--<logger name="org.corespring.container" level="TRACE"></logger>-->
+    <logger name="org.corespring.conversion.qti.manifest" level="TRACE"></logger>
+    <logger name="org.corespring.conversion.qti" level="TRACE"></logger>
+    <logger name="com.keydatasys.conversion.qti" level="TRACE"></logger>
+    <logger name="org.measuredprogress.conversion.zip" level="DEBUG"></logger>
+    <logger name="org.corespring.container.JsConsole" level="TRACE"></logger>
     <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>

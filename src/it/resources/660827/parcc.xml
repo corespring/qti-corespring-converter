@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="660827" identifier="660827" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="single" baseType="identifier">
+        <correctResponse>
+            <value>4</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE2" cardinality="multiple" baseType="identifier">
+        <correctResponse>
+            <value>1</value>
+            <value>3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <teacherInstructions>
+            <strong>TEACHER READS:</strong>
+            <br/>
+            <br/>Read the question to yourself and select the best answer(s).
+        </teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="1">
+            <prompt visible="true">
+                <div>
+                    <strong>This question has two parts. &#160;First, answer part A. &#160;Then, answer part B.</strong>
+                    <br/>
+                    <br/>
+                    <strong>Part A:</strong>
+                    <br/>
+                    <br/>
+                    <strong>As Francisco faces the loss of his cottage, he is conflicted about how to react to the move.&#160;
+                        He watches the reactions of two women&#8212;his mother and his grandmother&#8212;for guidance.&#160;
+                        How do these two women approach the upcoming move and try to influence his reaction?
+                    </strong>
+                </div>
+            </prompt>
+            <simpleChoice identifier="1">
+                <p>His mother is basically indifferent to the move.&#160; His grandmother is quite angry about the
+                    move.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="2">
+                <p>His mother tries to hide the facts of the move from Francisco.&#160; His grandmother hides nothing.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="3">
+                <p>His mother is quite sad, showing her full emotion constantly in front of Francisco.&#160; His
+                    grandmother is colder, encouraging him to go along with the move without emotion.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="4">
+                <p>His mother is sad but tries to put a smile on her face and be as positive as possible.&#160; His
+                    grandmother encourages him, in a very abrupt way, to go along with the move without complaining.
+                </p>
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1">
+                <p>Student(s) may have read the grandmother's abrupt attitude in the beginning of the text as anger.</p>
+            </rationale>
+            <rationale identifier="2">
+                <p>Student(s) may have remembered Francisco staying up late in the night to eavesdrop on his parents
+                    talking. Student(s) may have inferred that his parents hid things from him, but the text did not
+                    explicitly say so.
+                </p>
+            </rationale>
+            <rationale identifier="3">
+                <p>Student(s) may have assumed that the mother was very sad, but the text emphasized that his mother
+                    always tried to put on a smile for him, so she did not constantly show her sad emotions to him.
+                </p>
+            </rationale>
+            <rationale identifier="4">Correct answer</rationale>
+        </choiceRationales>
+        <choiceInteraction responseIdentifier="RESPONSE2" shuffle="false" maxChoices="5">
+            <prompt visible="true">
+                <div>
+                    <strong>Part B:</strong>
+                    <br/>
+                    <br/>
+                    <strong>Select the <em>two</em> pieces of evidence that support the answer from part A.
+                    </strong>
+                </div>
+            </prompt>
+            <simpleChoice identifier="1">
+                <p>"In life, you can reject change or go with the flow, and you'll be content if you can learn to roll
+                    with it, Francisco," his grandmother had always advised.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="2">
+                <p>He knew that because he'd been listening furtively at his door as his parents and grandmother had
+                    talked late into the night.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="3">
+                <p>There had been a note of despair in her voice, oddly mixed with a smile.&#160; She always smiled when
+                    she was worried about something.&#160; Francisco wished he could be as positive about the sale of
+                    the cottage.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="4">
+                <p>Digging on the beach had been a favorite pastime for all the years he'd been living at the cottage,
+                    for as far back as he could remember.&#160; His grandmother told him it was childish.&#160; He
+                    didn't care.&#160; It comforted him.
+                </p>
+            </simpleChoice>
+            <simpleChoice identifier="5">
+                <p>The conch would go with him, he'd already decided.</p>
+            </simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE2">
+            <rationale identifier="1">Correct answer</rationale>
+            <rationale identifier="2">
+                <p>Student(s) may have understood this to mean that his parents were keeping secrets from him, but the
+                    text did not explicitly say that.
+                </p>
+            </rationale>
+            <rationale identifier="3">Correct answer</rationale>
+            <rationale identifier="4">
+                <p>Student(s) may have seen this as his grandmother being cold about the sale of the cottage, but this
+                    quote actually had nothing to do with selling the cottage.
+                </p>
+            </rationale>
+            <rationale identifier="5">
+                <p>Student(s) may have seen this as related to a change in Francisco's reaction to moving, but this did
+                    not specifically describe how one of the women influenced him.
+                </p>
+            </rationale>
+        </choiceRationales>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <and>
+                    <match>
+                        <variable identifier="RESPONSE1"/>
+                        <correct identifier="RESPONSE1"/>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE2"/>
+                        <correct identifier="RESPONSE2"/>
+                    </match>
+                </and>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">2</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElseIf>
+                <match>
+                    <variable identifier="RESPONSE1"/>
+                    <correct identifier="RESPONSE1"/>
+                </match>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseElseIf>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

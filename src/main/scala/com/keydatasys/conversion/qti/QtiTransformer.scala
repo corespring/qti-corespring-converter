@@ -1,14 +1,16 @@
 package com.keydatasys.conversion.qti
 
-import com.keydatasys.conversion.qti.interactions.{GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, _}
+import com.keydatasys.conversion.qti.interactions.{ChoiceInteractionTransformer => KDSChoiceInteractionTransformer, GraphicGapMatchInteractionTransformer => KDSGraphicGapMatchInteractionTransformer, MatchInteractionTransformer => KDSMatchInteractionTransformer, TextEntryInteractionTransformer => KDSTextEntryInteractionTransformer, _}
 import com.keydatasys.conversion.qti.processing.ProcessingTransformer
 import org.corespring.common.xml.XMLNamespaceClearer
 import org.corespring.conversion.qti.interactions._
 import org.corespring.conversion.qti.{QtiTransformer => SuperQtiTransformer}
-import play.api.libs.json.{Json, JsObject}
+import org.slf4j.LoggerFactory
+import play.api.libs.json.{JsObject, Json}
 
 import scala.xml.transform.RewriteRule
-import scala.xml.{Node, Elem}
+import scala.xml.{Elem, Node}
+import org.corespring.macros.DescribeMacro._
 
 /**
   * PARCC allows 1 point per part but only for items that have the following metadata set to 1.
@@ -58,11 +60,16 @@ case object EBSR extends ItemType("11")
 
 private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
-  private def isEbsr(resource: Node) =
-    (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == "11"
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private def isMultiPart(resource: Node) =
-    (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim == "8"
+  private def itemTypeId(resource:Node) = {
+    val id = (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim
+    logger.trace(describe(id, resource))
+    id
+  }
+  private def isEbsr(resource: Node) = itemTypeId(resource) == "11"
+
+  private def isMultiPart(resource: Node) = itemTypeId(resource) == "8"
 
   private def isParccTwoPointScoring(resource: Node) = {
     if (mode == KDSMode.SBAC) {
@@ -84,11 +91,24 @@ private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQti
   }
 
   override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
-    lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
-    if (shouldNormalize(resource)) {
-      partsCount(resource).orElse(defaultDenominator)
+
+    if(resource.label.trim != "resource"){
+      throw new Exception(s"You must pass in a <resource> node but got: ${resource.label.trim}")
+    }
+
+    if(mode == KDSMode.SBAC){
+      Some(1)
     } else {
-      defaultDenominator
+      lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
+      if (shouldNormalize(resource)) {
+        val count = partsCount(resource)
+        logger.debug(s"[normalizeDenominator] should normalize using parts count: ${count}")
+        count.orElse(defaultDenominator)
+      } else {
+//        logger.debug(s"[normalizeDenominator] should not normalize using parts count, isEbsr: ${isEbsr(resource)} isMultiPart: ${isMultiPart(resource)} isParccTwoPointScoring: ${isParccTwoPointScoring(resource)}")
+        defaultDenominator
+      }
+
     }
   }
 

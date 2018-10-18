@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:m="http://www.w3.org/1998/Math/MathML"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"
+                title="664255" identifier="664255" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE1" cardinality="multiple" baseType="identifier">
+        <correctResponse>
+            <value>1</value>
+            <value>4</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration identifier="RESPONSE21" cardinality="single" baseType="string">
+        <correctResponse>
+            <value><![CDATA[12000]]></value>
+            <value><![CDATA[12,000]]></value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="NUMCORRECT" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <stylesheet href="style/LiveInspect.css" type="text/css"/>
+    <itemBody>
+        <teacherInstructions>
+            <![CDATA[<strong>TEACHER READS:</strong><br /><br />Read and complete the task that follows.]]></teacherInstructions>
+        <choiceInteraction responseIdentifier="RESPONSE1" shuffle="false" maxChoices="5">
+            <prompt visible="true"><![CDATA[<strong>Jane spends 60 minutes reading a book before bed and she reads at a speed of 200 words per minute. &nbsp;The number of words she is able to read is a function of time, in minutes, as shown on the graph below.</strong>
+<br /><br />
+<img alt="" src="./images/664255s3.gif" width="370" height="218" />
+<br /><br />
+<strong>Part A:</strong>
+<br /><br />
+<strong>Which of the following statements describe the graph of this function? &nbsp;Select <em>all</em> that apply.</strong>]]></prompt>
+            <simpleChoice identifier="1"><![CDATA[At 0 minutes, Jane has read 0 words.]]></simpleChoice>
+            <simpleChoice identifier="2"><![CDATA[Jane stops reading at 100 minutes.]]></simpleChoice>
+            <simpleChoice identifier="3"><![CDATA[Jane stops reading at 200 words.]]></simpleChoice>
+            <simpleChoice identifier="4">
+                <![CDATA[The graph line is increasing between 10 to 20 minutes.]]></simpleChoice>
+            <simpleChoice identifier="5">
+                <![CDATA[The graph line is decreasing between 50 to 60 minutes.]]></simpleChoice>
+        </choiceInteraction>
+        <choiceRationales responseIdentifier="RESPONSE1">
+            <rationale identifier="1"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="2">
+                <![CDATA[Student(s) may have misread the end point of the graph or the <em>x</em>&#8211;axis.]]></rationale>
+            <rationale identifier="3">
+                <![CDATA[Student(s) may have misread the end point of the graph or the <em>y</em>&#8211;axis.]]></rationale>
+            <rationale identifier="4"><![CDATA[Correct answer]]></rationale>
+            <rationale identifier="5"><![CDATA[Student(s) may have misread the graph.]]></rationale>
+        </choiceRationales>
+        <br/>
+        <div><![CDATA[<strong>Part B:</strong>
+<br /><br />
+<strong>Enter the total number of words Jane is able to read within 60 minutes.</strong>
+<br /><br />
+ ]]><textEntryInteraction responseIdentifier="RESPONSE21" expectedLength="10"/><![CDATA[ <strong>words</strong>]]>
+        </div>
+        <br/>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <match>
+                    <variable identifier="RESPONSE1"/>
+                    <correct identifier="RESPONSE1"/>
+                </match>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <or>
+                    <match>
+                        <variable identifier="RESPONSE21"/>
+                        <baseValue baseType="string"><![CDATA[12000]]></baseValue>
+                    </match>
+                    <match>
+                        <variable identifier="RESPONSE21"/>
+                        <baseValue baseType="string"><![CDATA[12,000]]></baseValue>
+                    </match>
+                </or>
+                <setOutcomeValue identifier="NUMCORRECT">
+                    <sum>
+                        <variable identifier="NUMCORRECT"/>
+                        <baseValue baseType="float">1</baseValue>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <gt>
+                    <variable identifier="NUMCORRECT"/>
+                    <baseValue baseType="float">0</baseValue>
+                </gt>
+                <setOutcomeValue identifier="SCORE">
+                    <variable identifier="NUMCORRECT"/>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

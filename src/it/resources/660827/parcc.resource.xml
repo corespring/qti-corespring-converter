@@ -1,0 +1,64 @@
+    <resource identifier="660827" type="imsqti_item_xmlv2p1" href="660827.xml">
+      <metadata>
+        <qtiMetadata>
+          <timeDependent>false</timeDependent>
+          <interactionType>choiceInteraction</interactionType>
+          <feedbackType>none</feedbackType>
+          <solutionAvailable>true</solutionAvailable>
+        </qtiMetadata>
+        <lom>
+          <general>
+            <identifier>660827</identifier>
+            <parentId>660827</parentId>
+            <classicId/>
+            <classicParentId/>
+            <passageId>650396</passageId>
+            <classicPassageId/>
+            <depthOfKnowledge>2</depthOfKnowledge>
+            <bloomsLevel>3</bloomsLevel>
+            <omit>false</omit>
+            <replaceWith/>
+            <allowCalculator>0</allowCalculator>
+            <allowGrammarTools>0</allowGrammarTools>
+            <displayFormatId/>
+            <forceFullPage>0</forceFullPage>
+            <itemTypeId>11</itemTypeId>
+            <mediaTypeId>3</mediaTypeId>
+            <consortiumId/>
+            <useTwoPointScoring/>
+            <sbacTwoPointScoring/>
+            <parccTwoPointScoring/>
+            <gradeLevel>08</gradeLevel>
+            <subject>ela</subject>
+            <language>English</language>
+            <languageEquivalentId/>
+            <teacherRead>false</teacherRead>
+            <studentRead>true</studentRead>
+            <lastModifiedDate>2018-07-11T17:38:21Z</lastModifiedDate>
+            <modifiedDateContent>2018-06-10T20:44:01Z</modifiedDateContent>
+            <modifiedDateMetadata>2018-07-11T17:38:21Z</modifiedDateMetadata>
+          </general>
+          <parccDetails>
+            <parcc subject="ela" task="" claim1="I" claim2=""/>
+            <parcc subject="ela" task="" claim1="1" claim2=""/>
+          </parccDetails>
+          <parts>
+            <part itemTypeId="3"/>
+            <part itemTypeId="4"/>
+          </parts>
+          <lifecycle>
+            <version>2.1</version>
+            <status>
+              <source>LOMv1.0</source>
+              <value>Final</value>
+            </status>
+          </lifecycle>
+          <technical>
+            <format>text/x-imsqti-item-xml</format>
+          </technical>
+        </lom>
+      </metadata>
+      <file href="660827.xml"/>
+      <file href="passages/650396.xml"/>
+      <file href="style/LiveInspect.css"/>
+    </resource>
