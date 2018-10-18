@@ -113,8 +113,8 @@ object KDSQtiZipConverter
           Some(out)
         } catch {
           case e: Exception => {
-            logger.error(e.getMessage)
-            e.printStackTrace()
+            logger.warn(e.getMessage)
+//            e.printStackTrace()
             None
           }
         }
