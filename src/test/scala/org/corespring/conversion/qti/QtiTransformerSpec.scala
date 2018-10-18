@@ -9,8 +9,10 @@ import scala.xml.{Elem, Node, XML}
 
 class QtiTransformerSpec extends Specification {
 
+  val id = "670500"
+
   def qti(body: Elem) =
-    <assessmentItem>
+    <assessmentItem identifier={id}>
       <responseDeclaration identifier="Q_01" cardinality="single" baseType="string">
         <correctResponse>
           <value>397.66</value>
@@ -20,12 +22,13 @@ class QtiTransformerSpec extends Specification {
       <itemBody> {body} </itemBody>
     </assessmentItem>
 
- "transform" should {
+
+  "transform" should {
 
    "with a textEntryInteraction" should {
 
      val qti =
-       <assessmentItem>
+       <assessmentItem identifier={id}>
          <responseDeclaration identifier="Q_01" cardinality="single" baseType="string">
            <correctResponse>
              <value>397.66</value>
@@ -38,7 +41,7 @@ class QtiTransformerSpec extends Specification {
        </assessmentItem>
 
      "not throw an exception" in {
-       QtiTransformer.transform(qti, Map.empty, <resource></resource>) must not(throwAn[Exception])
+       QtiTransformer.transform(qti, Map.empty, MockManifest.manifest(id)) must not(throwAn[Exception])
      }
 
    }
@@ -51,7 +54,7 @@ class QtiTransformerSpec extends Specification {
          SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
        ))
 
-       val manifest : Node = MockManifest.manifest
+       val manifest : Node = MockManifest.manifest(id)
 
        val json = QtiTransformer.transform(qtiData, sources, manifest)
 

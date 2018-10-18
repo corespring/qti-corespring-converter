@@ -1,12 +1,12 @@
 package org.corespring.conversion.qti
 
 object MockManifest {
-  val manifest = <manifest
+  def manifest(id:String) = <manifest
   identifier="MANIFEST-10/3/2014" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd
   http://www.imsglobal.org/xsd/imsmd_v1p2 imsmd_v1p2p4.xsd http://www.imsglobal.org/xsd/imsqti_v2p1
   http://www.imsglobal.org/xsd/imsqti_v2p1.xsd" xmlns:imsqti="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_v1p2" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1">
     <resources>
-    <resource identifier="670508" type="imsqti_item_xmlv2p1" href="670508.xml">
+    <resource identifier={id} type="imsqti_item_xmlv2p1" href="670508.xml">
     <metadata>
     <qtiMetadata>
     <timeDependent>false</timeDependent>
