@@ -41,7 +41,7 @@ class QtiTransformerSpec extends Specification {
        </assessmentItem>
 
      "not throw an exception" in {
-       QtiTransformer.transform(qti, Map.empty, MockManifest.manifest(id)) must not(throwAn[Exception])
+       QtiTransformer.transform(qti, Map.empty, MockManifest.resource(id)) must not(throwAn[Exception])
      }
 
    }
@@ -54,9 +54,9 @@ class QtiTransformerSpec extends Specification {
          SourceWrapper( "style/LiveInspect.css", IOUtils.toInputStream("body{color: red;}", "UTF-8")
        ))
 
-       val manifest : Node = MockManifest.manifest(id)
+       val resource : Node = MockManifest.resource(id)
 
-       val json = QtiTransformer.transform(qtiData, sources, manifest)
+       val json = QtiTransformer.transform(qtiData, sources,resource)
 
        val xml = XML.loadString( s"<root> ${(json \ "xhtml").as[String]}</root>" )
        (xml \\ "style")(1).text.trim must_== """.qti.kds body { color:red; }"""
