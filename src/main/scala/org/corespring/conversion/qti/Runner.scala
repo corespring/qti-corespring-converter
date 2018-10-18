@@ -69,14 +69,14 @@ object Runner extends App {
     opt[String]('l', "sourceIdList")
       .text("A path to a file with a source id on its own line")
       .action((l, c) => {
-      val ids = Source.fromFile(new File(l))
-        .getLines()
-        .map(_.trim)
-        .filterNot(_.isEmpty)
-        .toSeq
-        .distinct
-      c.copy(sourceIds = c.sourceIds ++ ids)
-    })
+        val ids = Source.fromFile(new File(l))
+          .getLines()
+          .map(_.trim)
+          .filterNot(_.isEmpty)
+          .toSeq
+          .distinct
+        c.copy(sourceIds = c.sourceIds ++ ids)
+      })
 
     opt[Boolean]('r', "killRuntime").action((r, c) => c.copy(killRuntime = r))
   }

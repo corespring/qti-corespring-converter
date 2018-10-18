@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+ROOT=~/dev/tmp/kds-raw/
 NUMBER="$1"
 echo "$@"
 
 echo $NUMBER
 
-rm -fr src/it/resources/$NUMBER
-mkdir src/it/resources/$NUMBER
-cp -rv ~/dev/tmp/kds-raw/parcc/$NUMBER.xml src/it/resources/$NUMBER/parcc.xml
-cp -rv ~/dev/tmp/kds-raw/sbac/$NUMBER.xml src/it/resources/$NUMBER/sbac.xml
+# rm -fr src/it/resources/$NUMBER
+# mkdir src/it/resources/$NUMBER
+# cp -rv $ROOT/parcc/$NUMBER.xml src/it/resources/$NUMBER/parcc.xml
+# cp -rv $ROOT/sbac/$NUMBER.xml src/it/resources/$NUMBER/sbac.xml
 
+RESOURCE=xmllint --xpath '/manifest/resources/resource[@identifier="$NUMBER"]' $ROOT/parcc/imsmanifest.xml
+echo $RESOURCE

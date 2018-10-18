@@ -128,7 +128,8 @@ class KDSTest extends Specification {
 
       logger.info(s"outcomes: $outcomes")
 
-      logger.trace(s"customScoring: \n${conversion \ "customScoring"}")
+
+      val playerComponents = (conversion \ "components")
 
       val result = CustomScoreProcessor.score(
         conversion,
@@ -172,16 +173,17 @@ class KDSTest extends Specification {
       }
     }
   }
+
   test("664014")
-  test("664255")
-  test("660295")
-  test("663409")
-  test("670361")
-  test("661656")
-  test("663934")
-  test("665182")
-  test("670508")
-  test("670359")
-  test("660832")
-  test("660827")
+    test("664255")
+    test("660295")
+    test("663409")
+    test("670361")
+    test("661656")
+    test("663934")
+    test("665182")
+    test("670508")
+    test("670359")
+    test("660832")
+    test("660827")
 }

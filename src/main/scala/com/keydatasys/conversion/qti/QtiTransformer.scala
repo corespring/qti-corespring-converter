@@ -54,19 +54,22 @@ object KDSMode extends Enumeration {
   val SBAC, PARCC = Value
 }
 
-sealed abstract class ItemType(val id:String)
+sealed abstract class ItemType(val id: String)
+
 case object MULTIPART extends ItemType("8")
+
 case object EBSR extends ItemType("11")
 
 private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQtiTransformer with ProcessingTransformer {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private def itemTypeId(resource:Node) = {
+  private def itemTypeId(resource: Node) = {
     val id = (resource \ "metadata" \ "lom" \ "general" \ "itemTypeId").text.trim
     logger.trace(describe(id, resource))
     id
   }
+
   private def isEbsr(resource: Node) = itemTypeId(resource) == "11"
 
   private def isMultiPart(resource: Node) = itemTypeId(resource) == "8"
@@ -92,23 +95,26 @@ private[keydatasys] class KDSQtiTransformer(mode: KDSMode.Mode) extends SuperQti
 
   override def normalizeDenominator(resource: Node, qti: Node): Option[Int] = {
 
-    if(resource.label.trim != "resource"){
+    if (resource.label.trim != "resource") {
       throw new Exception(s"You must pass in a <resource> node but got: ${resource.label.trim}")
     }
 
-    if(mode == KDSMode.SBAC){
+    if (mode == KDSMode.SBAC) {
       Some(1)
     } else {
-      lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
-      if (shouldNormalize(resource)) {
-        val count = partsCount(resource)
-        logger.debug(s"[normalizeDenominator] should normalize using parts count: ${count}")
-        count.orElse(defaultDenominator)
+      if (isMultiPart(resource) && !isParccTwoPointScoring(resource)) {
+        Some(1)
       } else {
-//        logger.debug(s"[normalizeDenominator] should not normalize using parts count, isEbsr: ${isEbsr(resource)} isMultiPart: ${isMultiPart(resource)} isParccTwoPointScoring: ${isParccTwoPointScoring(resource)}")
-        defaultDenominator
+        lazy val defaultDenominator: Option[Int] = toJs(qti).map(j => j.responseVars.length)
+        if (shouldNormalize(resource)) {
+          val count = partsCount(resource)
+          logger.debug(s"[normalizeDenominator] should normalize using parts count: ${count}")
+          count.orElse(defaultDenominator)
+        } else {
+          //        logger.debug(s"[normalizeDenominator] should not normalize using parts count, isEbsr: ${isEbsr(resource)} isMultiPart: ${isMultiPart(resource)} isParccTwoPointScoring: ${isParccTwoPointScoring(resource)}")
+          defaultDenominator
+        }
       }
-
     }
   }
 
