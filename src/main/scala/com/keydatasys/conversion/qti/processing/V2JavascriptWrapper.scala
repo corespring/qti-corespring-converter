@@ -55,6 +55,9 @@ object V2JavascriptWrapper {
        |  var maxPoints = ${js.responseVars.length};
        |
        |  console.log("SCORE: ", SCORE, "divider: ${denominator.getOrElse("1")}");
+       |  try {
+       |    console.log("NUMCORRECT:", NUMCORRECT);
+       |  } catch(e) { }
        |
        |  var summary = {
        |    ${js.vars.keySet.map(name => s"'${name.toLowerCase}': ${name.toVar}").mkString(",\n|      ")}

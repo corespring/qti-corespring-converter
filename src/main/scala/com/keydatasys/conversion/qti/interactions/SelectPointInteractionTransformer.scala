@@ -109,7 +109,13 @@ case class SelectPointInteractionTransformer(qti: Node) extends InteractionTrans
         "rangeGraphPadding" -> Some(propertyNumber(property("rangeGraphPadding").getOrElse(SelectPointInteractionTransformer.Defaults.rangeGraphPadding))),
         "showCoordinates" -> Some(JsBoolean(false)),
         "maxPoints" -> ((node \ "@maxChoices") match {
-          case n: NodeSeq if n.nonEmpty => Some(JsNumber(n.text.toInt))
+          case n: NodeSeq if n.nonEmpty => {
+            if(n.text.isEmpty){
+              None
+            } else {
+              Some(JsNumber(n.text.toInt))
+            }
+          }
           case _ => None
         })))
   }
