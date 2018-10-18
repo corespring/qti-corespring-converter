@@ -6,16 +6,7 @@ import scala.xml.Node
 object ManifestMaker {
 
 
-  def wrap(n: Node) = {
-    <manifest>
-      <resources>
-        {n}
-      </resources>
-    </manifest>
-  }
-
-  def manifest(id: String, itemTypeId: String, parccTwoPointScoring: Boolean, partsCount: Int): Node = {
-    wrap(
+  def resource(id: String, itemTypeId: String, parccTwoPointScoring: Boolean, partsCount: Int): Node = {
       <resource identifier={id} href={s"$id.xml"} type="imsqti_item_xmlv2p1">
         <metadata>
           <lom>
@@ -34,7 +25,7 @@ object ManifestMaker {
           </lom>
         </metadata>
         <file href={s"$id.xml"}/>
-      </resource>)
+      </resource>
   }
 
 }

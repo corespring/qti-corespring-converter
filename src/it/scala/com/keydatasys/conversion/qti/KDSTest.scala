@@ -9,16 +9,15 @@ import org.corespring.conversion.qti.ManifestMaker
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import org.specs2.specification.Fragments
-import play.api.libs.json.{JsArray, JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.json.Json.obj
 
 import scala.collection.JavaConversions._
 import scala.xml.{Elem, Node}
 
-case class TestManifest(val xml: Node) {
+case class TestResource(val xml: Node) {
 
-  private val resource = (xml \ "resources" \ "resource")
-  private lazy val lom = (resource \ "metadata" \ "lom")
+  private lazy val lom = (xml \ "metadata" \ "lom")
   private lazy val general = (lom \ "general")
 
   def itemTypeId = {
@@ -72,19 +71,19 @@ class KDSTest extends Specification {
   }
 
 
-  private def loadManifest(config: Config, id: String, mode: KDSMode.Mode): Node = {
+  private def loadResource(config: Config, id: String, mode: KDSMode.Mode): Node = {
 
     val manifestPath = s"/$id/${mode.toString.toLowerCase()}.resource.xml"
 
     resource(manifestPath).map(url => {
       val resourceXml = new File(url.toURI)
-      ManifestMaker.wrap(scala.xml.XML.loadFile(resourceXml))
+      scala.xml.XML.loadFile(resourceXml)
     }).getOrElse {
       logger.warn("Try to use the resource xml instead of creating it")
       val itemTypeId = config.getString("manifest.itemTypeId")
       val parccTwoPointScoring = getBoolean(config, "manifest.parccTwoPointScoring")
       val partsCount = getInt(config, "manifest.parts", 0)
-      ManifestMaker.manifest(
+      ManifestMaker.resource(
         id,
         itemTypeId,
         parccTwoPointScoring,
@@ -98,12 +97,12 @@ class KDSTest extends Specification {
     val raw = ConfigFactory.parseFile(new File(this.getClass.getResource(s"/$id/responses.conf").toURI))
     val correctComponents = toJson(raw, "correct")
 
-    def scoreIsCorrect(qti: Elem, transformer: KDSQtiTransformer, manifest: TestManifest)(c: Config): Fragments = {
+    def scoreIsCorrect(qti: Elem, transformer: KDSQtiTransformer, resource: TestResource)(c: Config): Fragments = {
 
       val expectedScore = c.getDouble("expectedScore").toFloat
       val e = toJson(c, "components")
       val components = correctComponents ++ e
-      val conversion = transformer.transform(qti, Map(), manifest.xml)
+      val conversion = transformer.transform(qti, Map(), resource.xml)
 
       def isInOverride(key: String) = e.keys.contains(key)
 
@@ -129,8 +128,6 @@ class KDSTest extends Specification {
       logger.info(s"outcomes: $outcomes")
 
 
-      val playerComponents = (conversion \ "components")
-
       val result = CustomScoreProcessor.score(
         conversion,
         obj("components" -> components),
@@ -143,8 +140,8 @@ class KDSTest extends Specification {
       }
     }
 
-    val sbacManifest = TestManifest(loadManifest(raw, id, KDSMode.SBAC))
-    val parccManifest = TestManifest(loadManifest(raw, id, KDSMode.PARCC))
+    val sbacManifest = TestResource(loadResource(raw, id, KDSMode.SBAC))
+    val parccManifest = TestResource(loadResource(raw, id, KDSMode.PARCC))
 
     s"$id" should {
 
@@ -152,11 +149,11 @@ class KDSTest extends Specification {
         val sbacQti = scala.xml.XML.loadFile(new File(this.getClass.getResource(s"/$id/sbac.xml").toURI))
         val sbacList = raw.getConfigList("sbac")
         val transformer = new KDSQtiTransformer(KDSMode.SBAC)
-        val manifestXml = loadManifest(raw, id, KDSMode.SBAC)
+        val manifestXml = loadResource(raw, id, KDSMode.SBAC)
 
 
         (sbacList).foldLeft[Fragments](Fragments())((res, i) => {
-          res.append(scoreIsCorrect(sbacQti, transformer, TestManifest(manifestXml))(i))
+          res.append(scoreIsCorrect(sbacQti, transformer, TestResource(manifestXml))(i))
         })
       }
 
@@ -164,11 +161,11 @@ class KDSTest extends Specification {
 
         val parccQti = scala.xml.XML.loadFile(new File(this.getClass.getResource(s"/$id/parcc.xml").toURI))
         val parccList = raw.getConfigList("parcc")
-        val manifestXml = loadManifest(raw, id, KDSMode.PARCC)
+        val manifestXml = loadResource(raw, id, KDSMode.PARCC)
         val transformer = new KDSQtiTransformer(KDSMode.PARCC)
 
         (parccList).foldLeft[Fragments](Fragments())((res, i) => {
-          res.append(scoreIsCorrect(parccQti, transformer, TestManifest(manifestXml))(i))
+          res.append(scoreIsCorrect(parccQti, transformer, TestResource(manifestXml))(i))
         })
       }
     }

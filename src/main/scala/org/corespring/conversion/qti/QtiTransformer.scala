@@ -66,19 +66,24 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     }
   }
 
-  def transform(qti: Elem, sources: Map[String, SourceWrapper], manifest: Node): JsValue = {
+  def transform(qti: Elem, sources: Map[String, SourceWrapper], resource: Node): JsValue = {
+
+    if(resource.label != "resource"){
+      throw new IllegalArgumentException(s"not a resource node - got: ${resource.label}")
+    }
+
     val transformers = interactionTransformers(qti)
 
     /** Need to pre-process Latex so that it is available for all JSON and XML transformations **/
     val texProcessedQti = new InteractionRuleTransformer(FontTransformer)
-      .transform(new InteractionRuleTransformer(TexTransformer).transform(qti, manifest), manifest)
+      .transform(new InteractionRuleTransformer(TexTransformer).transform(qti, resource), resource)
 
     val components = transformers.foldLeft(Map.empty[String, JsObject])(
-      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, manifest))
+      (map, transformer) => map ++ transformer.interactionJs(texProcessedQti.head, resource))
 
-    val transformedHtml = new InteractionRuleTransformer(transformers: _*).transform(texProcessedQti, manifest)
+    val transformedHtml = new InteractionRuleTransformer(transformers: _*).transform(texProcessedQti, resource)
     val html = statefulTransformers.foldLeft(clearNamespace((transformedHtml.head \ "itemBody").head))(
-      (html, transformer) => transformer.transform(html, manifest).head)
+      (html, transformer) => transformer.transform(html, resource).head)
 
 
 
@@ -122,13 +127,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
     val id = (qti \ "@identifier").text.trim
     logger.trace(describe(id))
     val converted = convertHtml(finalHtml)
-    val maybeResource = (manifest \ "resources" \\ "resource").find( n => n.attribute("identifier").map(_.mkString("")) == Some(id))
-
-    if(maybeResource.isEmpty){
-      throw new Exception(s"Cant find resource for id: $id")
-    }
-
-    val denominator = normalizeDenominator(maybeResource.get, qti)
+    val denominator = normalizeDenominator(resource, qti)
 
     Json.obj(
       "xhtml" -> s"${KDSTableReset} ${converted}",

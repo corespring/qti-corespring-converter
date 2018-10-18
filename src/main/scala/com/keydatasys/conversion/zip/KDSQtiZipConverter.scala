@@ -56,8 +56,17 @@ object KDSQtiZipConverter
     val is = zip.getInputStream(manifestEntry)
     val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
 
-    val (qtiResources, _) = (xml \ "resources" \\ "resource")
+    val resources = (xml \ "resources" \\ "resource")
+    if(resources.length == 0){
+      logger.error("resources length is 0!")
+    }
+    val (qtiResources, _) = resources
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
+
+
+    if(qtiResources.length == 0){
+      logger.error("qtiResources length is 0")
+    }
 
     def toManifestItem(node: Node): Future[ManifestItem] = Future {
       val out = ManifestItem(node, zip)
@@ -104,6 +113,8 @@ object KDSQtiZipConverter
           Some(out)
         } catch {
           case e: Exception => {
+            logger.error(e.getMessage)
+            e.printStackTrace()
             None
           }
         }

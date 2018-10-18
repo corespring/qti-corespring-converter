@@ -8,7 +8,6 @@
             <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{18} - %msg%n</pattern>
         </encoder>
     </appender>
-
     <!--
     <logger name="org.corespring.conversion.qti.manifest" level="TRACE"></logger>
     <logger name="org.corespring.conversion.qti" level="TRACE"></logger>
