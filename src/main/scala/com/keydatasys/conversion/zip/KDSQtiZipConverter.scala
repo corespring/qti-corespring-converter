@@ -23,6 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.Node
 import org.corespring.macros.DescribeMacro._
+import org.joda.time.DateTime
 
 object KDSQtiZipConverter
   extends QtiToCorespringConverter
@@ -43,7 +44,7 @@ object KDSQtiZipConverter
                maybeMetadata: Option[JsObject] = None,
                opts: ConversionOpts = ConversionOpts()): Future[ZipFile] = {
 
-    val scoringType = maybeMetadata.flatMap( o => (o \ "scoringType").asOpt[String]).getOrElse("PARCC")
+    val scoringType = maybeMetadata.flatMap(o => (o \ "scoringType").asOpt[String]).getOrElse("PARCC")
     val mode = KDSMode.withName(scoringType)
     val transformer = new KDSItemTransformer(new KDSQtiTransformer(mode))
 
@@ -57,14 +58,14 @@ object KDSQtiZipConverter
     val xml = filterManifest(SourceWrapper("imsmanifest.xml", is))
 
     val resources = (xml \ "resources" \\ "resource")
-    if(resources.length == 0){
+    if (resources.length == 0) {
       logger.error("resources length is 0!")
     }
     val (qtiResources, _) = resources
       .partition(r => (r \ "@type").text.toString == "imsqti_item_xmlv2p1")
 
 
-    if(qtiResources.length == 0){
+    if (qtiResources.length == 0) {
       logger.error("qtiResources length is 0")
     }
 
@@ -100,11 +101,20 @@ object KDSQtiZipConverter
             s"${m.id} - $st"
           }.getOrElse(m.id)
 
+          val now = DateTime.now
           val profile = obj("taskInfo" -> obj(
             "title" -> title,
             "description" -> title,
             "extended" -> obj(
-              "kds" -> metadata
+              "kds" -> metadata,
+              "qtiCorespringConverter" -> obj(
+                "version" -> qtiConverter.BuildInfo.version,
+                "date" -> obj(
+                  "year" -> now.getYear,
+                  "month" -> now.getMonthOfYear,
+                  "date" -> now.getDayOfMonth
+                )
+              )
             )
           ))
 
@@ -114,7 +124,7 @@ object KDSQtiZipConverter
         } catch {
           case e: Exception => {
             logger.warn(e.getMessage)
-//            e.printStackTrace()
+            //            e.printStackTrace()
             None
           }
         }
