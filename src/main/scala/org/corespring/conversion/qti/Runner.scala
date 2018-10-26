@@ -93,6 +93,8 @@ object Runner extends App {
 
   if (args.length > 0 && args(0) == "custom-scoring-kds") {
     CustomScoringKds.run(args.tail)
+  } else if(args.length > 0 && args(0) == "get-score"){
+    GetScore.run(args.tail)
   } else {
     val converters = Map(
       "kds" -> KDSQtiZipConverter,

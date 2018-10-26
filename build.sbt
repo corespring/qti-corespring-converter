@@ -46,7 +46,7 @@ lazy val root = Project("qti-corespring-converter", file("."))
     "org.jsoup" % "jsoup" % "1.8.1",
     "com.github.scopt" %% "scopt" % "3.6.0",
     "org.corespring" %% "macros" % "1.1.0",
-    "org.corespring" %% "js-processing" % "5.6.8" % "it"
+    "org.corespring" %% "js-processing" % "5.6.8" % "it,compile"
   ),
   publishTo := authPublishTo.value,
   parallelExecution in IntegrationTest := false
