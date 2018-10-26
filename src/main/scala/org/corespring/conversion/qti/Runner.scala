@@ -3,6 +3,7 @@ package org.corespring.conversion.qti
 import java.io.File
 import java.util.zip.ZipFile
 
+import com.keydatasys.conversion.qti.CustomScoringKds
 import com.keydatasys.conversion.zip.KDSQtiZipConverter
 import com.progresstesting.conversion.zip.ProgressTestingQtiZipConverter
 import org.corespring.conversion.zip.ConversionOpts
@@ -36,6 +37,13 @@ object Runner extends App {
   println(qtiConverter.BuildInfo.toString)
 
   val logger = LoggerFactory.getLogger(Runner.this.getClass)
+
+  val converters = Map(
+    "kds" -> KDSQtiZipConverter,
+    "progresstesting" -> ProgressTestingQtiZipConverter,
+    "measuredprogress" -> MeasuredProgressQtiZipConverter,
+    "old-measuredprogress" -> OldMeasuredProgressQtiZipConverter
+  )
 
   val parser = new scopt.OptionParser[RunOpts]("run") {
     head("run", "version")
@@ -81,53 +89,60 @@ object Runner extends App {
     opt[Boolean]('r', "killRuntime").action((r, c) => c.copy(killRuntime = r))
   }
 
+  println(s"args: ${args.mkString(", ")} ${args.length}")
 
-  val converters = Map(
-    "kds" -> KDSQtiZipConverter,
-    "progresstesting" -> ProgressTestingQtiZipConverter,
-    "measuredprogress" -> MeasuredProgressQtiZipConverter,
-    "old-measuredprogress" -> OldMeasuredProgressQtiZipConverter
-  )
+  if (args.length > 0 && args(0) == "custom-scoring-kds") {
+    CustomScoringKds.run(args.tail)
+  } else {
+    val converters = Map(
+      "kds" -> KDSQtiZipConverter,
+      "progresstesting" -> ProgressTestingQtiZipConverter,
+      "measuredprogress" -> MeasuredProgressQtiZipConverter,
+      "old-measuredprogress" -> OldMeasuredProgressQtiZipConverter
+    )
 
-  parser.parse(args, RunOpts("", "", "")) match {
-    case Some(runOpts) => {
-      val input = new ZipFile(runOpts.input)
-      val outputPath = runOpts.output
-      val vendor = runOpts.vendor
-      val metadata = Json.parse(runOpts.metadata).as[JsObject]
+    parser.parse(args, RunOpts("", "", "")) match {
+      case Some(runOpts) => {
+        val input = new ZipFile(runOpts.input)
+        val outputPath = runOpts.output
+        val vendor = runOpts.vendor
+        val metadata = Json.parse(runOpts.metadata).as[JsObject]
 
-      val converter = converters
-        .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
+        val converter = converters
+          .get(vendor).getOrElse(throw new IllegalArgumentException(s"You must specify a supported vendor: ${converters.keys.mkString(", ")}"))
 
-      val opts = ConversionOpts(
-        runOpts.limit,
-        runOpts.sourceIds
-      )
+        val opts = ConversionOpts(
+          runOpts.limit,
+          runOpts.sourceIds
+        )
 
 
-      logger.info(s"convertion opts: $opts")
+        logger.info(s"convertion opts: $opts")
 
-      val outFile = new File(runOpts.output)
+        val outFile = new File(runOpts.output)
 
-      if (outFile.exists()) {
-        logger.info(s"Deleting ${runOpts.output}")
-        outFile.delete
+        if (outFile.exists()) {
+          logger.info(s"Deleting ${runOpts.output}")
+          outFile.delete
+        }
+
+        result(converter.convert(input, outputPath, Some(metadata), opts)
+          .map(_ => {
+            println(s"all done sourceIds: ${opts.sourceIds}")
+
+            if (runOpts.killRuntime) {
+              Runtime.getRuntime().halt(0)
+            }
+          }), 25.minutes)
       }
-
-      result(converter.convert(input, outputPath, Some(metadata), opts)
-        .map(_ => {
-          println(s"all done sourceIds: ${opts.sourceIds}")
-
-          if (runOpts.killRuntime) {
-            Runtime.getRuntime().halt(0)
-          }
-        }), 25.minutes)
+      case None => {
+        println(parser.usage)
+        sys.exit(1)
+      }
     }
-    case None => {
-      println(parser.usage)
-      sys.exit(1)
-    }
+
   }
+
 
 }
 
