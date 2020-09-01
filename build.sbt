@@ -1,7 +1,5 @@
 import sbt._
 import sbt.Keys._
-// import org.corespring.sbt.repo.RepoAuthPlugin.Keys._
-//import com.typesafe
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(BuildInfoPlugin)
