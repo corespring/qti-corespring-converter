@@ -48,7 +48,7 @@ lazy val qti = Project("qti-lib", file("lib/qti"))
     )
   ).dependsOn(rhinos).aggregate(rhinos)
 
-lazy val root = Project("qti-corespring-converter", file("."))
+lazy val root = Project("qti-converter", file("."))
   .settings(
     scalacOptions in Test ++= Seq("-Yrangepos"),
   libraryDependencies ++= sharedDependencies ++ Seq(

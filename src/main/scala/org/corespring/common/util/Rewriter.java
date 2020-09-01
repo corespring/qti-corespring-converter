@@ -67,30 +67,30 @@ public abstract class Rewriter
 
 
 
-    public static void main(String... args) throws Exception
-    {
-        String str = "12 54 1 65";
-
-        // anonymous subclass
-        Rewriter tripler = new Rewriter("(\\d{1,2})")
-        {
-            public String replacement()
-            {
-                int intValue = Integer.valueOf(group(1));
-                return String.valueOf(intValue * 3);
-            }
-        };
-        System.out.println(tripler.rewrite(str));
-
-        // inline subclass
-        System.out.println(new Rewriter("(\\d{1,2})")
-        {
-            public String replacement()
-            {
-                int intValue = Integer.valueOf(group(1));
-                return String.valueOf(intValue * 3);
-            }
-        }.rewrite(str));
-
-    }
+//    public static void main(String... args) throws Exception
+//    {
+//        String str = "12 54 1 65";
+//
+//        // anonymous subclass
+//        Rewriter tripler = new Rewriter("(\\d{1,2})")
+//        {
+//            public String replacement()
+//            {
+//                int intValue = Integer.valueOf(group(1));
+//                return String.valueOf(intValue * 3);
+//            }
+//        };
+//        System.out.println(tripler.rewrite(str));
+//
+//        // inline subclass
+//        System.out.println(new Rewriter("(\\d{1,2})")
+//        {
+//            public String replacement()
+//            {
+//                int intValue = Integer.valueOf(group(1));
+//                return String.valueOf(intValue * 3);
+//            }
+//        }.rewrite(str));
+//
+//    }
 }

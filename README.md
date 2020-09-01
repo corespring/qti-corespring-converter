@@ -1,6 +1,6 @@
-### qti-corespring-converter
+### qti-converter
 
-`qti-corespring-converter` is a Scala library that translates QTI into CoreSpring's item format. This project is 
+`qti-converter` is a Scala library that translates QTI into CoreSpring's item format. This project is 
 currently in a WIP state.
 
 ## JAVA/SCALA/SBT
@@ -22,7 +22,7 @@ Make sure you have the requisite audio codecs (`libvorbis`, specifically), other
 
 #### Usage
 
-You can use `qti-corespring-converter` from the command line:
+You can use `qti-converter` from the command line:
 
     sbt "run --input qti.zip --output json.zip --vendor kds --metadata \"{\\\"scoringType\\\": \\\"PARCC\\\"}\""
     
