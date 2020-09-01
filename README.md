@@ -3,6 +3,15 @@
 `qti-corespring-converter` is a Scala library that translates QTI into CoreSpring's item format. This project is 
 currently in a WIP state.
 
+## JAVA/SCALA/SBT
+
+see the [scala installation instructions.](https://docs.scala-lang.org/getting-started/sbt-track/getting-started-with-scala-and-sbt-on-the-command-line.html)
+
+```shell
+
+
+```
+
 #### Installation
 
 You will need `ffmpeg` to perform Ogg Vorbis conversions from mp3s. To install this on Mac OS:

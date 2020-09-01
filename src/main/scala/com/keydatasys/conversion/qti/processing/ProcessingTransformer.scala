@@ -22,7 +22,7 @@ trait ProcessingTransformer {
         Some(JsResponseProcessing(
           vars = outcomeDeclarations(qti),
           responseVars = responseDeclarations(qti),
-          lines = node.withoutEmptyChildren.map(n => responseChild(n)(qti))))
+          lines = node.withoutEmptyChildren.map(n => responseChild(n)(qti)).toSeq))
       } catch {
         case e: Exception => {
           e.printStackTrace

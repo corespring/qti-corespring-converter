@@ -7,8 +7,8 @@ import scalaz.Validation
 abstract class AbstractItemExtractor {
 
   val ids: Seq[String]
-  val metadata: Map[String, Validation[Error, Option[JsValue]]]
-  val itemJson: Map[String, Validation[Error, JsValue]]
+  val metadata: Map[String, JsValue]
+  val itemJson: Map[String, Validation[_<:Error, _<:JsValue]]
 
 }
 

@@ -143,7 +143,7 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
             path = flattenPath(filename),
             resourceType = resourceType,
             //We inline css
-            inline = resourceType == ManifestResourceType.StyleSheet
+            isInline = resourceType == ManifestResourceType.StyleSheet
           )
 
           logger.debug(describe(out))
@@ -161,12 +161,12 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
       ManifestResource(
         path,
         resourceType,
-        inline = resourceType == ManifestResourceType.StyleSheet)
+        isInline = resourceType == ManifestResourceType.StyleSheet)
 
     })) ++ files :+ ManifestResource(
       qtiFile,
       ManifestResourceType.QTI,
-      inline = false)
+      isInline = false)
 
     logger.debug(s"resources: $resources")
 
@@ -185,7 +185,7 @@ object ManifestItem extends PassageScrubber with EntityEscaper{
             ManifestResource(
               path = flattenPath(path),
               resourceType = resourceType,
-              inline = resourceType == ManifestResourceType.StyleSheet)
+              isInline = resourceType == ManifestResourceType.StyleSheet)
           }
       }
 

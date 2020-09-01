@@ -19,15 +19,16 @@ class ItemExtractor(sources: Map[String, SourceWrapper], commonMetadata: JsObjec
 
   lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
 
-  lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
+  lazy val metadata: Map[String, JsValue] =
     manifest.map(_.items.map(f =>
-      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
+            f.id -> (commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1")))
+
     )).getOrElse(Seq.empty).toMap
 
   def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
     .getOrElse(Seq.empty).map(_.path)
 
-  lazy val itemJson: Map[String, Validation[Error, JsValue]] =
+  lazy val itemJson: Map[String, Validation[_<:Error, _<:JsValue]] =
     manifest.map(_.items.map(f => sources.get(f.filename).map(s => {
       try {
         f.id -> Success(itemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))

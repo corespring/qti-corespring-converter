@@ -48,7 +48,7 @@ trait QtiToCorespringConverter extends HtmlProcessor with UnicodeCleaner {
       val xhtml = unescapeCss(postprocessHtml((json \ "xhtml").as[String]))
       cleanUnicode(json ++ Json.obj(
         "xhtml" -> xhtml,
-        "components" -> postprocessHtml((json \ "components")),
+        "components" -> postprocessHtml((json \ "components").as[JsObject]),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       ))
     }

@@ -4,9 +4,8 @@ import org.corespring.common.html.JsoupParser
 import org.jsoup.Jsoup
 import play.api.libs.json._
 
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.xml._
-
-import scala.collection.JavaConversions._
 
 class HottextInteractionTransformer extends InteractionTransformer {
 

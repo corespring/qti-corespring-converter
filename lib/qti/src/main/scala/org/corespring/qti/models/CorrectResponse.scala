@@ -1,7 +1,7 @@
 package org.corespring.qti.models
 
 import scala.xml.Node
-import org.corespring.qti.models.interactions.{DragAndDropInteraction, SelectTextInteraction, TextEntryInteraction, Interaction}
+import org.corespring.qti.models.interactions.{ SelectTextInteraction, TextEntryInteraction, Interaction}
 
 trait CorrectResponse {
   def isCorrect(responseValue: String): Boolean
@@ -28,8 +28,6 @@ object CorrectResponse {
           case _ => CorrectResponseAny(node)
         }
         case SelectTextInteraction(_, _, _, _, _, _) => CorrectResponseAny(node)
-        case DragAndDropInteraction(_, _, targets) =>
-          CorrectResponseTargeted(node, targets.filter(_.cardinality == "ordered").map(_.identifier).toSet)
         case _ => CorrectResponse(node, cardinality, baseType)
       }
     } else CorrectResponse(node, cardinality, baseType)

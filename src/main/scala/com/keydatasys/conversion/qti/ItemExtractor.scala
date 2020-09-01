@@ -32,15 +32,45 @@ class ItemExtractor(zip: ZipFile, sources: Map[String, SourceWrapper], commonMet
 
   lazy val ids = manifest.map(manifest => manifest.items.map(_.id)).getOrElse(Seq.empty)
 
-  lazy val metadata: Map[String, Validation[Error, Option[JsValue]]] =
-    manifest.map(_.items.map(f => {
-      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
-    })).getOrElse(Seq.empty).toMap
+  lazy val metadata: scala.collection.immutable.Map[String, JsValue] = {
+
+    val oo : Map[String, JsValue] = manifest match {
+      case Some(m) => {
+        val s : Seq[(String, JsObject)] = m.items.map(f => {
+          f.id -> (commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1")))
+        })
+        s.toMap
+//        val sss : Map[String, JsObject] = s.toMap
+
+
+//        val o = sss.map( t => {
+//          t._1 -> Success(Some(t._2))
+//        })
+//        o
+      }
+      case None => Map.empty
+    }
+    //    manifest.map(_.items.map(f => {
+    //      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
+    //    })).getOrElse(Seq.empty).toMap
+
+//    val out : Map[String, Validation[Error,Option[JsValue]]] = Map("foo"-> Success(Some(JsString("hi"))))
+//    out
+    oo
+    //    manifest.map(_.items.map(f => {
+    //      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
+    //    })).getOrElse(Seq.empty).toMap
+
+  }
+  //Map("foo"-> Success(Some(JsString("hi"))))
+//    manifest.map(_.items.map(f => {
+//      f.id -> Success(Some(commonMetadata ++ Json.obj("sourceId" -> "(.*).xml".r.replaceAllIn(f.filename, "$1"))))
+//    })).getOrElse(Seq.empty).toMap
 
   def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
     .getOrElse(Seq.empty).map(_.path.flattenPath)
 
-  lazy val itemJson: Map[String, Validation[Error, JsValue]] =
+  lazy val itemJson: Map[String, Validation[_ <: Error, _ <: JsValue]] =
     manifest.map(_.items.map(f => sources.get(f.filename.flattenPath).map(s => {
       try {
         f.id -> Success(itemTransformer.transform(scrub(preprocessHtml(s.getLines.mkString)), f, sources))

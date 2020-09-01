@@ -77,7 +77,7 @@ object ManifestReader
               ManifestResource(
                 path = flattenPath(filename),
                 resourceType = resourceType,
-                inline = false)
+                isInline = false)
             })
           }
         }.flatten.toSeq
@@ -88,11 +88,11 @@ object ManifestReader
           ManifestResource(
             path = path,
             resourceType = ManifestResourceType.fromPathOld(path)(xml),
-            inline = false)
+            isInline = false)
         })) ++ files :+ ManifestResource(
           filename,
           ManifestResourceType.QTI,
-          inline = false)
+          isInline = false)
 
         val passageResources: Seq[ManifestResource] = resources.filter(resource => resource.is(ManifestResourceType.Passage) || resource.is(ManifestResourceType.QTI)).map(p =>
           sources.find { case (path, _) => path == p.path.flattenPath }.map {
@@ -105,7 +105,7 @@ object ManifestReader
                     paths.map(path => ManifestResource(
                       path = flattenPath(path),
                       resourceType = resourceType,
-                      inline = false))
+                      isInline = false))
                 }.flatten)
               } catch {
                 case e: Exception => {

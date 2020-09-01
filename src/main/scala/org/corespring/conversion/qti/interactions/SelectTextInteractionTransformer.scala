@@ -120,7 +120,7 @@ object TextSplitter {
         val textWithTags = textWithNeighbouringTags(l, node.text.trim)
         s"\\S+".r.findAllIn(textWithTags).toList
       } else {
-        node.child.map { n => getWordsWithXmlTags(n, Seq(node) ++ path) }.flatten
+        node.child.map { n => getWordsWithXmlTags(n, Seq(node) ++ path) }.flatten.toSeq
       }
     }
     val inputXml = XML.loadString(s"<span>${s}</span>")
