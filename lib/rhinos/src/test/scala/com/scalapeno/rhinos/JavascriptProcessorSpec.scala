@@ -89,7 +89,7 @@ class JavascriptProcessorSpec extends Specification with JavascriptProcessor {
         )
 
         js("object;", Map("object" -> jsObject)) match {
-          case Some(jsObject: JsObject) => {
+          case Some(key -> jsObject) => {
             (jsObject \ "val1").asInstanceOf[JsString].value === "one"
             (jsObject \ "val2").asInstanceOf[JsNumber].value === 2
             success

@@ -1,8 +1,9 @@
 package org.corespring.conversion.qti.interactions
 
-import org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4
+import org.apache.commons.text.StringEscapeUtils.unescapeHtml4
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
+import org.specs2.execute.Result
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -81,17 +82,19 @@ class OrderInteractionTransformerTest extends Specification {
     }
 
     "result must contain model.config.choiceAreaLayout = 'horizontal'" in {
-      placementComponentsJson.get(identifier) match {
+      val o : Result =placementComponentsJson.get(identifier) match {
         case Some(json) => (json \ "model" \ "config" \ "choiceAreaLayout").as[String] === "horizontal"
         case _ => failure("No json for identifier")
       }
+      o
     }
 
     "result must contain model.config.answerAreaLabel " in {
-      placementComponentsJson.get(identifier) match {
+      val o : Result = placementComponentsJson.get(identifier) match {
         case Some(json) => (json \ "model" \ "config" \ "answerAreaLabel").as[String] === answerAreaLabel
         case _ => failure("No json for identifier")
       }
+      o
     }
 
     "must contain appropriate shuffle property" in {
@@ -112,9 +115,11 @@ class OrderInteractionTransformerTest extends Specification {
 
     "return the choices" in {
       val choices = (interactionResult \ "model" \ "choices").as[Seq[JsObject]]
-      choices.map(_ \ "label").map(_.as[String]).map(unescapeHtml4) diff responses must beEmpty
-      choices.map(_ \ "value").map(_.as[String]).map(unescapeHtml4) diff responses must beEmpty
-      choices.map(_ \ "moveOnDrag").map(_.as[Boolean]).find(moveOnDrag => moveOnDrag == false) must beEmpty
+      choices.map(_ \ "label").map(_.as[String]).map(unescapeHtml4) === responses
+//      diff responses must beEmpty
+      choices.map(_ \ "value").map(_.as[String]).map(unescapeHtml4) === responses
+      //diff responses must beEmpty
+      choices.map(_ \ "moveOnDrag").map(_.as[Boolean]).find(moveOnDrag => moveOnDrag == false) === Seq.empty
     }
 
     "return feedback" in {
@@ -122,7 +127,7 @@ class OrderInteractionTransformerTest extends Specification {
         ((n \ "value").as[String] -> (n \ "feedback").as[String])
       }).toMap
 
-      feedback.keys.toSeq diff responses.toSeq must beEmpty
+      feedback.keys.toSeq === responses
       feedback.values.toSet.toSeq must be equalTo Seq(feedbackValue)
     }
 

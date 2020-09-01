@@ -19,55 +19,30 @@ scalaVersion in ThisBuild := "2.13.3"
 
 val sharedDependencies = Seq(
   "org.scalaz" %% "scalaz-core" % "7.3.2",
-  "com.typesafe.play" %% "play-json" % "2.9.0"
+  "com.typesafe.play" %% "play-json" % "2.9.0",
+  "org.specs2" %% "specs2-core" % "4.10.0" % "test"
 )
-
-//def buildSettings = Defaults.defaultSettings ++ releaseSettings ++ Seq(
-//  organization := "org.corespring.forks.scalapeno",
-//  scalaVersion := "2.10.0",
-//  resolvers ++= Seq(
-//    "typesafe releases" at "http://repo.typesafe.com/typesafe/releases/",
-//    "typesafe snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
-//  ),
-//  libraryDependencies ++= Seq(
-//    "org.mozilla" % "rhino" % "1.7R4",
-//    "com.typesafe.play" %% "play-json" % "2.2.0" % "provided",
-//    "org.slf4j" %  "slf4j-api" % "1.6.4",
-//    "ch.qos.logback" % "logback-classic" % "1.0.0" % "provided",
-//    "org.specs2" %% "specs2" % "1.12.3" % "test",
-//    "junit" % "junit" % "4.8.2" % "test",
-//    "org.mockito" % "mockito-all" % "1.9.0" % "test"
-//  ),
-//  credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
-//  publishTo <<= version {
-//    (v: String) =>
-//      def isSnapshot = v.trim.contains("-")
-//      val base = "http://repository.corespring.org/artifactory"
-//      val repoType = if (isSnapshot) "snapshot" else "release"
-//      val finalPath = base + "/ivy-" + repoType + "s"
-//      Some( "Artifactory Realm" at finalPath )
-//  },
-//  unmanagedBase <<= baseDirectory { base => base / "lib" },
-//  scalacOptions := Seq("-deprecation", "-encoding", "utf8")
-//)
 
 lazy val rhinos = Project("rhinos", base = file("lib/rhinos"))
   .settings(
-    libraryDependencies ++= Seq(
+
+    scalacOptions in Test ++= Seq("-Yrangepos"),
+    libraryDependencies ++= sharedDependencies ++ Seq(
       "org.mozilla" % "rhino" % "1.7.12",
       "com.typesafe.play" %% "play-json" % "2.9.0" % "provided",
       "org.slf4j" %  "slf4j-api" % "1.6.4",
       "ch.qos.logback" % "logback-classic" % "1.0.0" % "provided",
     )
   )
-  //, settings = buildSettings )
 lazy val macros = Project("macros", file("lib/macros"))
   .settings(
+    scalacOptions in Test ++= Seq("-Yrangepos"),
     libraryDependencies ++= Seq( "org.scala-lang" % "scala-reflect" % "2.13.3")
   )
 
-lazy val qti = Project("corespring-qti", file("lib/qti"))
+lazy val qti = Project("qti-lib", file("lib/qti"))
   .settings(
+    scalacOptions in Test ++= Seq("-Yrangepos"),
     libraryDependencies ++= sharedDependencies ++ Seq(
       "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
     )
@@ -75,16 +50,19 @@ lazy val qti = Project("corespring-qti", file("lib/qti"))
 
 lazy val root = Project("qti-corespring-converter", file("."))
   .settings(
+    scalacOptions in Test ++= Seq("-Yrangepos"),
   libraryDependencies ++= sharedDependencies ++ Seq(
     "commons-io" % "commons-io" % "2.7",
+    "org.apache.commons" % "commons-text" % "1.9",
     "com.phloc" % "phloc-css" % "3.8.0",
     "org.mozilla" % "rhino" % "1.7.12",
     "com.typesafe.play" %% "play" % "2.8.2",
     "org.jsoup" % "jsoup" % "1.8.1",
     "com.github.scopt" %% "scopt" % "4.0.0-RC2",
     "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2",
-    "joda-time" % "joda-time" % "2.10.6"
-  ),
+    "joda-time" % "joda-time" % "2.10.6",
+   "org.specs2" %% "specs2-core" % "4.10.0" % "it"
+),
   parallelExecution in IntegrationTest := false
 )
   .configs(IntegrationTest)
@@ -94,4 +72,4 @@ lazy val root = Project("qti-corespring-converter", file("."))
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "qtiConverter"
   )
-  .dependsOn(qti, macros).aggregate(qti, macros)
+  .dependsOn(qti, macros).aggregate(qti, macros, rhinos)

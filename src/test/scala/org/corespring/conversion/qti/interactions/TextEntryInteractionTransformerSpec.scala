@@ -109,7 +109,8 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
     }
 
     "return the correct answers for the interaction" in {
-      (interactionResult \ "correctResponses" \ "values").as[Seq[String]] diff correctResponses must beEmpty
+      val ss = (interactionResult \ "correctResponses" \ "values").as[Seq[String]]
+      ss.diff(correctResponses) === Seq.empty
     }
 
     "returns the correct correct response vars" in {
@@ -117,7 +118,7 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
     }
 
     "returns the correct correct response domain" in {
-      (equationInteractionResult \ "correctResponse" \ "domain") must be equalTo parseDomain(domain)
+      (equationInteractionResult \ "correctResponse" \ "domain") === parseDomain(domain)
     }
 
     "returns the correct correct response sigfigs" in {
@@ -148,18 +149,19 @@ class TextEntryInteractionTransformerTest extends Specification with DomainParse
     }
 
     "correct feedback is extracted from feedback blocks" in {
-      (interactionResult \ "correctResponses" \ "feedback" \ "specific") must be equalTo Json.arr(
+      (interactionResult \ "correctResponses" \ "feedback" \ "specific") === Json.arr(
         Json.obj(
           "answer" -> "someCorrect",
           "feedback" -> "<div>correct</div>"))
     }
 
     "incorrect feedback is extracted from feedback blocks" in {
-      (interactionResult \ "incorrectResponses" \ "feedback" \ "value") must be equalTo JsString("<div>incorrect</div>")
+      (interactionResult \ "incorrectResponses" \ "feedback" \ "value") === JsString("<div>incorrect</div>")
     }
 
     "converts baseType=line to <corespring-function-entry/>" in {
-      (lineOutput \\ "corespring-function-entry") must not beEmpty
+      val s = (lineOutput \\ "corespring-function-entry")
+      s !== Seq.empty
     }
 
   }

@@ -3,7 +3,7 @@ package com.scalapeno.rhinos
 import org.specs2.mutable._
 import play.api.libs.json._
 
-class RhinosRuntimeSpec extends SpecificationWithJUnit    {
+class RhinosRuntimeSpec extends Specification    {
   
   "RhinosRuntime.eval[T](...)" should {
     var rhinos: RhinosRuntime = null

@@ -9,7 +9,8 @@ import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
-import scala.collection.JavaConversions._
+
+import scala.collection.convert.ImplicitConversions.`enumeration AsScalaIterator`
 
 trait BaseRunner extends Specification {
 
