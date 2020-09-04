@@ -96,7 +96,7 @@ class ChoiceInteractionTransformerTest extends Specification with ChoiceInteract
       (q1 \ "componentType").as[String] === "corespring-multiple-choice"
       (q1 \ "model" \ "config" \ "choiceType").as[String] === "radio"
       ((q1 \ "model" \ "choices")(0) \ "label").as[String] === a.toString
-      (q1 \ "correctResponse" \ "value") === JsArray(Seq(JsString("A")))
+      (q1 \ "correctResponse" \ "value").as[Seq[String]] === Seq("A")
       (q1 \ "feedback").as[Seq[JsObject]].length === 2
       ((q1 \ "feedback")(0) \ "value").as[String] === "A"
       ((q1 \ "feedback")(0) \ "feedback").as[String] === "Default Correct"
@@ -110,7 +110,7 @@ class ChoiceInteractionTransformerTest extends Specification with ChoiceInteract
 
       (q1 \ "componentType").as[String] === "corespring-inline-choice"
       ((q1 \ "model" \ "choices")(0) \ "label").as[String] === "<math>A</math>"
-      (q1 \ "correctResponse") === JsString("A")
+      (q1 \ "correctResponse").as[String] === "A"
       (q1 \ "feedback").as[Seq[JsObject]].length === 2
       ((q1 \ "feedback")(0) \ "value").as[String] === "A"
       ((q1 \ "feedback")(0) \ "feedbackType").as[String] === "default"
