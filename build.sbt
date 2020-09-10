@@ -14,7 +14,7 @@ fork in Test := true
 
 organization in ThisBuild := "org.pie"
 scalaVersion in ThisBuild := "2.13.3"
-
+trapExit := false
 val sharedDependencies = Seq(
   "org.scalaz" %% "scalaz-core" % "7.3.2",
   "com.typesafe.play" %% "play-json" % "2.9.0",
@@ -28,7 +28,8 @@ lazy val rhinos = Project("rhinos", base = file("lib/rhinos"))
     libraryDependencies ++= sharedDependencies ++ Seq(
       "org.mozilla" % "rhino" % "1.7.12",
       "com.typesafe.play" %% "play-json" % "2.9.0" % "provided",
-      "org.slf4j" %  "slf4j-api" % "1.6.4",
+      
+      "org.slf4j" % "slf4j-simple" % "1.7.12",
       "ch.qos.logback" % "logback-classic" % "1.0.0" % "provided",
     )
   )
