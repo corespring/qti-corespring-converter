@@ -29,4 +29,25 @@ abstract class InteractionTransformer extends RewriteRule with XMLNamespaceClear
       }
     }
   }
+  def removeNamespaces(node: Node): Node = {
+    node match {
+      case elem: Elem => {
+        elem.copy(
+          scope = TopScope,
+          prefix = null,
+          attributes = removeNamespacesFromAttributes(elem.attributes),
+          child = elem.child.map(removeNamespaces)
+        )
+      }
+      case other => other
+    }
+  }
+
+  def removeNamespacesFromAttributes(metadata: MetaData): MetaData = {
+    metadata match {
+      case UnprefixedAttribute(k, v, n) => new UnprefixedAttribute(k, v, removeNamespacesFromAttributes(n))
+      case PrefixedAttribute(pre, k, v, n) => new UnprefixedAttribute(k, v, removeNamespacesFromAttributes(n))
+      case Null => Null
+    }
+  }
 }

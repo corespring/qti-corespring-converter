@@ -1,0 +1,41 @@
+{
+  "id" : "178f8bf3-3d7b-4f2f-8a02-f3315b0eaa00",
+  "name" : "qtib8518163954c44dd94ccb1382c933f9fOAnOZ",
+  "collectionIds" : [ "test" ],
+  "markup" : "<br/><multiple-choice id=\"qtib8518163954c44dd94ccb1382c933f9fOAnOZ\"></multiple-choice>",
+  "models" : [ {
+    "id" : "qtib8518163954c44dd94ccb1382c933f9fOAnOZ",
+    "prompt" : "<div>\n\t\t<p>\n\t\t\t<strong>DIRECTIONS: Multiple Response </strong>\n\t\t\tIndicate the \n\t\t\t<strong>two </strong>\n\t\t\tanswer choices that best answer the question.\n\t\t</p>\n\t\t<p> </p>\n\t\t<p>What can you learn by comparing maps?</p>\n\t</div><div>All maps look the same</div>",
+    "element" : "multiple-choice",
+    "choiceMode" : "radio",
+    "keyMode" : "letters",
+    "choices" : [ {
+      "label" : "<div>True</div>",
+      "value" : "A",
+      "correct" : false,
+      "feedback" : {
+        "type" : "none",
+        "value" : "<p>Rocks can dissolve, but the process described here is the expansion of water during freezing. This is a physical action.</p>"
+      }
+    }, {
+      "label" : "False",
+      "value" : "B",
+      "correct" : true,
+      "feedback" : {
+        "type" : "none",
+        "value" : "<p>Process described here is the expansion of water during freezing. This is a physical action.</p>"
+      }
+    } ]
+  } ],
+  "elements" : {
+    "multiple-choice" : "@pie-element/multiple-choice@2.1.0"
+  },
+  "searchMetaData" : {
+    "internal_author" : "",
+    "internal_status" : "",
+    "hmh_standard" : [ ],
+    "hmh_locale" : "en_US",
+    "hmh_cognitiveDemand" : "",
+    "hmh_depthOfKnowledge" : ""
+  }
+}

@@ -13,8 +13,8 @@ class ChoiceInteractionTransformerHMHSpec extends Specification {
     val correctResponse = "B"
     val choices = Map("A" -> "choice one", "B" -> "choice two","C" -> "choice three","D" -> "choice four")
     val rationales = Map("A" -> "This is why choice one", "B" -> "This is why choice three","C" -> "This is why choice two","D" -> "This is why choice four")
-    val promptMC =  "Three of these statements describe possible outcomes of this demonstration. Which of the following is\n<strong>not</strong>\na possible result?";
-    val promptIC = "<p>Identify the missing word in this famous quote from Shakespeare's Richard III.</p>"
+    val promptMC =  s"Three of these statements describe possible outcomes of this demonstration.";
+    val promptIC =  s"Three of these statements describe possible outcomes of this demonstration.";
     val shuffle = false
     val maxChoices = "1"
 
@@ -66,27 +66,14 @@ class ChoiceInteractionTransformerHMHSpec extends Specification {
 
     "transform choices for multiple choice" in {
       val json = multipleChoiceResult.values.headOption.getOrElse(throw new Exception("There was no result"))
-      val choiceResult = (json \ "config" \ "models" \\ "choices")(0).as[Seq[JsObject]].map(f => (f \ "value").as[String] -> (f \ "label").as[String]).toMap
+      val choiceResult = (json \ "models" \\ "choices")(0).as[Seq[JsObject]].map(f => (f \ "value").as[String] -> (f \ "label").as[String]).toMap
       choiceResult must be equalTo (choices)
     }
 
     "transform choices for inline choice" in {
       val json = inlineChoiceResult.values.headOption.getOrElse(throw new Exception("There was no result"))
-      val choiceResult = (json \ "config" \ "models" \\ "choices")(0).as[Seq[JsObject]].map(f => (f \ "value").as[String] -> (f \ "label").as[String]).toMap
+      val choiceResult = (json \ "models" \\ "choices")(0).as[Seq[JsObject]].map(f => (f \ "value").as[String] -> (f \ "label").as[String]).toMap
       choiceResult must be equalTo (choices)
     }
-
-    "transform prompt in multiple choice" in {
-      val json = multipleChoiceResult.values.headOption.getOrElse(throw new Exception("There was no result"))
-      val prompt = (json \\ "prompt")(0).as[String]
-      prompt must be equalTo (promptMC)
-    }
-
-    "transform prompt in inline choice" in {
-      val json = inlineChoiceResult.values.headOption.getOrElse(throw new Exception("There was no result"))
-      val prompt = (json \\ "prompt")(0).as[String]
-      prompt must be equalTo (promptIC)
-    }
   }
-
 }

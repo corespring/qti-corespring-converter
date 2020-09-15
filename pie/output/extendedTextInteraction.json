@@ -1,0 +1,28 @@
+{
+  "id" : "09ac113e-ccef-4d23-853b-e8c5749206a0",
+  "name" : "RESPONSE_ff80808156991d150157f7afc5356c01",
+  "collectionIds" : [ "test" ],
+  "markup" : "<br/><extended-text-entry id='RESPONSE_ff80808156991d150157f7afc5356c01'></extended-text-entry>",
+  "models" : [ {
+    "id" : "RESPONSE_ff80808156991d150157f7afc5356c01",
+    "prompt" : "Tyrel is learning about a certain kind of metal used to make satellites. He learns that infrared light is absorbed by the metal, X-ray light is transmitted through the metal, and visible light is reflected off the metal. Tyrel wonders if the metal will get warm if he shines the lights on it.\n\nCan light cause the metal to get warm? Why or why not? Does it matter what type of light shines on the metal?",
+    "element" : "extended-text-entry",
+    "width" : "300px",
+    "height" : "300px",
+    "expectedLength" : 50,
+    "expectedLines" : null,
+    "maxStrings" : null,
+    "minStrings" : null
+  } ],
+  "elements" : {
+    "extended-text-entry" : "@pie-element/extended-text-entry@latest"
+  },
+  "searchMetaData" : {
+    "internal_author" : "",
+    "internal_status" : "",
+    "hmh_standard" : [ ],
+    "hmh_locale" : "en_US",
+    "hmh_cognitiveDemand" : "",
+    "hmh_depthOfKnowledge" : ""
+  }
+}

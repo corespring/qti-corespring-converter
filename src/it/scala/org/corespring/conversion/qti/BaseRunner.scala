@@ -41,7 +41,7 @@ trait BaseRunner extends Specification {
                   vendor: String,
                   sourceId: String,
                   metadata: String = "{}") = {
-    Runner.main(Array(
+   /* Runner.main(Array(
       "--input", input,
       "--vendor", vendor,
       "--limit", "0",
@@ -49,7 +49,7 @@ trait BaseRunner extends Specification {
       "--output", output,
       "--killRuntime", "false",
       "--metadata", metadata
-    ))
+    ))*/
   }
 
   def convert(sourceId: String, itemTypeId: String, mode: KDSMode.Mode, partsCount: Int, twoPointScoring: Boolean) = {

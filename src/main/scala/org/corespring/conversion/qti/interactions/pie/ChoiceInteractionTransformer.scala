@@ -1,9 +1,11 @@
 package org.corespring.conversion.qti.interactions.pie
 
 import java.util.UUID.randomUUID
+
 import play.api.libs.json._
 
 import scala.xml._
+import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 object ChoiceInteractionTransformer extends InteractionTransformer {
 
@@ -20,13 +22,15 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
     def choiceType(node: Node): String = {
       correctResponses.length match {
         case length: Int if length > 1 => "checkbox"
-        case _ => if ((node \\ "@maxChoices").text == "1") "radio" else "checkbox"
+        case _ => "radio"//if ((node \\ "@maxChoices").text == "1") "radio" else "checkbox"
       }
     }
     def prompt(node: Node): String = {
+      val itemBodyText =  (qti \\ "itemBody").map { n =>  removeNamespaces(n).child.filterNot(e => e.label == "choiceInteraction" || e.label == "rubricBlock").mkString.toString().trim}
+      val choiceInteractionText =  node.map { n =>  removeNamespaces(n).child.filterNot(e => e.label == "simpleChoice").mkString.trim}
       (node \ "prompt").length match {
-        case length: Int if length == 1 => node.child.filter(e => e.label == "prompt").text.trim
-        case _ => ""
+        case length: Int if length == 1 => itemBodyText(0).toString() +  (removeNamespaces(node) \\ "prompt").map{ n => n.child.mkString.trim }(0)
+        case _ => itemBodyText(0).toString() + choiceInteractionText(0).toString()
       }
     }
     def isCorrect(node : Node ): Boolean = {
@@ -44,38 +48,39 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
       "id" -> randomUUID,
       "name" -> (qti \ "@identifier").text,
       "collectionIds" -> Json.toJson(List("test").distinct),
-      "config" -> Json.obj(
-        "markup" ->   (node.label match {
-          case "choiceInteraction" => JsString("<br/><multiple-choice pie-id=\""+(qti \ "@identifier").text+"\"></multiple-choice>")
-          case "inlineChoiceInteraction" => JsString("<br/><inline-choice pie-id=\""+(qti \ "@identifier").text+"\"></inline-choice>")
+      "markup" ->   (node.label match {
+        case "choiceInteraction" => JsString("<br/><multiple-choice id=\""+(qti \ "@identifier").text+"\"></multiple-choice>")
+        case "inlineChoiceInteraction" => JsString("<br/><inline-choice id=\""+(qti \ "@identifier").text+"\"></inline-choice>")
+      }),
+      "models" -> JsArray(node.map { n =>
+        Json.obj(
+        "id" -> (qti \ "@identifier").text,
+        "prompt" -> prompt(n),
+        "element" -> (n.label match {
+          case "choiceInteraction" => JsString("multiple-choice")
+          case "inlineChoiceInteraction" => JsString("inline-choice")
         }),
-        "models" -> JsArray(node.map { n =>
+        "choiceMode" -> JsString(choiceType(qti)),
+        "keyMode" -> JsString("letters"),
+        "choices" -> JsArray(((n \\ "simpleChoice").toSeq ++ (n \\ "inlineChoice")).map { n =>
           Json.obj(
-          "id" -> (qti \ "@identifier").text,
-          "prompt" -> prompt(node),
-          "element" -> (node.label match {
-            case "choiceInteraction" => JsString("multiple-choice")
-            case "inlineChoiceInteraction" => JsString("inline-choice")
-          }),
-          "choiceMode" -> JsString(choiceType(qti)),
-          "keyMode" -> JsString("letters"),
-          "choices" -> JsArray(((node \\ "simpleChoice").toSeq ++ (node \\ "inlineChoice")).map { n =>
-            Json.obj(
-              "label" -> n.child.filterNot(e => e.label == "feedbackInline").mkString.trim,
-              "value" -> increment,
-              "correct" -> JsBoolean(isCorrect(n)),
-              "feedback" -> Json.obj(
-                              "type" -> (n \ "feedbackInline").text,
-                              "value" -> (n \ "@identifier").text
-                            )
-            )
-          }))}),
-        "element" -> Json.obj(
-          (node.label match {
-            case "choiceInteraction" => "multiple-choice" -> "@pie-element/multiple-choice@2.1.0"
-            case "inlineChoiceInteraction" => "inline-choice" -> "@pie-element/inline-choice@2.1.0"
-          })
-        )
+            "label" -> removeNamespaces(n).child.filterNot(e => e.label == "feedbackInline").mkString.trim,
+            "value" -> increment,
+            "correct" -> JsBoolean(isCorrect(n)),
+            "feedback" -> Json.obj(
+                            "type" -> "none",
+                            "value" -> ((n \ "feedbackInline").length match {
+                              case length: Int if length == 1 => (removeNamespaces(n) \\ "feedbackInline").map{ n => n.child.toString() }(0)
+                              case _ => ""
+                            })
+                          )
+          )
+        }))}),
+      "elements" -> Json.obj(
+        (node.label match {
+          case "choiceInteraction" => "multiple-choice" -> "@pie-element/multiple-choice@2.1.0"
+          case "inlineChoiceInteraction" => "inline-choice" -> "@pie-element/inline-choice@2.1.0"
+        })
       ),
       "searchMetaData" -> Json.obj(
         "internal_author" -> "",
@@ -86,9 +91,7 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
         "hmh_depthOfKnowledge" -> ""
       )
     )
-
     componentId -> json
-
   }).toMap
 
 }
