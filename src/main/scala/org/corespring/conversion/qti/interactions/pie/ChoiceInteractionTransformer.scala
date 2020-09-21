@@ -78,8 +78,8 @@ object ChoiceInteractionTransformer extends InteractionTransformer {
         }))}),
       "elements" -> Json.obj(
         (node.label match {
-          case "choiceInteraction" => "multiple-choice" -> "@pie-element/multiple-choice@2.1.0"
-          case "inlineChoiceInteraction" => "inline-choice" -> "@pie-element/inline-choice@2.1.0"
+          case "choiceInteraction" => "multiple-choice" -> "@pie-element/multiple-choice@2.7.3"
+          case "inlineChoiceInteraction" => "inline-choice" -> "@pie-element/inline-choice@2.7.3"
         })
       ),
       "searchMetaData" -> Json.obj(
