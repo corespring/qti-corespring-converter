@@ -1,14 +1,15 @@
 package org.corespring.conversion.qti
 
 import java.io.{File, FileInputStream, FileOutputStream}
-import org.corespring.conversion.qti.manifest.{QTIManifest}
+
+import org.corespring.conversion.qti.manifest.QTIManifest
 import org.houghtonmifflinharcourt.conversion.qti.interactions.{ChoiceInteractionTransformer, ExtendedTextInteractionTransformer}
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
 import scala.xml.XML
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.zip.{ZipEntry, ZipFile, ZipInputStream, ZipOutputStream}
 
 import org.apache.commons.io.IOUtils
@@ -47,46 +48,65 @@ object Run extends App {
   parser.parse(args, RunOpts("", "", "")) match {
     case Some(runOpts) => {
       logger.info(s"${runOpts}")
-      // var outDirectoryNew:String = s"pie/output/new/"
       if(runOpts.mode == "single-file"){
         val inPath = s"pie/input/" + runOpts.input;
         val outPath = s"pie/output/" + runOpts.output;
-        // outDirectoryNew = outFile.getParent() + "/new/"
 
-        val  outDirectoryNew = Files.createTempDirectory("qti-conversion")
-
-        //val  out = new ZipOutputStream(new FileOutputStream(outPath))
+        val  tempDir = Files.createTempDirectory("qti-conversion")
+        val outDirectory = Paths.get(tempDir.toString(), "output.jsonl")
         val zis: ZipInputStream = new ZipInputStream(new FileInputStream(inPath));
+        var fileName = "";
+        var mcCount = 0;
+        var extCount = 0;
         //get the zipped file list entry
         var ze: ZipEntry = zis.getNextEntry();
         while (ze != null) {
-          val fileName = ze.getName()
-          val zip = new ZipFile(inPath)
-          val xmlData=IOUtils.toString(zip.getInputStream(zip.getEntry(fileName)), StandardCharsets.UTF_8)
-          //val a= xmlData
-          val xml = XML.loadString(xmlData)
-          if( (xml \\ "choiceInteraction").length > 0 ) {
-            jsonResult = ChoiceInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
-            logger.info("pie json for choiceInteraction")
-          }
-          else if( (xml \\ "extendedTextInteraction").length > 0 ) {
-            jsonResult = ExtendedTextInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
-            logger.info("pie json for extentedTextInteraction")
-          }
-          val outFile = new File(outPath)
+          try {
+            jsonResult = Map.empty;
+            fileName = ze.getName()
+            if (fileName != "imsmanifest.xml" && FilenameUtils.isExtension(fileName,"xml")) {
+             /* println(fileName)
+              println(FilenameUtils.isExtension(fileName,"xml"))*/
 
-          val outDirectory = Paths.get(outDirectoryNew.toString(), FilenameUtils.removeExtension(fileName) +".json")
-          val json = Json.prettyPrint(jsonResult.head._2);
-          val basePath = Paths.get(s"${outDirectory}")
-          Files.write(basePath,json.getBytes(StandardCharsets.UTF_8))
-          logger.info("file successfully converted into pie json!")
-          ze = zis.getNextEntry()
+              val zip = new ZipFile(inPath)
+              val xmlData = IOUtils.toString(zip.getInputStream(zip.getEntry(fileName)),StandardCharsets.UTF_8)
+              val xml = XML.load(zip.getInputStream(zip.getEntry(fileName)))//.loadString(xmlData)
+              if ((xml \\ "choiceInteraction").length > 0) {
+                jsonResult = ChoiceInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+                logger.info("pie json for choiceInteraction")
+                mcCount += 1 ;
+              }
+              else if ((xml \\ "extendedTextInteraction").length > 0) {
+                jsonResult = ExtendedTextInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+                logger.info("pie json for extentedTextInteraction")
+                extCount += 1 ;
+              }
+              if (jsonResult.size > 0) {
+                val json = Json.stringify(jsonResult.head._2);
+                val basePath = Paths.get(s"${outDirectory}")
+                Files.write(basePath, (json + System.lineSeparator()).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+                logger.info("file successfully converted into pie json!")
+              }
+            }
+            ze = zis.getNextEntry()
+        } catch {
+              // Case statement-2
+              case x: Exception   =>
+              {
+
+                // Displays this if input/output
+                // exception is found
+                ze = zis.getNextEntry()
+                println(x.getMessage + fileName)
+
+              }
+            }
         }
         zis.closeEntry()
         zis.close()
 
         val  out = new ZipOutputStream(new FileOutputStream(outPath))
-        outDirectoryNew.toFile().listFiles().map { file =>
+        tempDir.toFile().listFiles().map { file =>
           val entry = new ZipEntry(file.getName())
           out.putNextEntry(entry)
           val in = new FileInputStream(file)
@@ -94,6 +114,8 @@ object Run extends App {
           IOUtils.closeQuietly(in)
         }
         IOUtils.closeQuietly(out)
+        logger.info("Choicenteraction Count: " + mcCount + " ExtendedTextInteraction Count " + extCount)
+        logger.info("Total Count: " + (mcCount + extCount))
       } else {
         logger.info("TODO...")
       }
