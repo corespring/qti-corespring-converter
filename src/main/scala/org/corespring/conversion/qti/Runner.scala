@@ -3,7 +3,7 @@ package org.corespring.conversion.qti
 import java.io.{File, FileInputStream, FileOutputStream}
 
 import org.corespring.conversion.qti.manifest.QTIManifest
-import org.houghtonmifflinharcourt.conversion.qti.interactions.{ChoiceInteractionTransformer, ExtendedTextInteractionTransformer}
+import org.houghtonmifflinharcourt.conversion.qti.interactions.{ChoiceInteractionTransformer, ExtendedTextInteractionTransformer, MatchInteractionTransformer, InlineChoiceInteractionTransformer,OrderInteractionTransformer}
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
@@ -14,6 +14,7 @@ import java.util.zip.{ZipEntry, ZipFile, ZipInputStream, ZipOutputStream}
 
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.FilenameUtils
+import org.corespring.qti.models.interactions.InlineChoiceInteraction
 
 case class RunOpts(
                     input: String,
@@ -58,6 +59,9 @@ object Run extends App {
         var fileName = "";
         var mcCount = 0;
         var extCount = 0;
+        var matchCount = 0;
+        var icCount = 0;
+        var ocCount = 0
         //get the zipped file list entry
         var ze: ZipEntry = zis.getNextEntry();
         while (ze != null) {
@@ -65,12 +69,11 @@ object Run extends App {
             jsonResult = Map.empty;
             fileName = ze.getName()
             if (fileName != "imsmanifest.xml" && FilenameUtils.isExtension(fileName,"xml")) {
-             /* println(fileName)
-              println(FilenameUtils.isExtension(fileName,"xml"))*/
 
               val zip = new ZipFile(inPath)
               val xmlData = IOUtils.toString(zip.getInputStream(zip.getEntry(fileName)),StandardCharsets.UTF_8)
               val xml = XML.load(zip.getInputStream(zip.getEntry(fileName)))//.loadString(xmlData)
+
               if ((xml \\ "choiceInteraction").length > 0) {
                 jsonResult = ChoiceInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
                 logger.info("pie json for choiceInteraction")
@@ -80,6 +83,21 @@ object Run extends App {
                 jsonResult = ExtendedTextInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
                 logger.info("pie json for extentedTextInteraction")
                 extCount += 1 ;
+              }
+              else if ((xml \\ "matchInteraction").length > 0) {
+                jsonResult = MatchInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+                logger.info("pie json for matchInteraction")
+                matchCount += 1 ;
+              }
+              else if ((xml \\ "inlineChoiceInteraction").length > 0) {
+                jsonResult = InlineChoiceInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+                logger.info("pie json for inlineChoiceInteraction")
+                icCount += 1 ;
+              }
+              else if ((xml \\ "orderInteraction").length > 0) {
+                jsonResult = OrderInteractionTransformer.interactionJs(xml, QTIManifest.EmptyManifest)
+                logger.info("pie json for orderInteraction")
+                ocCount += 1 ;
               }
               if (jsonResult.size > 0) {
                 val json = Json.stringify(jsonResult.head._2);
@@ -114,7 +132,7 @@ object Run extends App {
           IOUtils.closeQuietly(in)
         }
         IOUtils.closeQuietly(out)
-        logger.info("Choicenteraction Count: " + mcCount + " ExtendedTextInteraction Count " + extCount)
+        logger.info("Choicenteraction Count: " + mcCount + " ExtendedTextInteraction Count " + extCount + " MatchInteraction Count " + matchCount + " InlineChoiceInteraction Count " + icCount + " OrderInteraction Count " + ocCount)
         logger.info("Total Count: " + (mcCount + extCount))
       } else {
         logger.info("TODO...")
