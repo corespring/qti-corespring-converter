@@ -10,7 +10,7 @@ class OrderInteractionTransformerHMHSpec extends Specification {
 
     val promptOI =  s"Three of these statements describe possible outcomes of this demonstration.";
 
-    var orderInteractionQti1 = <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p2.xsd" identifier="LTNA20_G612_GSP_OA_110_QUESTION_659719591" title="Summarize Informational Texts: Oops! Q03" timeDependent="false" adaptive="false">
+    var orderInteractionQti = <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1  http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p2.xsd" identifier="LTNA20_G612_GSP_OA_110_QUESTION_659719591" title="Summarize Informational Texts: Oops! Q03" timeDependent="false" adaptive="false">
       <responseDeclaration identifier="RESPONSE" cardinality="ordered" baseType="identifier">
         <correctResponse>
           <value>CHOICE_3</value>
@@ -35,7 +35,7 @@ class OrderInteractionTransformerHMHSpec extends Specification {
       </itemBody>
       <responseProcessing template="http://www.imsglobal.org/question/qtiv2p1/rptemplates/match_correct.xml"/>
     </assessmentItem>
-    val orderInteractionResult = OrderInteractionTransformer.interactionJs(orderInteractionQti1, QTIManifest.EmptyManifest)
+    val orderInteractionResult = OrderInteractionTransformer.interactionJs(orderInteractionQti, QTIManifest.EmptyManifest)
 
     "transform prompt in Order Interaction" in {
       val json = orderInteractionResult.values.headOption.getOrElse(throw new Exception("There was no result"))
