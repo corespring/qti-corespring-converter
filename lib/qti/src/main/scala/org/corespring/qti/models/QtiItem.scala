@@ -5,6 +5,7 @@ import org.corespring.qti.models.interactions._
 import scala.Some
 import scala.xml._
 import org.corespring.qti.models.responses.processing.ResponseProcessing
+import scala.language.postfixOps
 
 case class QtiItem(responseDeclarations: Seq[ResponseDeclaration], itemBody: ItemBody, modalFeedbacks: Seq[FeedbackInline], responseProcessing: Option[ResponseProcessing] = None){
   var defaultCorrect = "Correct!"
@@ -139,7 +140,6 @@ object QtiItem {
     SelectTextInteraction,
     FocusTaskInteraction,
     LineInteraction,
-    DragAndDropInteraction,
     PointInteraction)
 
   /**

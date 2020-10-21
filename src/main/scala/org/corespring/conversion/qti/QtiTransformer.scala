@@ -117,7 +117,7 @@ trait QtiTransformer extends XMLNamespaceClearer with ProcessingTransformer with
             .map(cssSource => <style type="text/css">
               {CssSandboxer.sandbox(cssSource.getLines.mkString, ".qti.kds")}
             </style>)
-            .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name: $name"))
+            .getOrElse(throw new IllegalStateException(s"unable to locate stylesheet by name"))
 
         }
         case _ => node

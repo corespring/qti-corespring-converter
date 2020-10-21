@@ -2,6 +2,7 @@ package org.corespring.conversion.qti.interactions
 
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers._
+import org.specs2.execute.Result
 import org.specs2.mutable.Specification
 
 class ExtendedTextInteractionTransformerSpec extends Specification {
@@ -74,10 +75,12 @@ class ExtendedTextInteractionTransformerSpec extends Specification {
     val output = new InteractionRuleTransformer(ExtendedTextInteractionTransformer).transform(qti())
 
     "add a <div class='prompt'/> when it contains a prompt" in {
-      (output \\ "p").find(p => (p \ "@class").text.contains("prompt")) match {
+      failure("foo")
+      val o : Result = (output \\ "p").find(p => (p \ "@class").text.contains("prompt")) match {
         case Some(promptNode) => promptNode.text must be equalTo prompt
         case _ => failure("Prompt not found")
       }
+      o
     }
 
   }

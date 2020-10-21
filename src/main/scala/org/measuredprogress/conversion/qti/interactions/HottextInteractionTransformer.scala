@@ -6,10 +6,10 @@ import org.corespring.conversion.qti.interactions.{HottextInteractionTransformer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{TextNode, Node => JNode}
 import org.measuredprogress.conversion.qti.util.NamespaceStripper
+import play.twirl.api.TemplateMagic.javaCollectionToScala
 
 import scala.xml.Node
 
-import scala.collection.JavaConversions._
 
 class HottextInteractionTransformer extends CoreSpringHottextInteractionTransformer with NamespaceStripper with ImageConverter with EntityEscaper {
 

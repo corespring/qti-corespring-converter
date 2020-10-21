@@ -2,6 +2,7 @@ package org.corespring.conversion.qti.interactions
 
 import org.corespring.conversion.qti.manifest.QTIManifest
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
+import org.specs2.execute.Result
 import org.specs2.mutable.Specification
 import play.api.libs.json._
 
@@ -231,13 +232,14 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
       "undefined" should {
         "default to Defaults.choiceAreaPosition" in {
           val interaction = graphicGapMatchInteraction(responseIdentifier = responseIdentifier)
-          GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
+          val o : Result = GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
             .get(responseIdentifier) match {
             case Some(jsObject) =>
               (jsObject \ "model" \ "config" \ "choiceAreaPosition").as[String] must be equalTo (
                 GraphicGapMatchInteractionTransformer.DefaultChoiceAreaPosition)
             case _ => failure(s"Transformer did not provide output for $responseIdentifier")
           }
+          o
         }
       }
 
@@ -246,12 +248,13 @@ class GraphicGapMatchInteractionTransformerSpec extends Specification {
           val choiceAreaPosition = "top"
           val interaction =
             graphicGapMatchInteraction(responseIdentifier = responseIdentifier, choiceAreaPosition = Some(choiceAreaPosition))
-          GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
+          val o : Result = GraphicGapMatchInteractionTransformer.interactionJs(interaction, QTIManifest.EmptyManifest)
             .get(responseIdentifier) match {
             case Some(jsObject) =>
               (jsObject \ "model" \ "config" \ "choiceAreaPosition").as[String] must be equalTo (choiceAreaPosition)
             case _ => failure(s"Transformer did not provide output for $responseIdentifier")
           }
+          o
         }
       }
     }

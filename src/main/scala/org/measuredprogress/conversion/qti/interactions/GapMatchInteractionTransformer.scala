@@ -4,8 +4,8 @@ import org.corespring.common.html.JsoupParser
 import org.corespring.conversion.qti.interactions.InteractionTransformer
 import org.jsoup.Jsoup
 import play.api.libs.json._
+import play.twirl.api.TemplateMagic.javaCollectionToScala
 
-import scala.collection.JavaConversions._
 import scala.xml.{Elem, Node}
 
 object GapMatchInteractionTransformer extends InteractionTransformer {

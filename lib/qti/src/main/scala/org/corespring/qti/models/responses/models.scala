@@ -89,8 +89,8 @@ object Response {
       val id = (json \ "id").as[String]
 
       JsSuccess {
-        (json \ "value") match {
-          case JsArray(seq) => ArrayResponse(id, seq.map(_.as[String]))
+        (json \ "value").getOrElse(JsString("nothing")) match {
+          case JsArray(seq) => ArrayResponse(id, seq.toSeq.map(_.as[String]))
           case JsString(s) => StringResponse(id, s)
           case _ => StringResponse(id, (json \ "value").as[String])
         }
@@ -114,7 +114,7 @@ case class StringResponse(override val id: String, responseValue: String, overri
 case class ArrayResponse(override val id: String, responseValue: Seq[String], override val outcome: Option[ResponseOutcome] = None) extends Response(id, outcome) {
   override def value = responseValue.mkString(",")
 
-  def getIdValueIndex = responseValue.view.zipWithIndex.map((f: (String, Int)) => (id, f._1, f._2))
+  def getIdValueIndex = responseValue.zipWithIndex.map((f: (String, Int)) => (id, f._1, f._2))
 }
 
 case class ResponseAggregate(val id: String, correctAnswers: Seq[String], numCorrect: Int = 0, numResponses: Int = 0, totalDistribution: Int = 0, choices: Map[String, Int] = Map()) {

@@ -217,7 +217,7 @@ object KDSQtiZipConverter
     case json: JsObject => {
       json ++ obj(
         "xhtml" -> unescapeCss(postprocessHtml((json \ "xhtml").as[String])),
-        "components" -> postprocessHtml((json \ "components")),
+        "components" -> postprocessHtml((json \ "components").as[JsObject]),
         "summaryFeedback" -> postprocessHtml((json \ "summaryFeedback").asOpt[String].getOrElse(""))
       )
     }

@@ -4,7 +4,7 @@ import org.corespring.common.html.JsoupParser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document.OutputSettings
 import org.jsoup.nodes.Entities
-import scala.collection.JavaConversions._
+import play.twirl.api.TemplateMagic.javaCollectionToScala
 
 trait NamespaceStripper {
 

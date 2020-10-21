@@ -74,14 +74,14 @@ private[measuredprogress] object MeasuredProgressExtractor extends JsonUtil {
               }
             }
           }),
-        "gradeLevel" -> lomReader(lom, "GradeLevel")
-          .map(gradeLevel => JsArray(gradeLevel match {
-            case "No" => Seq.empty[JsString]
-            case _ => gradeLevel.split(",").map(grade => grade.length match {
-              case 1 => s"0$grade"
-              case _ => grade
-            }).map(JsString(_))
-          })),
+//        "gradeLevel" -> lomReader(lom, "GradeLevel")
+//          .map(gradeLevel => JsArray(gradeLevel match {
+//            case "No" => Seq.empty[JsString]
+//            case _ => gradeLevel.split(",").map(grade => grade.length match {
+//              case 1 => s"0$grade"
+//              case _ => grade
+//            }).map(JsString(_))
+//          })),
         "extended" -> Some(Json.obj(
           "measuredprogress" -> (metadata ++ Json.obj(
             "sourceId" -> getId(manifestItem.filename),
@@ -139,7 +139,7 @@ private[measuredprogress] class ItemExtractor(sources: Map[String, SourceWrapper
   def filesFromManifest(id: String) = manifest.map(m => m.items.find(_.id == id)).flatten.map(item => item.resources)
     .getOrElse(Seq.empty).map(_.path)
 
-  lazy val itemJson: Map[String, Validation[Error, JsValue]] =
+  lazy val itemJson: Map[String, Validation[_<:Error, _<:JsValue]] =
     manifest.map(_.items.map(f => sources.get(f.filename).map(s => {
       try {
         f.id -> Success(itemTransformer.transform(preprocessHtml(s.getLines.mkString), f, sources))
@@ -152,5 +152,5 @@ private[measuredprogress] class ItemExtractor(sources: Map[String, SourceWrapper
       }
     })).flatten).getOrElse(Seq.empty).toMap
 
-  override val metadata: Map[String, Validation[Error, Option[JsValue]]] = Map.empty
+  override val metadata: Map[String,  JsValue] = Map.empty
 }

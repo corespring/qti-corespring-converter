@@ -8,7 +8,8 @@ import com.phloc.css.decl._
 import com.phloc.css.reader.CSSReader
 import com.phloc.css.writer._
 
-import scala.collection.JavaConversions._
+import scala.collection.convert.ImplicitConversions.{`collection AsScalaIterable`, `list asScalaBuffer`}
+
 
 object CssSandboxer {
 
@@ -19,7 +20,7 @@ object CssSandboxer {
    * Sandboxes CSS to a particular selector by prepending it to each rule in a CSS string.
    */
   def sandbox(css: String, selector: String): String = try {
-    val rules: Seq[ICSSTopLevelRule] = CSSReader.readFromString(css, charset, cssVersion).getAllRules
+    val rules: Seq[ICSSTopLevelRule] = CSSReader.readFromString(css, charset, cssVersion).getAllRules.toSeq
     val amendedRules: Seq[ICSSTopLevelRule] = rules.map(rule => rule match {
       case styleRule: CSSStyleRule => appendSelector(selector, styleRule)
       case mediaRule: CSSMediaRule => {

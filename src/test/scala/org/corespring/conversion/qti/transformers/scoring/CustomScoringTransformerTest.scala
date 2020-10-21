@@ -1,7 +1,7 @@
 package org.corespring.conversion.qti.transformers.scoring
 
 import org.specs2.mutable.Specification
-import org.specs2.specification.{Fragment, Scope}
+import org.specs2.specification.{Scope}
 import play.api.libs.json._
 
 import scala.io.Source

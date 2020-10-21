@@ -28,7 +28,7 @@ object ChoiceInteractionTransformer extends InteractionTransformer with XHTMLCle
           case _ => None
         }),
         "rationales" -> Some(JsArray((json \ "model" \ "choices").as[Seq[JsObject]].map(c => Json.obj(
-          "choice" -> Some(c \ "value"),
+          "choice" -> Some( (c \ "value").as[String]),
           "rationale" -> rationale(qti, id, (c \ "value").as[String])
         )))),
         "model" -> Some(Json.obj("shuffle" -> false)))

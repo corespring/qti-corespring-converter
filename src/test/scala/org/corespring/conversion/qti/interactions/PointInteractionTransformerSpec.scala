@@ -69,61 +69,62 @@ class PointInteractionTransformerTest extends Specification {
     }
 
     "returns correct response" in {
-      (interactionResult \ "correctResponse").as[Seq[String]] diff correctResponses must beEmpty
+      val s = (interactionResult \ "correctResponse").as[Seq[String]]
+      s.diff(correctResponses)=== Seq.empty
     }
 
     "returns correct point labels" in {
-      (noConfig \ "pointLabels") must haveClass[JsUndefined]
+      (noConfig \ "pointLabels").as[JsValue] must haveClass[JsUndefined]
       (config \ "pointLabels").as[String] must be equalTo pointLabels.mkString(",")
     }
 
     "returns correct max points" in {
-      (noConfig \ "maxPoints") must haveClass[JsUndefined]
+      (noConfig \ "maxPoints").as[JsValue] must haveClass[JsUndefined]
       (config \ "maxPoints").as[JsString].value.toInt must be equalTo maxPoints
     }
 
     "returns correct scale" in {
-      (noConfig \ "scale") must haveClass[JsUndefined]
+      (noConfig \ "scale").as[JsValue] must haveClass[JsUndefined]
       (config \ "scale").as[JsNumber].value.toInt must be equalTo scale
     }
 
     "returns correct domain" in {
-      (noConfig \ "domain") must haveClass[JsUndefined]
+      (noConfig \ "domain").as[JsValue] must haveClass[JsUndefined]
       (config \ "domain").as[JsNumber].value.toInt must be equalTo domain
     }
 
     "returns correct range" in {
-      (noConfig \ "range") must haveClass[JsUndefined]
+      (noConfig \ "range").as[JsValue] must haveClass[JsUndefined]
       (config \ "range").as[JsNumber].value.toInt must be equalTo range
     }
 
     "returns correct sigfigs" in {
-      (noConfig \ "sigfigs") must haveClass[JsUndefined]
+      (noConfig \ "sigfigs").as[JsValue] must haveClass[JsUndefined]
       (config \ "sigfigs").as[JsNumber].value.toInt must be equalTo sigfigs
     }
 
     "returns correct domain label" in {
-      (noConfig \ "domainLabel") must haveClass[JsUndefined]
+      (noConfig \ "domainLabel").as[JsValue] must haveClass[JsUndefined]
       (config \ "domainLabel").as[JsString].value must be equalTo domainLabel
     }
 
     "returns correct range label" in {
-      (noConfig \ "rangeLabel") must haveClass[JsUndefined]
+      (noConfig \ "rangeLabel").as[JsValue] must haveClass[JsUndefined]
       (config \ "rangeLabel").as[JsString].value must be equalTo rangeLabel
     }
 
     "returns correct tick label frequency" in {
-      (noConfig \ "tickLabelFrequency") must haveClass[JsUndefined]
+      (noConfig \ "tickLabelFrequency").as[JsValue] must haveClass[JsUndefined]
       (config \ "tickLabelFrequency").as[JsNumber].value.toInt must be equalTo tickLabelFrequency
     }
 
     "returns correct show inputs" in {
-      (noConfig \ "showInputs") must haveClass[JsUndefined]
+      (noConfig \ "showInputs").as[JsValue] must haveClass[JsUndefined]
       (config \ "showInputs").as[JsString].value must be equalTo showInputs
     }
 
     "returns correct locked" in {
-      (noConfig \ "locked") must haveClass[JsUndefined]
+      (noConfig \ "locked").as[JsValue] must haveClass[JsUndefined]
       (config \ "locked").as[JsBoolean].value must beTrue
     }
 

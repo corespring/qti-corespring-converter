@@ -2,10 +2,10 @@ package org.measuredprogress.conversion.qti.interactions
 
 import org.corespring.common.html.JsoupParser
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Entities, Document}
-import play.api.libs.json.{JsString, JsArray, JsObject, JsValue}
+import org.jsoup.nodes.{Document, Entities}
+import play.api.libs.json.{JsArray, JsObject, JsString, JsValue}
 
-import scala.collection.JavaConversions._
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.xml._
 import scala.xml.transform._
 

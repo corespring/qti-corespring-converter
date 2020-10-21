@@ -7,8 +7,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.specs2.mutable.Specification
 import play.api.libs.json._
+import play.twirl.api.TemplateMagic.javaCollectionToScala
 
-import scala.collection.JavaConversions._
 
 class HottextInteractionTransformerSpec extends Specification {
 

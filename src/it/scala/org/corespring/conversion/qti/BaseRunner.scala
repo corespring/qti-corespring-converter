@@ -9,7 +9,8 @@ import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
-import scala.collection.JavaConversions._
+
+import scala.collection.convert.ImplicitConversions.`enumeration AsScalaIterator`
 
 trait BaseRunner extends Specification {
 
@@ -40,7 +41,7 @@ trait BaseRunner extends Specification {
                   vendor: String,
                   sourceId: String,
                   metadata: String = "{}") = {
-    Runner.main(Array(
+   /* Runner.main(Array(
       "--input", input,
       "--vendor", vendor,
       "--limit", "0",
@@ -48,7 +49,7 @@ trait BaseRunner extends Specification {
       "--output", output,
       "--killRuntime", "false",
       "--metadata", metadata
-    ))
+    ))*/
   }
 
   def convert(sourceId: String, itemTypeId: String, mode: KDSMode.Mode, partsCount: Int, twoPointScoring: Boolean) = {

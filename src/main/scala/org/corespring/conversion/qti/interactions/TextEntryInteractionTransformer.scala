@@ -5,6 +5,8 @@ import org.corespring.conversion.qti.interactions.equation.DomainParser
 import org.corespring.conversion.qti.transformers.InteractionRuleTransformer
 import play.api.libs.json._
 
+import scala.util.Try
+import scala.util.matching.Regex
 import scala.xml._
 
 object TextEntryInteractionTransformer {
@@ -13,7 +15,7 @@ object TextEntryInteractionTransformer {
 
 class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer with DomainParser {
 
-  val equationRegex = "eqn[:]?(.*)?".r
+  val equationRegex : Regex = "eqn[:]?(.*)?".r
 
   val DefaultAnswerBlankSize: Int = 5
 
@@ -45,7 +47,9 @@ class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer 
       case false => Some("")
     }
 
-    val answerBlankSize: Int = (node \ "@expectedLength").text.toIntOption.getOrElse(DefaultAnswerBlankSize)
+    def toIntOption(s: String) = Try(s.toInt).toOption
+    val answerBlankSize: Int = toIntOption((node \ "@expectedLength").text).getOrElse(DefaultAnswerBlankSize) //.getOrElse(DefaultAnswerBlankSize)
+//    val answerBlankSize: Int = (node \ "@expectedLength").text.toIntOption.getOrElse(DefaultAnswerBlankSize)
 
     (node \ "@responseIdentifier").text -> partialObj(
       "weight" -> Some(JsNumber(1)),
@@ -93,17 +97,18 @@ class TextEntryInteractionTransformer(qti: Node) extends InteractionTransformer 
   }
 
   private def isEquation(node: Node, qti: Node) = {
-    val baseType = node.label match {
-      case "responseDeclaration" => (node \ "@baseType").text
-      case "textEntryInteraction" => (responseDeclaration(node, qti) \ "@baseType").text
-      case _ => false
+    val baseType : Option[String] = node.label match {
+      case "responseDeclaration" => Some((node \ "@baseType").text)
+      case "textEntryInteraction" => Some((responseDeclaration(node, qti) \ "@baseType").text)
+      case _ =>None
     }
 
-    baseType match {
-      case equationRegex(_*) => true
-      case "line" => true
-      case _ => false
-    }
+    baseType.map( s => {
+      s match {
+        case equationRegex(_*) => true
+        case "line" => false
+      }
+    }).getOrElse(false)
   }
 
   private def equationConfig(responseDeclaration: Node): Option[JsObject] = {

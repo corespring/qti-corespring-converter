@@ -17,8 +17,8 @@ class DomainParserSpec extends Specification with DomainParser {
 
     "correctly parse included domains" in {
       val output = parseDomain(s"$start->$end")
-      val included = output \ "included"
-      val excluded = output \ "excluded"
+      val included = (output \ "included").as[JsValue]
+      val excluded = (output \ "excluded").as[JsValue]
 
       excluded must haveClass[JsUndefined]
       included must not(haveClass[JsUndefined])
@@ -27,8 +27,8 @@ class DomainParserSpec extends Specification with DomainParser {
 
     "correctly parse excluded numbers" in {
       val output = parseDomain(excludedValues.mkString(","))
-      val included = output \ "included"
-      val excluded = output \ "excluded"
+      val included = (output \ "included").as[JsValue]
+      val excluded = (output \ "excluded").as[JsValue]
 
       included must haveClass[JsUndefined]
       excluded must not(haveClass[JsUndefined])
@@ -37,8 +37,8 @@ class DomainParserSpec extends Specification with DomainParser {
 
     "correctly parse both included domains and excluded numbers" in {
       val output = parseDomain(s"$start->$end,${excludedValues.mkString(",")}")
-      val included = output \ "included"
-      val excluded = output \ "excluded"
+      val included = (output \ "included").as[JsValue]
+      val excluded = (output \ "excluded").as[JsValue]
 
       included must not(haveClass[JsUndefined])
       included.as[Seq[String]].contains(s"$start,$end") must beTrue

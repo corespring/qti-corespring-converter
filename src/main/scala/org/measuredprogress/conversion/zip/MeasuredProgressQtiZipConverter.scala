@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util.zip.ZipFile
 
-import com.keydatasys.conversion.qti.{KDSItemTransformer => KDSItemTransformer}
+import com.keydatasys.conversion.qti.KDSItemTransformer
 import com.keydatasys.conversion.zip.KDSQtiZipConverter.{filterManifest, scrub}
 import org.apache.commons.io.IOUtils
 import org.corespring.common.CorespringItem
@@ -17,12 +17,12 @@ import org.measuredprogress.conversion.qti.{MeasuredProgressExtractor, QtiTransf
 import play.api.libs.json._
 import play.api.libs.json.Json._
 
-import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.corespring.macros.DescribeMacro._
 import org.slf4j.LoggerFactory
 
+import scala.collection.convert.ImplicitConversions.`enumeration AsScalaIterator`
 import scala.xml.Node
 
 object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with UnicodeCleaner {
@@ -87,7 +87,7 @@ object MeasuredProgressQtiZipConverter extends QtiToCorespringConverter with Uni
           val id = "(.*).xml".r.replaceAllIn(m.filename, "$1")
 
           val profile = MeasuredProgressExtractor.getProfileJson(m, maybeMetadata.getOrElse(obj()))
-          val csResources = m.resources.filterNot(_.inline).map(_.path)
+          val csResources = m.resources.filterNot( _.isInline).map(_.path)
 
           logger.debug(describe(csResources))
 
