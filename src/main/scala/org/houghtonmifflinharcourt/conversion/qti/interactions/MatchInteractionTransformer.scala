@@ -10,7 +10,6 @@ object MatchInteractionTransformer extends InteractionTransformer {
     .map(implicit qtinode => {
 
       val componentId = (qti \ "@identifier").text.trim
-      var choiceIndex : Int=  0
       var markupString : String = ""
       var isItembodyPromptAdded = false;
 
